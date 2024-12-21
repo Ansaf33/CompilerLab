@@ -39,7 +39,7 @@ P :
 
 SL :
    SL S '\n' {
-   $$ = createTree(-1,'S',-1,NULL,$1,$2);
+   $$ = createTree(-1,'S',-1,"\0",$1,$2);
   }
   |
    S '\n' {

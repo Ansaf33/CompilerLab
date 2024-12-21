@@ -1200,7 +1200,7 @@ yyreduce:
   case 4: /* SL: SL S '\n'  */
 #line 41 "parser.y"
              {
-   (yyval.node) = createTree(-1,'S',-1,NULL,(yyvsp[-2].node),(yyvsp[-1].node));
+   (yyval.node) = createTree(-1,'S',-1,"\0",(yyvsp[-2].node),(yyvsp[-1].node));
   }
 #line 1206 "y.tab.c"
     break;
