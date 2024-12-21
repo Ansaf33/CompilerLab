@@ -57,25 +57,25 @@ S :
 
 ASSG :
   ID EQUALS E {
-  $$ = createTree(-1,'=',-1,NULL,$1,$3);
+  $$ = createTree(-1,'=',-1,"\0",$1,$3);
   }
   ;
 
 E :
   E PLUS E {
-  $$ = createTree(-1,'+',-1,NULL,$1,$3);
+  $$ = createTree(-1,'+',-1,"\0",$1,$3);
   }
   |
   E MINUS E {
-  $$ = createTree(-1,'-',-1,NULL,$1,$3);
+  $$ = createTree(-1,'-',-1,"\0",$1,$3);
   }
   |
   E MUL E {
-  $$ = createTree(-1,'*',-1,NULL,$1,$3);
+  $$ = createTree(-1,'*',-1,"\0",$1,$3);
   }
   |
   E DIV E {
-  $$ = createTree(-1,'/',-1,NULL,$1,$3);
+  $$ = createTree(-1,'/',-1,"\0",$1,$3);
   }
   |
   '(' E ')' {
@@ -93,13 +93,13 @@ E :
 
 INPUT :
        READ '(' ID ')' {
-       $$ = createTree(-1,'R',-1,NULL,$3,NULL);
+       $$ = createTree(-1,'R',-1,"\0",$3,NULL);
       }
        ;
 
 OUTPUT :
        WRITE '(' E ')' {
-        $$ = createTree(-1,'W',-1,NULL,$3,NULL);
+        $$ = createTree(-1,'W',-1,"\0",$3,NULL);
       }
        ;
 

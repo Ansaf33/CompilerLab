@@ -1216,7 +1216,7 @@ yyreduce:
   case 9: /* ASSG: ID EQUALS E  */
 #line 59 "parser.y"
               {
-  (yyval.node) = createTree(-1,'=',-1,NULL,(yyvsp[-2].node),(yyvsp[0].node));
+  (yyval.node) = createTree(-1,'=',-1,"\0",(yyvsp[-2].node),(yyvsp[0].node));
   }
 #line 1222 "y.tab.c"
     break;
@@ -1224,7 +1224,7 @@ yyreduce:
   case 10: /* E: E PLUS E  */
 #line 65 "parser.y"
            {
-  (yyval.node) = createTree(-1,'+',-1,NULL,(yyvsp[-2].node),(yyvsp[0].node));
+  (yyval.node) = createTree(-1,'+',-1,"\0",(yyvsp[-2].node),(yyvsp[0].node));
   }
 #line 1230 "y.tab.c"
     break;
@@ -1232,7 +1232,7 @@ yyreduce:
   case 11: /* E: E MINUS E  */
 #line 69 "parser.y"
             {
-  (yyval.node) = createTree(-1,'-',-1,NULL,(yyvsp[-2].node),(yyvsp[0].node));
+  (yyval.node) = createTree(-1,'-',-1,"\0",(yyvsp[-2].node),(yyvsp[0].node));
   }
 #line 1238 "y.tab.c"
     break;
@@ -1240,7 +1240,7 @@ yyreduce:
   case 12: /* E: E MUL E  */
 #line 73 "parser.y"
           {
-  (yyval.node) = createTree(-1,'*',-1,NULL,(yyvsp[-2].node),(yyvsp[0].node));
+  (yyval.node) = createTree(-1,'*',-1,"\0",(yyvsp[-2].node),(yyvsp[0].node));
   }
 #line 1246 "y.tab.c"
     break;
@@ -1248,7 +1248,7 @@ yyreduce:
   case 13: /* E: E DIV E  */
 #line 77 "parser.y"
           {
-  (yyval.node) = createTree(-1,'/',-1,NULL,(yyvsp[-2].node),(yyvsp[0].node));
+  (yyval.node) = createTree(-1,'/',-1,"\0",(yyvsp[-2].node),(yyvsp[0].node));
   }
 #line 1254 "y.tab.c"
     break;
@@ -1280,7 +1280,7 @@ yyreduce:
   case 17: /* INPUT: READ '(' ID ')'  */
 #line 95 "parser.y"
                        {
-       (yyval.node) = createTree(-1,'R',-1,NULL,(yyvsp[-1].node),NULL);
+       (yyval.node) = createTree(-1,'R',-1,"\0",(yyvsp[-1].node),NULL);
       }
 #line 1286 "y.tab.c"
     break;
@@ -1288,7 +1288,7 @@ yyreduce:
   case 18: /* OUTPUT: WRITE '(' E ')'  */
 #line 101 "parser.y"
                        {
-        (yyval.node) = createTree(-1,'W',-1,NULL,(yyvsp[-1].node),NULL);
+        (yyval.node) = createTree(-1,'W',-1,"\0",(yyvsp[-1].node),NULL);
       }
 #line 1294 "y.tab.c"
     break;

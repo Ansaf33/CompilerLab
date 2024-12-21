@@ -12,7 +12,7 @@
 %%
 
 [0-9]+ {
-  yylval.node = createTree(atoi(yytext),'n',-1,NULL,NULL,NULL);
+  yylval.node = createTree(atoi(yytext),'n',-1,"\0",NULL,NULL);
   return NUM;
 }
 
