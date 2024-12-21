@@ -17,7 +17,7 @@ void yyerror(char* s);
 
 }
 
-%type<node> E ASSG INPUT OUTPUT S SL ID NUM
+%type<node> E ASSG INPUT OUTPUT S SL
 %token PLUS MINUS MUL DIV NUM ID BEG END EQUALS READ WRITE
 %left PLUS MINUS
 %left MUL DIV
@@ -57,7 +57,7 @@ S :
 
 ASSG :
   ID EQUALS E {
-  $$ = createTree(-1,'=',-1,"\0",$1,$3);
+  $$ = createTree(-1,'=',-1,"\0",$<node>1,$3);
   }
   ;
 
@@ -83,17 +83,17 @@ E :
   }
   |
   NUM {
-  $$ = $1;
+  $$ = $<node>1;
   }
   |
   ID {
-  $$ = $1;
+  $$ = $<node>1;
   }
   ;
 
 INPUT :
        READ '(' ID ')' {
-       $$ = createTree(-1,'R',-1,"\0",$3,NULL);
+       $$ = createTree(-1,'R',-1,"\0",$<node>3,NULL);
       }
        ;
 

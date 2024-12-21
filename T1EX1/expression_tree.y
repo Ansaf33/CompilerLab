@@ -14,8 +14,7 @@ struct TreeNode* root;
 
 %union{
   struct TreeNode* node;
-  int integer;
-}
+  }
 
 %type<node> E
 %token NUM PLUS MINUS MUL DIV
@@ -72,7 +71,7 @@ E : E PLUS E {
     |
     NUM {
       //printf("Number ");
-      $$ = makeLeafNode($<integer>1);
+      $$ = $<node>1;
     }
     ;
 

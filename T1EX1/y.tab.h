@@ -80,7 +80,7 @@ union YYSTYPE
 #line 15 "expression_tree.y"
 
   struct TreeNode* node;
-  int integer;
+  
 
 #line 86 "y.tab.h"
 

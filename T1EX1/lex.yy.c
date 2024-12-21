@@ -733,7 +733,7 @@ case 1:
 YY_RULE_SETUP
 #line 15 "expression_tree.l"
 {
-  yylval.integer = atoi(yytext);
+  yylval.node = makeLeafNode(atoi(yytext));
   return NUM;
 }
 	YY_BREAK

@@ -13,7 +13,7 @@
 
 
 [0-9]+ {
-  yylval.integer = atoi(yytext);
+  yylval.node = makeLeafNode(atoi(yytext));
   return NUM;
 }
 

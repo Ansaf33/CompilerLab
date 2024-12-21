@@ -151,7 +151,7 @@ union YYSTYPE
 #line 15 "expression_tree.y"
 
   struct TreeNode* node;
-  int integer;
+  
 
 #line 157 "y.tab.c"
 
@@ -573,7 +573,7 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    28,    28,    39,    45,    50,    55,    60,    69,    73
+       0,    27,    27,    38,    44,    49,    54,    59,    68,    72
 };
 #endif
 
@@ -1137,7 +1137,7 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* S: E '\n'  */
-#line 28 "expression_tree.y"
+#line 27 "expression_tree.y"
           {
       root = (yyvsp[-1].node);
       printf("Postorder Traversal : ");
@@ -1152,7 +1152,7 @@ yyreduce:
     break;
 
   case 3: /* S: '\n'  */
-#line 39 "expression_tree.y"
+#line 38 "expression_tree.y"
          {
       printf("Invalid Expression.");
       return 1;
@@ -1161,7 +1161,7 @@ yyreduce:
     break;
 
   case 4: /* E: E PLUS E  */
-#line 45 "expression_tree.y"
+#line 44 "expression_tree.y"
              {
       //printf("+ ");
       (yyval.node) = makeOperatorNode('+',(yyvsp[-2].node),(yyvsp[0].node));
@@ -1170,7 +1170,7 @@ yyreduce:
     break;
 
   case 5: /* E: E MINUS E  */
-#line 50 "expression_tree.y"
+#line 49 "expression_tree.y"
               {
       //printf("- ");
       (yyval.node) = makeOperatorNode('-',(yyvsp[-2].node),(yyvsp[0].node));
@@ -1179,7 +1179,7 @@ yyreduce:
     break;
 
   case 6: /* E: E MUL E  */
-#line 55 "expression_tree.y"
+#line 54 "expression_tree.y"
             {
       //printf("* ");
       (yyval.node) = makeOperatorNode('*',(yyvsp[-2].node),(yyvsp[0].node));
@@ -1188,7 +1188,7 @@ yyreduce:
     break;
 
   case 7: /* E: E DIV E  */
-#line 60 "expression_tree.y"
+#line 59 "expression_tree.y"
             {
       if( (yyvsp[0].node) == 0 ){
         printf("Division by 0.\n");
@@ -1201,7 +1201,7 @@ yyreduce:
     break;
 
   case 8: /* E: '(' E ')'  */
-#line 69 "expression_tree.y"
+#line 68 "expression_tree.y"
               {
       (yyval.node) = (yyvsp[-1].node);
     }
@@ -1209,10 +1209,10 @@ yyreduce:
     break;
 
   case 9: /* E: NUM  */
-#line 73 "expression_tree.y"
+#line 72 "expression_tree.y"
         {
       //printf("Number ");
-      (yyval.node) = makeLeafNode((yyvsp[0].integer));
+      (yyval.node) = (yyvsp[0].node);
     }
 #line 1218 "y.tab.c"
     break;
@@ -1411,7 +1411,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 82 "expression_tree.y"
+#line 81 "expression_tree.y"
 
 
 int main(int argc, char* argv[]){
