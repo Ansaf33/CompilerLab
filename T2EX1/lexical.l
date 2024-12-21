@@ -1,0 +1,85 @@
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include "y.tab.h"
+#include "AST.h"
+%}
+
+
+
+
+
+%%
+
+[0-9]+ {
+  yylval.node = createTree(atoi(yytext),'n',-1,NULL,NULL,NULL);
+  return NUM;
+}
+
+begin {
+  return BEG;
+}
+
+end {
+  return END;
+}
+
+read {
+  return READ;
+}
+
+write {
+  return WRITE;
+}
+
+[+] {
+
+  return PLUS;
+}
+
+[-] {
+  return MINUS;
+}
+
+[*] {
+  return MUL;
+}
+
+[/] {
+  return DIV;
+}
+
+[=] {
+  return EQUALS;
+}
+
+[a-z] {
+  yylval.node = createTree(-1,'n',0,yytext,NULL,NULL);
+  return ID;
+}
+
+[ \t] ;
+
+[\n] {
+  return '\n';
+}
+[(] {
+  return '(';
+}
+[)] {
+  return ')';
+}
+[;] {
+  return ';';
+}
+. {
+  return yytext[0];
+}
+
+
+%%
+
+
+int yywrap(){
+  return 1;
+}
