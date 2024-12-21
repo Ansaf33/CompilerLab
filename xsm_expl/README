@@ -10,3 +10,6 @@ Note: Paths must be relative
 test.xsm currently contains tests for reading a value and writing it.
 
 ./xsm -l library.lib -e test.xsm --debug
+
+WRITE system call starting from LINE 1
+READ system call starting from LINE 33
