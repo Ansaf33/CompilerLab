@@ -5,7 +5,6 @@
 - typecast yylval using yylval.node / yylval.integer wherever necessary.
 - better to create a script file to execute the commands instead of invidual commands run on the terminal.
 
-** Terminal Syntax **
 
 ## LEX FILE
 - run using ``` lex lexfile.l ```
