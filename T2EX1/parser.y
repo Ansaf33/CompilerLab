@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "AST.h"
+#include "reghandling.h"
+
+struct TreeNode* root;
 
 
 extern FILE* yyin;
@@ -28,6 +31,7 @@ void yyerror(char* s);
 
 P :
   BEG '\n' SL END ';' '\n'{
+    root = $3;
     printf("Valid Program.\n");
     Inorder($3);
   }
@@ -116,10 +120,20 @@ OUTPUT :
 
 
 
-int main(){
-  FILE* f = fopen("sample.txt","r");
+int main(int argc, char* argv[]){
+  FILE* f = fopen(argv[1],"r");
   yyin = f;
   yyparse();
+  printf("\n");
+
+  FILE* xsm = fopen(argv[2],"w");
+  fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
+  //fprintf(xsm,"BRKP\n");
+  codeGen(xsm,root);
+  fprintf(xsm,"HALT\n");
+
+
+
 
   return 1;
 }

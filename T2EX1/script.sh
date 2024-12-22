@@ -1,4 +1,10 @@
+echo "Lexical"
 lex lexical.l
+echo "Parser"
 yacc -d parser.y
-gcc AST.c y.tab.c lex.yy.c -o program
-./program sample.txt
+echo "GCC"
+gcc AST.c reghandling.c y.tab.c lex.yy.c -o program
+echo "Running"
+./program input.txt assembly_code.xsm
+cd ../xsm_expl
+./xsm -l library.lib -e ../T2EX1/assembly_code.xsm --debug
