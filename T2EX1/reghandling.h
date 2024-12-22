@@ -2,6 +2,7 @@
 #define reghandling_h
 
 #include <stdio.h>
+#include <stdbool.h>
 #include "AST.h"
 
 // GETTING THE SMALLEST FREE REGISTER
@@ -12,6 +13,10 @@ int getReg(void);
 // FREEING THE HIGHEST OCCUPIED REGISTER
 
 void freeReg(void);
+
+// PRINT OUT SOMETHING IN CONSOLE
+
+void getInput(FILE* f,char* s);
 
 // code generation for expressions -> returns the register with the final value (completed in stage 1, reuse it)
 
@@ -43,5 +48,16 @@ void write_codeGen(FILE* f,struct TreeNode* root);
 // codeGen for entire statement lists
 
 void codeGen(FILE* f,struct TreeNode* root);
+
+// boolean return values if the root value is an assignment/read/write/expression node
+
+bool isAssignment(struct TreeNode* root);
+
+bool isRead(struct TreeNode* root);
+
+bool isWrite(struct TreeNode* root);
+
+bool isExpression(struct TreeNode* root);
+
 
 #endif

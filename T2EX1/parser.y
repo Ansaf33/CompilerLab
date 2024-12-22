@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "AST.h"
 #include "reghandling.h"
+#include "evaluator.h"
 
 struct TreeNode* root;
 
@@ -121,10 +122,14 @@ OUTPUT :
 
 
 int main(int argc, char* argv[]){
+
+// --------------------------------- PARSING INPUT 
   FILE* f = fopen(argv[1],"r");
   yyin = f;
   yyparse();
   printf("\n");
+
+// --------------------------------- ASSEMBLY CODE
 
   FILE* xsm = fopen(argv[2],"w");
   fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
@@ -133,9 +138,17 @@ int main(int argc, char* argv[]){
   fprintf(xsm,"HALT\n");
 
 
+// --------------------------------- EXERCISE 1
 
+/*
 
-  return 1;
+  printf("RUNNING EXERCISE1\n");
+  evaluate(root);
+  getDetails();
+
+*/
+
+  return 0;
 }
 
 void yyerror(char* s){

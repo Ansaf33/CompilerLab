@@ -73,6 +73,7 @@
 #include <stdlib.h>
 #include "AST.h"
 #include "reghandling.h"
+#include "evaluator.h"
 
 struct TreeNode* root;
 
@@ -84,7 +85,7 @@ void yyerror(char* s);
 
 
 
-#line 88 "y.tab.c"
+#line 89 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -163,12 +164,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 18 "parser.y"
+#line 19 "parser.y"
 
   struct TreeNode* node;
 
 
-#line 172 "y.tab.c"
+#line 173 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -600,8 +601,8 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    33,    33,    39,    45,    49,    55,    57,    59,    63,
-      69,    73,    77,    81,    85,    89,    93,    99,   105
+       0,    34,    34,    40,    46,    50,    56,    58,    60,    64,
+      70,    74,    78,    82,    86,    90,    94,   100,   106
 };
 #endif
 
@@ -1184,121 +1185,121 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* P: BEG '\n' SL END ';' '\n'  */
-#line 33 "parser.y"
+#line 34 "parser.y"
                           {
     root = (yyvsp[-3].node);
     printf("Valid Program.\n");
     Inorder((yyvsp[-3].node));
   }
-#line 1194 "y.tab.c"
+#line 1195 "y.tab.c"
     break;
 
   case 3: /* P: BEG END ';' '\n'  */
-#line 39 "parser.y"
+#line 40 "parser.y"
                    {
   printf("Valid program.\n");
   }
-#line 1202 "y.tab.c"
+#line 1203 "y.tab.c"
     break;
 
   case 4: /* SL: SL S '\n'  */
-#line 45 "parser.y"
+#line 46 "parser.y"
              {
    (yyval.node) = createTree(-1,'S',-1,"\0",(yyvsp[-2].node),(yyvsp[-1].node));
   }
-#line 1210 "y.tab.c"
+#line 1211 "y.tab.c"
     break;
 
   case 5: /* SL: S '\n'  */
-#line 49 "parser.y"
+#line 50 "parser.y"
           {
     (yyval.node) = (yyvsp[-1].node);
   }
-#line 1218 "y.tab.c"
+#line 1219 "y.tab.c"
     break;
 
   case 9: /* ASSG: ID EQUALS E  */
-#line 63 "parser.y"
+#line 64 "parser.y"
               {
   (yyval.node) = createTree(-1,'=',-1,"\0",(yyvsp[-2].node),(yyvsp[0].node));
   }
-#line 1226 "y.tab.c"
+#line 1227 "y.tab.c"
     break;
 
   case 10: /* E: E PLUS E  */
-#line 69 "parser.y"
+#line 70 "parser.y"
            {
   (yyval.node) = createTree(-1,'+',-1,"\0",(yyvsp[-2].node),(yyvsp[0].node));
   }
-#line 1234 "y.tab.c"
+#line 1235 "y.tab.c"
     break;
 
   case 11: /* E: E MINUS E  */
-#line 73 "parser.y"
+#line 74 "parser.y"
             {
   (yyval.node) = createTree(-1,'-',-1,"\0",(yyvsp[-2].node),(yyvsp[0].node));
   }
-#line 1242 "y.tab.c"
+#line 1243 "y.tab.c"
     break;
 
   case 12: /* E: E MUL E  */
-#line 77 "parser.y"
+#line 78 "parser.y"
           {
   (yyval.node) = createTree(-1,'*',-1,"\0",(yyvsp[-2].node),(yyvsp[0].node));
   }
-#line 1250 "y.tab.c"
+#line 1251 "y.tab.c"
     break;
 
   case 13: /* E: E DIV E  */
-#line 81 "parser.y"
+#line 82 "parser.y"
           {
   (yyval.node) = createTree(-1,'/',-1,"\0",(yyvsp[-2].node),(yyvsp[0].node));
   }
-#line 1258 "y.tab.c"
+#line 1259 "y.tab.c"
     break;
 
   case 14: /* E: '(' E ')'  */
-#line 85 "parser.y"
+#line 86 "parser.y"
             {
   (yyval.node) = (yyvsp[-1].node);
   }
-#line 1266 "y.tab.c"
+#line 1267 "y.tab.c"
     break;
 
   case 15: /* E: NUM  */
-#line 89 "parser.y"
+#line 90 "parser.y"
       {
   (yyval.node) = (yyvsp[0].node);
   }
-#line 1274 "y.tab.c"
+#line 1275 "y.tab.c"
     break;
 
   case 16: /* E: ID  */
-#line 93 "parser.y"
+#line 94 "parser.y"
      {
   (yyval.node) = (yyvsp[0].node);
   }
-#line 1282 "y.tab.c"
+#line 1283 "y.tab.c"
     break;
 
   case 17: /* INPUT: READ '(' ID ')'  */
-#line 99 "parser.y"
+#line 100 "parser.y"
                        {
        (yyval.node) = createTree(-1,'R',-1,"\0",(yyvsp[-1].node),NULL);
       }
-#line 1290 "y.tab.c"
+#line 1291 "y.tab.c"
     break;
 
   case 18: /* OUTPUT: WRITE '(' E ')'  */
-#line 105 "parser.y"
+#line 106 "parser.y"
                        {
         (yyval.node) = createTree(-1,'W',-1,"\0",(yyvsp[-1].node),NULL);
       }
-#line 1298 "y.tab.c"
+#line 1299 "y.tab.c"
     break;
 
 
-#line 1302 "y.tab.c"
+#line 1303 "y.tab.c"
 
       default: break;
     }
@@ -1491,7 +1492,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 113 "parser.y"
+#line 114 "parser.y"
 
 
 
@@ -1503,10 +1504,14 @@ yyreturnlab:
 
 
 int main(int argc, char* argv[]){
+
+// --------------------------------- PARSING INPUT 
   FILE* f = fopen(argv[1],"r");
   yyin = f;
   yyparse();
   printf("\n");
+
+// --------------------------------- ASSEMBLY CODE
 
   FILE* xsm = fopen(argv[2],"w");
   fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
@@ -1515,9 +1520,17 @@ int main(int argc, char* argv[]){
   fprintf(xsm,"HALT\n");
 
 
+// --------------------------------- EXERCISE 1
 
+/*
 
-  return 1;
+  printf("RUNNING EXERCISE1\n");
+  evaluate(root);
+  getDetails();
+
+*/
+
+  return 0;
 }
 
 void yyerror(char* s){
