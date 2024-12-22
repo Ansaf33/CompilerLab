@@ -14,7 +14,7 @@ static int highestUsedReg = -1;
 
 
 
-// GET REG FUNCTION
+// ---------------------------------------------------------- GET REG FUNCTION
 
 int getReg(void){
   // FIRST CHECK IF ANY REGISTER IS FREE
@@ -24,11 +24,9 @@ int getReg(void){
   }
   return ++highestUsedReg;
 
-
-
 }
 
-// FREE REG FUNCTION
+// ----------------------------------------------------------- FREE REG FUNCTION
 
 void freeReg(){
   // CHECK IF ALL REGISTERS ARE FREE
@@ -42,12 +40,10 @@ void freeReg(){
 
 }
 
-// PRINTING SOMETHING IN CONSOLE 
+// ----------------------------------------------------------- PRINTING SOMETHING IN CONSOLE 
 
 void getInput(FILE* f,char* s){
 
-  int r = getReg();
-  fprintf(f,"MOV R%d, \"%s\"\n",r,s);
 
   fprintf(f,"MOV SP, %d\n",4500);
 
@@ -65,7 +61,8 @@ void getInput(FILE* f,char* s){
 
   // pushing data -> argument 2
   r1 = getReg();
-  fprintf(f,"PUSH R%d\n",r);
+  fprintf(f,"MOV R%d, \"%s\"\n",r1,s);
+  fprintf(f,"PUSH R%d\n",r1);
   freeReg();
 
   // pushing empty register -> argument 3
@@ -82,9 +79,8 @@ void getInput(FILE* f,char* s){
   fprintf(f,"CALL 0\n");
 
   // POPPING REGISTERS
-  int retReg = getReg();
-  fprintf(f,"POP R%d\n",retReg);
   r1 = getReg();
+  fprintf(f,"POP R%d\n",r1);
   fprintf(f,"POP R%d\n",r1);
   fprintf(f,"POP R%d\n",r1);
   fprintf(f,"POP R%d\n",r1);
@@ -94,7 +90,7 @@ void getInput(FILE* f,char* s){
 }
 
 
-// CODE GENERATION FOR EXPRESSIONS
+// --------------------------------------------------------- CODE GENERATION FOR EXPRESSIONS
 
 int expression_codeGen(FILE* f,struct TreeNode* root){
   if(root->left == NULL && root->right == NULL){
@@ -129,34 +125,39 @@ int expression_codeGen(FILE* f,struct TreeNode* root){
         break;
   }
 
+  // freeing the right register
   freeReg();
 
   return lReg;
 
 }
 
-// CODE GENERATION FOR ASSIGNMENTS
+// -------------------------------------------------------------------- CODE GENERATION FOR ASSIGNMENTS
 
 void assignment_codeGen(FILE* f,struct TreeNode* root){
-  int fReg = expression_codeGen(f,root->right);
   // NOW GET THE CHARACTER VALUE
   int variable = (int)root->left->varname - 96;
-  int storeIn = 4095 + variable;
+  int memAddress = 4095 + variable;
 
   // store the register contents in the memory location 'storeIn'
   int r1 = getReg();
-  fprintf(f,"MOV R%d, %d\n",r1,storeIn);
+  fprintf(f,"MOV R%d, %d\n",r1,memAddress);
+  int fReg = expression_codeGen(f,root->right);
   fprintf(f,"MOV [R%d], R%d\n",r1, fReg);
+  // freeing expression register
+  freeReg();
+  // freeing r1
+  freeReg();
   
 
 }
 
-// CODE GENERATION FOR READ OPERATIONS
+// ----------------------------------------------------------------------CODE GENERATION FOR READ OPERATIONS
 
 void read_codeGen(FILE* f,struct TreeNode* root){
 
   int variable = (int)root->left->varname - 96;
-  int storeIn = 4095 + variable;
+  int memAddress = 4095 + variable;
 
   char s[50];
   snprintf(s,sizeof(s),"Enter %c : ", root->left->varname);
@@ -180,7 +181,7 @@ void read_codeGen(FILE* f,struct TreeNode* root){
 
   // pushing buffer -> argument 2
   r1 = getReg();
-  fprintf(f,"MOV R%d, %d\n",r1,storeIn);
+  fprintf(f,"MOV R%d, %d\n",r1,memAddress);
   fprintf(f,"PUSH R%d\n",r1);
   freeReg();
 
@@ -198,9 +199,8 @@ void read_codeGen(FILE* f,struct TreeNode* root){
   fprintf(f,"CALL 0\n");
 
   // POPPING REGISTERS
-  int retReg = getReg();
-  fprintf(f,"POP R%d\n",retReg);
   r1 = getReg();
+  fprintf(f,"POP R%d\n",r1);
   fprintf(f,"POP R%d\n",r1);
   fprintf(f,"POP R%d\n",r1);
   fprintf(f,"POP R%d\n",r1);
@@ -210,13 +210,12 @@ void read_codeGen(FILE* f,struct TreeNode* root){
 
 }
 
+// --------------------------------------------------------- CODE GENERATION FOR WRITE ASSIGNMENTS
+
 void write_codeGen(FILE* f,struct TreeNode* root){
 
-  // GET THE REGISTER WHERE VALUE IS STORED
-  int R = expression_codeGen(f,root->left);
-
-
   getInput(f,"Output : ");
+  
 
   // stack pointer
   fprintf(f,"MOV SP, %d\n",4500);
@@ -233,9 +232,10 @@ void write_codeGen(FILE* f,struct TreeNode* root){
   fprintf(f,"PUSH R%d\n",r1);
   freeReg();
 
-  // pushing R -> argument 2
-  r1 = getReg();
+  // pushing R -> argument 2 (data)
+  int R = expression_codeGen(f,root->left);
   fprintf(f,"PUSH R%d\n",R);
+  // freeing the register storing the result of the expression
   freeReg();
 
   // pushing empty register -> argument 3
@@ -252,9 +252,8 @@ void write_codeGen(FILE* f,struct TreeNode* root){
   fprintf(f,"CALL 0\n");
 
   // POPPING REGISTERS
-  int retReg = getReg();
-  fprintf(f,"POP R%d\n",retReg);
   r1 = getReg();
+  fprintf(f,"POP R%d\n",r1);
   fprintf(f,"POP R%d\n",r1);
   fprintf(f,"POP R%d\n",r1);
   fprintf(f,"POP R%d\n",r1);
@@ -263,6 +262,8 @@ void write_codeGen(FILE* f,struct TreeNode* root){
 
 
 }
+
+// ------------------------------------------------------------- BOOLEAN FUNCTIONS
 
 bool isAssignment(struct TreeNode* root){
     return root->op == '=';
@@ -277,6 +278,7 @@ bool isExpression(struct TreeNode* root){
     return root->op == '+' || root->op == '-' || root->op == '*' || root->op == '/';
 }
 
+// ------------------------------------------------------------------- MAIN CODEGEN FUNCTION
 
 void codeGen(FILE* f,struct TreeNode* root){
     if(root == NULL){

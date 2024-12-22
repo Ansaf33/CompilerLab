@@ -1517,7 +1517,7 @@ int main(int argc, char* argv[]){
   fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
   //fprintf(xsm,"BRKP\n");
   codeGen(xsm,root);
-  fprintf(xsm,"HALT\n");
+  fprintf(xsm,"INT 10\n");
 
 
 // --------------------------------- EXERCISE 1

@@ -1,8 +1,9 @@
 begin
 read (a);
 read (b);
-c = a*a + 2*a*b + b*b;
-d = a*a - 2*a*b + b*b;
-write (c);
+write (a);
+write (b);
+d = a;
+d = b;
 write (d);
 end;
