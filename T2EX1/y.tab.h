@@ -70,7 +70,14 @@ extern int yydebug;
     NEQ = 271,                     /* NEQ  */
     READ = 272,                    /* READ  */
     WRITE = 273,                   /* WRITE  */
-    END = 274                      /* END  */
+    END = 274,                     /* END  */
+    IF = 275,                      /* IF  */
+    THEN = 276,                    /* THEN  */
+    ELSE = 277,                    /* ELSE  */
+    ENDIF = 278,                   /* ENDIF  */
+    WHILE = 279,                   /* WHILE  */
+    DO = 280,                      /* DO  */
+    ENDWHILE = 281                 /* ENDWHILE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -96,6 +103,13 @@ extern int yydebug;
 #define READ 272
 #define WRITE 273
 #define END 274
+#define IF 275
+#define THEN 276
+#define ELSE 277
+#define ENDIF 278
+#define WHILE 279
+#define DO 280
+#define ENDWHILE 281
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -106,7 +120,7 @@ union YYSTYPE
   struct TreeNode* node;
 
 
-#line 110 "y.tab.h"
+#line 124 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-char* optable[14] = {"+","-","*","/","=","<","<=",">",">=","!=","==","READ","WRITE","STATEMENT"};
+char* optable[16] = {"+","-","*","/","=","<","<=",">",">=","!=","==","READ","WRITE","STATEMENT","IF","WHILE"};
 
 
 char* map(int i){

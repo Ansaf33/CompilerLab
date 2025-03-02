@@ -23,8 +23,8 @@ void yyerror(char* s);
 
 }
 
-%type<node> E ASSG INPUT OUTPUT S SL
-%token BEG ID NUM PLUS MINUS MUL DIV EQUALS LT LTE GT GTE EQ NEQ READ WRITE END
+%type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST
+%token BEG ID NUM PLUS MINUS MUL DIV EQUALS LT LTE GT GTE EQ NEQ READ WRITE END IF THEN ELSE ENDIF WHILE DO ENDWHILE
 %left EQ NEQ
 %left LT LTE GT GTE
 %left PLUS MINUS
@@ -35,23 +35,23 @@ void yyerror(char* s);
 %%
 
 P :
-  BEG '\n' SL END ';' '\n'{
-    root = $3;
+  BEG SL END ';' {
+    root = $2;
     printf("Valid Program.\n");
-    Inorder($3);
+    Inorder($2);
   }
   |
-  BEG END ';' '\n' {
+  BEG END ';' {
   printf("Valid program.\n");
   }
   ;
 
 SL :
-   SL S '\n' {
+   SL S  {
    $$ = createTree(-1,13,-1,"\0",$1,$2);
   }
   |
-   S '\n' {
+   S  {
     $$ = $1;
   }
    ;
@@ -62,7 +62,28 @@ S :
   INPUT ';'
   |
   OUTPUT ';'
+  |
+  IFST ';'
+  |
+  WHILEST ';'
   ;
+
+IFST :
+     IF '(' E ')' THEN SL ELSE SL ENDIF {
+      $$ = createIfTree(14,$3,$6,$8);
+    }
+    |
+    IF '(' E ')' THEN SL ENDIF {
+      $$ = createIfTree(14,$3,$6,NULL);
+    }
+     ;
+
+WHILEST :
+        WHILE '(' E ')' DO SL ENDWHILE {
+        $$ = createWhileTree(15,$3,$6);
+        }
+        ;
+
 
 ASSG :
   ID EQUALS E {
@@ -159,12 +180,13 @@ int main(int argc, char* argv[]){
 
 // --------------------------------- ASSEMBLY CODE
 
+/*
   FILE* xsm = fopen(argv[2],"w");
   fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
   //fprintf(xsm,"BRKP\n");
   codeGen(xsm,root);
   fprintf(xsm,"INT 10\n");
-
+*/
 
 // --------------------------------- EXERCISE 1
 

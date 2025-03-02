@@ -1,8 +1,9 @@
 begin
-read (a);
-write(a);
-read (b);
-write (b);
-d = a+b+3;
-write (d);
+if ( 3 < 5 ) then
+    a = a + 8;
+    b = a * 2 * c;
+else
+    c = 5;
+endif;
+
 end;

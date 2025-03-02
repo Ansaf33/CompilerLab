@@ -32,6 +32,37 @@
   return WRITE;
 }
 
+"if" {
+  printf("if detected\n");
+  return IF;
+}
+
+"then" {
+  return THEN;
+}
+
+"else" {
+  return ELSE;
+}
+
+"endif" {
+  printf("endif detected\n");
+  return ENDIF;
+}
+
+"while" {
+  return WHILE;
+}
+
+"do" {
+  return DO;
+}
+
+"endwhile" {
+  return ENDWHILE;
+}
+
+
 [+] {
 
   return PLUS;
@@ -84,9 +115,7 @@
 
 [ \t] ;
 
-[\n] {
-  return '\n';
-}
+
 [(] {
   return '(';
 }

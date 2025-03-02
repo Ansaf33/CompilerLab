@@ -90,9 +90,9 @@ void getInput(FILE* f,char* s){
 }
 
 
-// --------------------------------------------------------- CODE GENERATION FOR EXPRESSIONS
+// --------------------------------------------------------- CODE GENERATION FOR ARITHMETIC EXPRESSIONS ( E )
 
-int expression_codeGen(FILE* f,struct TreeNode* root){
+int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
   if(root->left == NULL && root->right == NULL){
     int regIdx = getReg();
     // IF CONSTANT, USE ROOT->VAL
@@ -107,8 +107,8 @@ int expression_codeGen(FILE* f,struct TreeNode* root){
     return regIdx;
   }
 
-  int lReg = expression_codeGen(f,root->left);
-  int rReg = expression_codeGen(f,root->right);
+  int lReg = arithmetic_expression_codeGen(f,root->left);
+  int rReg = arithmetic_expression_codeGen(f,root->right);
 
   switch(root->op){
       case 0:
@@ -132,6 +132,8 @@ int expression_codeGen(FILE* f,struct TreeNode* root){
 
 }
 
+// -------------------------------------------------------------------- CODE GENERATION FOR BOOLEAN EXPRESSIONS ( E < E )
+
 // -------------------------------------------------------------------- CODE GENERATION FOR ASSIGNMENTS
 
 void assignment_codeGen(FILE* f,struct TreeNode* root){
@@ -142,7 +144,7 @@ void assignment_codeGen(FILE* f,struct TreeNode* root){
   // store the register contents in the memory location 'storeIn'
   int r1 = getReg();
   fprintf(f,"MOV R%d, %d\n",r1,memAddress);
-  int fReg = expression_codeGen(f,root->right);
+  int fReg = arithmetic_expression_codeGen(f,root->right);
   fprintf(f,"MOV [R%d], R%d\n",r1, fReg);
   // freeing expression register
   freeReg();
@@ -233,7 +235,7 @@ void write_codeGen(FILE* f,struct TreeNode* root){
   freeReg();
 
   // pushing R -> argument 2 (data)
-  int R = expression_codeGen(f,root->left);
+  int R = arithmetic_expression_codeGen(f,root->left);
   fprintf(f,"PUSH R%d\n",R);
   // freeing the register storing the result of the expression
   freeReg();

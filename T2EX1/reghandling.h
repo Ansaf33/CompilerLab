@@ -20,7 +20,7 @@ void getInput(FILE* f,char* s);
 
 // code generation for expressions -> returns the register with the final value (completed in stage 1, reuse it)
 
-int expression_codeGen(FILE* f, struct TreeNode* root);
+int arithmetic_expression_codeGen(FILE* f, struct TreeNode* root);
 
 // code generation for assignments -> ID = E
 // call expression_codeGen on right subtree, we get the register with the final value

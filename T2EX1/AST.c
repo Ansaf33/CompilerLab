@@ -14,7 +14,11 @@ for OPS = (-1,'=',-1,NULL,$1,$3)
 
 */
 
+// ------------- CREATE NODE FOR CONSTANTS, EXPRESSIONS, STATEMENTS
+
 struct TreeNode* createTree(int val,int op,int type,char* varname,struct TreeNode* left,struct TreeNode* right){
+
+
 
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
 
@@ -29,8 +33,9 @@ struct TreeNode* createTree(int val,int op,int type,char* varname,struct TreeNod
    // LEFT AND RIGHT SUBTREES
   temp->left = left;
   temp->right = right;
+  // no need for third child in while statements
+  temp->middle = NULL;
 
-  // IF LEFT AND RIGHT SUBTREE ARE NOT NULL, CHECK IF TYPES MATCH
   
   if( left && right ){ 
       if( temp->left->type != temp->right->type ){
@@ -39,9 +44,50 @@ struct TreeNode* createTree(int val,int op,int type,char* varname,struct TreeNod
       }
   }
 
+
+
   return temp;
 
 }
+
+// -------------- CREATE NODE FOR IF STATEMENTS
+
+struct TreeNode* createIfTree(int op,struct TreeNode* middle,struct TreeNode* left,struct TreeNode* right){
+
+  struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+  temp->val = -1;
+  temp->op = op;
+  temp->type = -1;
+  temp->varname = '\0';
+  temp->left = left;
+  temp->middle = middle;
+  temp->right = right;
+
+
+  return temp;
+
+}
+
+// ---------------- CREATE NODE FOR WHILE STATEMENTS
+
+struct TreeNode* createWhileTree(int op,struct TreeNode* left,struct TreeNode* right){
+  struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));  
+  temp->val = -1;
+  temp->op = op;
+  temp->type = -1;
+  temp->varname = '\0';
+  temp->left = left;
+  temp->right = right;
+  // no need for third child in while statements
+  temp->middle = NULL;
+
+
+
+  return temp;
+
+
+}
+
 
 void Inorder(struct TreeNode* root){
   if(root == NULL){
@@ -57,5 +103,7 @@ void Inorder(struct TreeNode* root){
   else if(root->varname != 'n' ){
     printf("(%c) ",root->varname);
   } 
+
+  Inorder(root->middle);
   Inorder(root->right);
 }

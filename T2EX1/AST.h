@@ -10,11 +10,16 @@ struct TreeNode{
   int type;
   char varname;
   struct TreeNode* left;
+  struct TreeNode* middle;
   struct TreeNode* right;
 
 };
 
 struct TreeNode* createTree(int val,int op,int type,char* varname,struct TreeNode* left, struct TreeNode* right);
+
+struct TreeNode* createIfTree(int op,struct TreeNode* middle, struct TreeNode* left,struct TreeNode* right);
+
+struct TreeNode* createWhileTree(int op,struct TreeNode* left, struct TreeNode* right);
 
 void Inorder(struct TreeNode* root);
 
