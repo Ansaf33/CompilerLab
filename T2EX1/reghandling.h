@@ -18,9 +18,13 @@ void freeReg(void);
 
 void getInput(FILE* f,char* s);
 
-// code generation for expressions -> returns the register with the final value (completed in stage 1, reuse it)
+// code generation for arithmetic expressions -> returns the register with the final value 
 
 int arithmetic_expression_codeGen(FILE* f, struct TreeNode* root);
+
+// code generation for boolean expressions -> returns the register containing 0 or 1
+
+int boolean_expression_codeGen(FILE* f,struct TreeNode* root);
 
 // code generation for assignments -> ID = E
 // call expression_codeGen on right subtree, we get the register with the final value
@@ -44,6 +48,26 @@ void read_codeGen(FILE* f,struct TreeNode* root);
 
 void write_codeGen(FILE* f,struct TreeNode* root);
 
+/*
+CODE FOR BOOLEAN EXPRESSION
+JZ L1
+CODE FOR IF STATEMENT
+L1:
+CODE FOR ELSE STATEMENT
+L2:
+
+*/
+
+
+/*
+CODE FOR BOOLEAN EXPRESSION
+JZ L1
+L0:
+CODE FOR STATEMENTS
+JMP L0
+L1:
+*/
+void while_codeGen(FILE* f,struct TreeNode* root);
 
 // codeGen for entire statement lists
 

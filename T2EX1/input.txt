@@ -1,25 +1,14 @@
 begin
-
-read(a);
-read(b);
-read(c);
-
-if ( a <= b ) then
-  if ( a <= c ) then
-    write(a);
+read(i);
+read(n);
+while ( i <= n ) do 
+  if( i == 5 ) then
+    write(i);
+    i = i + 100;
+  else
+    write(i);
+    i = i + 1;
   endif;
-endif;
-
-if ( b <= a ) then
-  if ( b <= c ) then
-    write(b);
-  endif;
-endif;
-
-if ( c <= a ) then
-  if ( c <= b ) then
-    write(c);
-  endif;
-endif;
+endwhile;
 
 end;

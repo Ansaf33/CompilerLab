@@ -1664,21 +1664,21 @@ int main(int argc, char* argv[]){
 
 // --------------------------------- ASSEMBLY CODE
 
-/*
+
   FILE* xsm = fopen(argv[2],"w");
   fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
   //fprintf(xsm,"BRKP\n");
   codeGen(xsm,root);
   fprintf(xsm,"INT 10\n");
-*/
 
 // --------------------------------- EXERCISE 1
 
 
-
+  /*
   printf("RUNNING EXERCISE1\n");
   evaluate(root);
   getDetails();
+  */
 
 
   return 0;
