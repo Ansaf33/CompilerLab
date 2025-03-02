@@ -1,7 +1,10 @@
 decl
-int i,n,s,fact[10];
+int i,n,s,fact[10],calculator(int a,int b,int c);
+str getLCS(str a,str m);
 
 enddecl
+
+
 
 begin
 

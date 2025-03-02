@@ -6,8 +6,9 @@
 #include "AST.h"
 #include "reghandling.h"
 #include "evaluator.h"
-#include "symbol_table/symbol.h"
+#include "symbol_table/Gsymbol.h"
 #include "symbol_table/varList.h"
+#include "symbol_table/paramlist.h"
 
 
 struct TreeNode* root;
@@ -27,11 +28,14 @@ void yyerror(char* s);
   char* string;
   int integer;
   struct list* list;
+  struct paramlist* paramlist;
 
 
 
 }
-%type<list> VARLIST;
+
+%type<paramlist>ParamList
+%type<list> GidList;
 %type<integer> TYPE
 %type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST REPEATST DOWHILEST IDENTIFIER CONSTANT
 %token STRING ID NUM PLUS MINUS MUL DIV EQUALS 
@@ -49,25 +53,30 @@ void yyerror(char* s);
 %%
 
 PROGRAM :
-        DECLARATIONS P
+        GdeclBlock FdefBlock MainBlock
+        |
+        GdeclBlock MainBlock
+        |
+        MainBlock
 
-DECLARATIONS :
-             DECL DL ENDDECL{
+
+GdeclBlock :
+             DECL GdeclList ENDDECL{
                 printf("All declarations parsed.\n");
-                getAll();
+                getGSymbolTable();
               }
              |
              DECL ENDDECL
              ;
 
-DL :
-        DL D
+GdeclList :
+        GdeclList Gdecl
         |
-        D
+        Gdecl
         ;
 
-D :
-     TYPE VARLIST ';' {
+Gdecl :
+     TYPE GidList ';' {
         addAllSymbols($2,$1);
      }
      ;
@@ -82,17 +91,21 @@ TYPE :
      }
      ;
 
-VARLIST :
-        VARLIST ',' ID {
+GidList :
+        GidList ',' ID {
           $$ = addVariable($1,$<string>3);
         }
         |
-        VARLIST ',' ID '[' NUM ']' {
+        GidList ',' ID '[' NUM ']' {
           $$ = addArray($1,$<string>3,1,atoi($<string>5));
         }
         |
-        VARLIST ',' ID '[' NUM ']' '[' NUM ']' {
+        GidList ',' ID '[' NUM ']' '[' NUM ']' {
           $$ = addArray($1,$<string>1,atoi($<string>5),atoi($<string>8));
+        }
+        |
+        GidList ',' ID '(' ParamList ')' {
+          $$ = addFunction($1,$<string>3,$5);
         }
         |
         ID {
@@ -106,9 +119,84 @@ VARLIST :
         ID '[' NUM ']' '[' NUM ']' {
           $$ = addArray(NULL,$<string>1,atoi($<string>3),atoi($<string>6));
         }
+        |
+        ID '(' ParamList ')' {
+          $$ = addFunction(NULL,$<string>1,$3);
+        }
         ;
 
-P :
+FdefBlock :
+          FdefBlock Fdef
+          |
+          Fdef
+          ;
+
+Fdef :
+     TYPE ID '(' ParamList ')' '{' LdeclBlock Body '}' 
+     ;
+
+ParamList :
+          ParamList ',' TYPE ID {
+           $$ = addParameter($1,$<string>4,$3);
+          }
+          |
+          TYPE ID {
+           $$ = addParameter(NULL,$<string>2,$1);
+          }
+          ;
+
+LdeclBlock :
+           DECL LdeclList ENDDECL
+           |
+           DECL ENDDECL
+           ;
+
+LdeclList :
+          LdeclList Ldecl
+          |
+          Ldecl
+          ;
+
+Ldecl :
+      TYPE LidList ';'
+
+LidList : 
+        LidList ',' ID
+        |
+        ID
+        ;
+
+Body :
+     BEG SL END ';'
+     ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MainBlock :
   BEG SL END ';' {
     root = $2;
     printf("Valid Program.\n");
@@ -251,11 +339,21 @@ IDENTIFIER :
            ID '[' E ']' '[' E ']' {
             $$ = createIdNode($<string>1,$3,$6);
             }
+            |
+            ID '(' ')' {
+            $$ = NULL;
+            }
+            |
+            ID '(' ArgList ')' {
+            $$ = NULL;
+            }
+            ;
 
-
-
-
-          ;
+ArgList :
+        ArgList ','  E
+        |
+        E
+        ;
 
 
 CONSTANT :

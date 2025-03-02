@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "varList.h"
-#include "symbol.h"
+#include "Gsymbol.h"
 
 
 struct list* createVarNode(char* name,int rowSize,int colSize){
@@ -35,6 +35,16 @@ struct list* addArray(struct list* head,char* name,int rowSize,int colSize){
   return head;
 }
 
+struct list* addFunction(struct list* head,char* name,struct paramlist* param){
+  struct list* temp = createVarNode(name,1,1);
+  temp->param = param;
+  temp->next = head;
+  head = temp;
+
+  return head;
+
+}
+
 void printDetails(struct list* head){
   struct list* cur = head;
   while(cur != NULL){
@@ -46,7 +56,7 @@ void printDetails(struct list* head){
 void addAllSymbols(struct list* head, int type){
   struct list* cur = head;
   while(cur != NULL){
-    addSymbol(cur->name,type,cur->rowSize,cur->colSize);
+    addSymbol(cur->name,type,cur->rowSize,cur->colSize,cur->param);
     cur = cur->next;
   }
 }

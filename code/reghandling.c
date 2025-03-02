@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "AST.h"
-#include "symbol_table/symbol.h"
+#include "symbol_table/Gsymbol.h"
 
 // define the maximum limit of registers R0 to R19
 #define NOR 20
@@ -21,7 +21,7 @@ int getSymbolAddress(FILE* f,struct TreeNode* root){
   // CONTAINS ADDRESS
 
   int adReg = getReg();
-  fprintf(f,"MOV R%d, %d\n",adReg,root->symbol->address);
+  fprintf(f,"MOV R%d, %d\n",adReg,root->Gsymbol->address);
 
   // CONTAINS COPIED ADDRESS VALUE TO CHECK OVERFLOW CONDITION
 
@@ -42,7 +42,7 @@ int getSymbolAddress(FILE* f,struct TreeNode* root){
 
       // ------------------------ ROW OVERFLOW HERE ITSELF -----------------------
       int rReg = getReg();
-      fprintf(f,"MOV R%d, %d\n",rReg,root->symbol->rowSize);
+      fprintf(f,"MOV R%d, %d\n",rReg,root->Gsymbol->rowSize);
       fprintf(f,"LE R%d, R%d\n",rReg,exprReg);
       fprintf(f,"JNZ R%d, L50\n",rReg);
       freeReg();
@@ -53,7 +53,7 @@ int getSymbolAddress(FILE* f,struct TreeNode* root){
       freeReg();
     }
 
-    fprintf(f,"MUL R%d, %d\n",b,root->symbol->colSize);
+    fprintf(f,"MUL R%d, %d\n",b,root->Gsymbol->colSize);
     fprintf(f,"ADD R%d, R%d\n",adReg,b);
     freeReg();
 
@@ -61,7 +61,7 @@ int getSymbolAddress(FILE* f,struct TreeNode* root){
 
     // ---------------------- COLUMN OVERFLOW HERE ITSELF --------------------------
     int cReg = getReg();
-    fprintf(f,"MOV R%d, %d\n",cReg,root->symbol->colSize);
+    fprintf(f,"MOV R%d, %d\n",cReg,root->Gsymbol->colSize);
     fprintf(f,"LE R%d, R%d\n",cReg,resReg);
     fprintf(f,"JNZ R%d, L50\n",cReg);
     freeReg();

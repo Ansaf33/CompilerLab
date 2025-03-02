@@ -4,11 +4,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "paramlist.h"
 
 struct list{
   char* name;
   int rowSize;
   int colSize;
+
+  struct paramlist* param;
 
   struct list* next;
 };
@@ -18,6 +21,8 @@ struct list* createVarNode(char* name,int rowSize,int colSize);
 struct list* addVariable(struct list* head,char* name);
 
 struct list* addArray(struct list* head,char* name,int rowSize,int colSize);
+
+struct list* addFunction(struct list* head,char* name,struct paramlist* param);
 
 void printDetails(struct list* head);
 

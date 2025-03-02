@@ -133,17 +133,18 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 25 "parser.y"
+#line 26 "parser.y"
 
   struct TreeNode* node;
   char* string;
   int integer;
   struct list* list;
+  struct paramlist* paramlist;
 
 
 
 
-#line 147 "y.tab.h"
+#line 148 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
