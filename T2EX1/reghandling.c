@@ -254,6 +254,7 @@ void read_codeGen(FILE* f,struct TreeNode* root){
 
 void write_codeGen(FILE* f,struct TreeNode* root){
 
+
   //getInput(f,"Output : ");
   
 
@@ -305,7 +306,7 @@ void write_codeGen(FILE* f,struct TreeNode* root){
 
 // ------------------------------------------------------------- CODE GENERATION FOR IF STATEMENTS
 
-void if_codeGen(FILE* f,struct TreeNode* root){
+void if_codeGen(FILE* f,struct TreeNode* root,int bl,int cl){
   int boolReg = boolean_expression_codeGen(f,root->middle);
   int l0 = getLabel();
   int l1 = getLabel();
@@ -314,13 +315,13 @@ void if_codeGen(FILE* f,struct TreeNode* root){
   // no need for the register storing the result of the boolean expression anymore
   freeReg();
   // code if 'if' statement is true
-  codeGen(f,root->left);
+  codeGen(f,root->left,bl,cl);
   // jump to the end
   fprintf(f,"JMP L%d\n",l1);
 
   // code if 'if' statement is false (ie else condition)
   fprintf(f,"L%d:\n",l0);
-  codeGen(f,root->right);
+  codeGen(f,root->right,bl,cl);
 
   fprintf(f,"L%d:\n",l1);
 
@@ -331,19 +332,102 @@ void if_codeGen(FILE* f,struct TreeNode* root){
 void while_codeGen(FILE* f,struct TreeNode* root){
   int l0 = getLabel();
   int l1 = getLabel();
+
+  // BREAK LABEL AND CONTINUE LABEL
+  int breakLabel = l1;
+  int continueLabel = l0;
+
   // for going through while loop again
   fprintf(f,"L%d:\n",l0);
   int boolReg = boolean_expression_codeGen(f,root->left);
   fprintf(f,"JZ R%d, L%d\n",boolReg,l1);
   freeReg();
+
   // generate code for body of while loop
-  codeGen(f,root->right);
-  // go to while loop again
+  codeGen(f,root->right,breakLabel,continueLabel);
+
+  // go to while loop again -> this will come in use for continue statements
   fprintf(f,"JMP L%d\n",l0);
+  // exit while loop -> this will come in use for break statements
   fprintf(f,"L%d:\n",l1);
+
+  
+  
     
 }
 
+// ------------------------------------------------------------- CODE GENERATION FOR BREAK STATEMENT
+
+void break_codeGen(FILE* f,struct TreeNode* root,int label){
+
+  if(label!=-1){
+   fprintf(f,"JMP L%d\n",label);
+  }
+
+}
+
+// ------------------------------------------------------------- CODE GENERATION FOR CONTINUE STATEMENT
+
+void continue_codeGen(FILE* f,struct TreeNode* root,int label){
+
+  if(label!=-1){
+    fprintf(f,"JMP L%d\n",label);
+  }
+
+}
+
+// ------------------------------------------------------------- CODE GENERATION FOR REPEAT STATEMENT
+
+void repeat_codeGen(FILE* f,struct TreeNode* root){
+  int l0 = getLabel();
+  int l1 = getLabel();
+  int bl = l1;
+  int cl = l0;
+
+  // STARTING POINT
+  fprintf(f,"L%d:\n",l0);
+
+  // CODE FOR STATEMENT LIST
+  codeGen(f,root->right,bl,cl);
+
+  // CONDITION
+  int boolReg = boolean_expression_codeGen(f,root->left);
+
+  // IF IT IS FALSE, GO BACK TO L0
+  fprintf(f,"JZ R%d, L%d\n",boolReg,l0);
+  freeReg();
+
+  // IF IT IS TRUE, GO OUTSIDE
+  fprintf(f,"L%d:\n",l1);
+
+}
+
+// ------------------------------------------------------------- CODE GENERATION FOR DO-WHILE STATEMENT
+
+void dowhile_codeGen(FILE* f,struct TreeNode* root){
+  int l0 = getLabel();
+  int l1 = getLabel();
+  int bl = l1;
+  int cl = l0;
+
+  // STARTING POINT
+  fprintf(f,"L%d:\n",l0);
+
+  // CODE FOR STATEMENT LIST
+  codeGen(f,root->right,bl,cl);
+
+  // CONDITION
+  int boolReg = boolean_expression_codeGen(f,root->left);
+
+  // IF IT IS TRUE, GO BACK TO L0
+  fprintf(f,"JNZ R%d, L%d\n",boolReg,l0);
+  freeReg();
+
+  // IF IT IS FALSE, GO OUTSIDE
+  fprintf(f,"L%d:\n",l1);
+  
+
+}
 
 // ------------------------------------------------------------- BOOLEAN FUNCTIONS
 
@@ -373,7 +457,7 @@ bool isWhile(struct TreeNode* root){
 
 // ------------------------------------------------------------------- MAIN CODEGEN FUNCTION
 
-void codeGen(FILE* f,struct TreeNode* root){
+void codeGen(FILE* f,struct TreeNode* root,int bl,int cl){
     if(root == NULL){
       return;
     }
@@ -388,16 +472,27 @@ void codeGen(FILE* f,struct TreeNode* root){
           write_codeGen(f,root);
           break;
     case 13:
-          codeGen(f,root->left);
-          codeGen(f,root->right);
+          codeGen(f,root->left,bl,cl);
+          codeGen(f,root->right,bl,cl);
           break;
     case 14:
-          if_codeGen(f,root);
+          if_codeGen(f,root,bl,cl);
           break;
-    case 15:
+    case 15: 
           while_codeGen(f,root);
-          break;      
+          break;
+    case 16:
+          break_codeGen(f,root,bl);
+          break;
+    case 17:
+          continue_codeGen(f,root,cl);
+          break;
+    case 18:
+          repeat_codeGen(f,root);
+          break;
+    case 19:
+          dowhile_codeGen(f,root);
+          break;
     }
-   
 }
 

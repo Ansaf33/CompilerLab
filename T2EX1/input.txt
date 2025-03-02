@@ -1,14 +1,14 @@
 begin
-read(i);
-read(n);
-while ( i <= n ) do 
-  if( i == 5 ) then
-    write(i);
-    i = i + 100;
-  else
-    write(i);
-    i = i + 1;
+
+read(a);
+
+repeat 
+  write(a);
+  a = a + 1;
+  if( a == 100 ) then
+    write(a);
+    continue;
   endif;
-endwhile;
+until a == 101;
 
 end;

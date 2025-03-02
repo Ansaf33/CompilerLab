@@ -23,8 +23,8 @@ void yyerror(char* s);
 
 }
 
-%type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST
-%token BEG ID NUM PLUS MINUS MUL DIV EQUALS LT LTE GT GTE EQ NEQ READ WRITE END IF THEN ELSE ENDIF WHILE DO ENDWHILE
+%type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST REPEATST DOWHILEST
+%token BEG ID NUM PLUS MINUS MUL DIV EQUALS LT LTE GT GTE EQ NEQ READ WRITE END IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE REPEAT UNTIL
 %left EQ NEQ
 %left LT LTE GT GTE
 %left PLUS MINUS
@@ -66,6 +66,18 @@ S :
   IFST ';'
   |
   WHILEST ';'
+  |
+  REPEATST ';'
+  |
+  DOWHILEST ';'
+  |
+  BREAK ';' {
+    $<node>$ = createTree(-1,16,-1,"\0",NULL,NULL);
+  }
+  |
+  CONTINUE ';' {
+    $<node>$ = createTree(-1,17,-1,"\0",NULL,NULL);
+  }
   ;
 
 IFST :
@@ -83,6 +95,18 @@ WHILEST :
         $$ = createWhileTree(15,$3,$6);
         }
         ;
+
+REPEATST :
+         REPEAT SL UNTIL E {
+         $$ = createWhileTree(18,$4,$2);
+        }
+        ;
+
+DOWHILEST :
+          DO SL WHILE '(' E ')' { 
+          $$ = createWhileTree(19,$5,$2);
+          }
+          ;
 
 
 ASSG :
@@ -181,21 +205,23 @@ int main(int argc, char* argv[]){
 // --------------------------------- ASSEMBLY CODE
 
 
+
   FILE* xsm = fopen(argv[2],"w");
   fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
   //fprintf(xsm,"BRKP\n");
-  codeGen(xsm,root);
+  codeGen(xsm,root,-1,-1);
   fprintf(xsm,"INT 10\n");
+
 
 // --------------------------------- EXERCISE 1
 
+/*
 
-  /*
   printf("RUNNING EXERCISE1\n");
   evaluate(root);
   getDetails();
-  */
 
+*/
 
   return 0;
 }

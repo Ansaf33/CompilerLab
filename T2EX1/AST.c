@@ -69,9 +69,6 @@ struct TreeNode* createTree(int val,int op,int type,char* varname,struct TreeNod
         
   }
 
-
-
-
   return temp;
 
 }

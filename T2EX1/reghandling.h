@@ -14,6 +14,10 @@ int getReg(void);
 
 void freeReg(void);
 
+// GETTING LABEL
+
+int getLabel(void);
+
 // PRINT OUT SOMETHING IN CONSOLE
 
 void getInput(FILE* f,char* s);
@@ -58,6 +62,7 @@ L2:
 
 */
 
+void if_codeGen(FILE* f,struct TreeNode* root,int bl,int cl);
 
 /*
 CODE FOR BOOLEAN EXPRESSION
@@ -69,9 +74,18 @@ L1:
 */
 void while_codeGen(FILE* f,struct TreeNode* root);
 
+// CODE GEN FOR BREAK STATEMENT
+
+void break_codeGen(FILE* f,struct TreeNode* root,int label);
+
+// CODE GEN FOR CONTINUE STATEMENT
+
+void continue_codeGen(FILE* f,struct TreeNode* root,int label);
+
 // codeGen for entire statement lists
 
-void codeGen(FILE* f,struct TreeNode* root);
+void codeGen(FILE* f,struct TreeNode* root,int bl,int cl);
+
 
 // boolean return values if the root value is an assignment/read/write/expression node
 
@@ -81,7 +95,13 @@ bool isRead(struct TreeNode* root);
 
 bool isWrite(struct TreeNode* root);
 
-bool isExpression(struct TreeNode* root);
+bool isArithmeticExpression(struct TreeNode* root);
+
+bool isBooleanExpression(struct TreeNode* root);
+
+bool isIf(struct TreeNode* root);
+
+bool isWhile(struct TreeNode* root);
 
 
 #endif

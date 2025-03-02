@@ -1,8 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "evaluator.h"
 
 static int variables[26];
+
+
+static bool breakFlag = false;
+static bool continueFlag = false;
 
 
 // ---------------------------------- MAIN EVALUATION FUNCTION FOR STATEMENTS
@@ -16,6 +21,7 @@ void evaluate(struct TreeNode* root){
   switch(root->op){
 
     // ASSIGNMENT
+
     case 4:
       int idx = (int)root->left->varname-97;
       variables[idx] = arithmetic_expressionEvaluator(root->right);
@@ -23,24 +29,30 @@ void evaluate(struct TreeNode* root){
       break;
 
     // READ OP
+
     case 11:
       printf("Enter %c : ",root->left->varname);
       scanf("%d",&variables[(int)root->left->varname-97]);
       break;
 
     // WRITE OP
+
     case 12:
       int num = arithmetic_expressionEvaluator(root->left);
       printf("Output : %d\n",num);
       break;   
 
     // STATEMENT
+
     case 13:
       evaluate(root->left);
+      if( !breakFlag && !continueFlag ){
       evaluate(root->right);
+      }
       break;
 
     // IF STATEMENT
+
     case 14:
       bool result = boolean_expressionEvaluator(root->middle);
       if( result ){
@@ -52,11 +64,73 @@ void evaluate(struct TreeNode* root){
       break;
 
     // WHILE STATEMENT
+
     case 15:
       while(boolean_expressionEvaluator(root->left)){
+        // if break is activated
+        if( breakFlag ){
+          breakFlag = false;
+          break;
+        }
+        if( continueFlag ){
+          continueFlag = false;
+          continue;
+        }
         evaluate(root->right);
       }
       break;
+
+    // BREAK STATEMENT
+
+    case 16:
+      breakFlag = true;
+      break;
+
+    // CONTINUE STATEMENT
+
+    case 17:
+      continueFlag = true;
+      break;
+
+    // REPEAT STATEMENT
+
+    case 18:
+      do {
+
+        if( breakFlag ){
+          breakFlag = false;
+          break;
+        }
+        if( continueFlag ){
+          continueFlag = false;
+          break;
+        }
+        evaluate(root->right);
+
+      } while(!boolean_expressionEvaluator(root->left));
+
+      break;
+
+    // DO-WHILE STATEMENT
+
+    case 19:
+      do {
+
+        if( breakFlag ){
+          breakFlag = false;
+          break;
+        }
+        if( continueFlag ){
+          continueFlag = false;
+          break;
+        }
+        evaluate(root->right);
+
+      } while(boolean_expressionEvaluator(root->left));
+
+      break;
+    
+
   }
 
  
