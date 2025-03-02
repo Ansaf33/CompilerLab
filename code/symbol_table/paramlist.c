@@ -65,11 +65,12 @@ bool paramPresent(struct paramlist* head,char* name){
 // -------------------- PRINTING PARAMETERS
 
 void printParameters(struct paramlist* head){
-  printf("-------------------- PARAMETER LIST --------------------\n");
+  printf("-------------------- PARAMETER LIST --------------------\n\n");
   struct paramlist* cur = head;
   while(cur!=NULL){
-    printf("Name : %s | Type : %d |\n",cur->name,cur->type);
+    printf("| name : %s | type : %d |\n",cur->name,cur->type);
     cur = cur->next;
   }
+  printf("\n");
 }
 

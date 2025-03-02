@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../symbol_table/Gsymbol.h"
 #include "../symbol_table/paramlist.h"
 
 
@@ -18,7 +17,7 @@ bool checkValidRetType(int a,char* name);
 
 // CHECKING IF FUNCTION WAS ALREADY DEFINED BEFORE IT WAS DECLARED
 
-bool checkFunctionDefined(char* name);
+bool checkFunctionDeclared(char* name);
 
 
 

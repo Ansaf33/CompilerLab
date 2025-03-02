@@ -70,7 +70,7 @@ struct TreeNode* createNumNode(int val){
   temp->left = NULL;
   temp->right = NULL;
   temp->middle = NULL;
-  temp->Gsymbol = NULL;
+ 
 
   return temp;
 }
@@ -88,7 +88,6 @@ struct TreeNode* createOpNode(int type,int op,struct TreeNode* left,struct TreeN
   temp->left = left;
   temp->right = right;
   temp->middle = NULL;
-  temp->Gsymbol = NULL;
 
 
   if( left ){ 
@@ -118,7 +117,6 @@ struct TreeNode* createStringNode(char* string){
   temp->left = NULL;
   temp->right = NULL;
   temp->middle = NULL;
-  temp->Gsymbol = NULL;
 
   return temp;
 }
@@ -134,7 +132,7 @@ struct TreeNode* createIdNode(char* varname,struct TreeNode* row,struct TreeNode
   temp->Gsymbol = lookGUp(varname);
   temp->Lsymbol = lookLUp(varname);
 
-  // ------------------------- DECIDING LOCAL / GLOBAL / NOT DECLARED
+  // ------------------------- DECIDING LOCAL / GLOBAL / NOT DECLARED --------------
   
   if( temp->Lsymbol  ){
     temp->Gsymbol = NULL;
@@ -143,10 +141,10 @@ struct TreeNode* createIdNode(char* varname,struct TreeNode* row,struct TreeNode
     temp->Lsymbol = NULL;
   }
   else{
-    printf("Cannot declare variables outside declaration scope\n");
+    printf("Cannot declare variable | %s | outside declaration scope\n",varname);
     exit(1);
   }
-  // ------------------------- DECIDING DONE
+  // ------------------------- DECIDING DONE ----------------------------------------
  
   temp->val = -1;
   temp->string = NULL;
@@ -183,7 +181,6 @@ struct TreeNode* createIfNode(struct TreeNode* middle,struct TreeNode* left,stru
   temp->left = left;
   temp->middle = middle;
   temp->right = right;
-  temp->Gsymbol = NULL;
 
   // CHECK IF SATISFIABLE
 
@@ -211,7 +208,6 @@ struct TreeNode* createWhileNode(int op,struct TreeNode* left,struct TreeNode* r
   temp->left = left;
   temp->right = right;
   temp->middle = NULL;
-  temp->Gsymbol = NULL;
 
   // CHECK IF SATISFIABLE
 
@@ -238,10 +234,16 @@ struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
   temp->Gsymbol = lookGUp(varname);
 
   if(temp->Gsymbol == NULL){
-    printf("Cannot declare functions outside declaration scope\n");
+    printf("Function %s is not declared.\n",varname);
     exit(1);
   }
-  // ------------------ CHECKING DONE ----------------------
+  // -------------------- CHECK IF FUNCTION IS DEFINED -------------------
+  if( !temp->Gsymbol->defined ){
+    printf("Function | %s | is not defined.\n",varname);
+    exit(1);
+  }
+
+  // ------------------ CHECKING DONE ------------------------------------
 
   temp->val = -1;
   temp->op = -1;
@@ -254,7 +256,6 @@ struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
   temp->middle = NULL;
 
   //  ---------- CHECK IF ARGLIST GIVEN MATCHES THE TYPE IN THE PARAMETER TABLE OF THAT FUNCTION ----------------
-
     temp->argList = argList;
 
     struct TreeNode* arg = temp->argList;
@@ -273,7 +274,6 @@ struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
       printf("Argument size does not match parameter size.\n");
       exit(1);
     }
-
   // ------------ CHECKING DONE ----------------
   
 

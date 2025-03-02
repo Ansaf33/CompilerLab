@@ -88,24 +88,6 @@ struct Gsymbol* lookGUp(char* name){
 }
 
 
-// ----------------------------- CHECK IF THE NAME IS PRESENT IN Gsymbol TABLE (Similar to lookGUp, so not used)
-
-
-bool checkIfDeclared(char* name){
-
-  struct Gsymbol* current = Ghead;
-  while(current!=NULL){
-    if( strcmp(current->name,name) == 0 ){
-      return true;    
-    }
-    current = current->next;
-  }
-  printf("Not declared\n");
-  exit(1);
-  return false;
-
-
-}
 
 // ----------------------------- PRINTING DETAILS OF ALL SYMBOLS IN THE LINKED LIST
 
@@ -113,31 +95,13 @@ void getGSymbolTable(){
   printf("------------------------------ GLOBAL SYMBOL TABLE ------------------------------\n");
   struct Gsymbol* current = Ghead;
   while( current != NULL ){
-    printf("name : %s | type : %d | rowSize : %d | colSize : %d | address : %d | flabel : %d\n",current->name,current->type,current->rowSize,current->colSize,current->address,current->flabel);
+    printf("| name : %s | type : %d | rowSize : %d | colSize : %d  | address : %d  | flabel : %d | hasParam : %d |\n",current->name,current->type,current->rowSize,current->colSize,current->address,current->flabel,current->param?1:0);
     current = current->next;
   }
-  getParamTable();
+  printf("\n");
+  
 }
 
-// ------------------------------- GETTING PARAMETER DETAILS OF THE FUNCTIONS IN GLOBAL SYMBOL TABLE
 
-void getParamTable(){
-  struct Gsymbol* current = Ghead;
-  while( current != NULL ){
-    if( current->param != NULL ){
-      printf("-------------------- PARAMETER TABLE FOR FUNCTION : %s --------------------\n",current->name);
-      struct paramlist* p = current->param;
-      // ITERATING THROUGH EACH PARAMETER
-      while( p != NULL ){
-        printf("Name : %s | Type : %d | \n",p->name,p->type);
-        p = p->next;
-      }
-    }
-    current = current->next;
-
-  }
-
-
-}
 
 

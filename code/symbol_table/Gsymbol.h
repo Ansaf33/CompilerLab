@@ -16,8 +16,10 @@ struct Gsymbol{
 
   int address;
 
+
   struct paramlist* param;
   int flabel;
+  bool defined;
 
   struct Gsymbol* next;
 
@@ -37,16 +39,10 @@ void addGSymbol(char* name,int type,int rowSize,int colSize,struct paramlist* pa
 
 struct Gsymbol* lookGUp(char* name);
 
-// CHECK IF DECLARED, IF NO, THEN EXIT
-
-bool checkIfDeclared(char* name);
-
 // PRINTING DETAILS
 
 void getGSymbolTable(void);
 
-// PRINTING PARAMETER DETAILS ( CALLED VIA GETGSYMBOLTABLE )
 
-void getParamTable(void);
 
 #endif

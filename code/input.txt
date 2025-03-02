@@ -2,28 +2,38 @@ decl
 int mainvar;
 int adder(int a,int b);
 int subtractor(int a,int b);
+int multiplier(int a,int b);
 enddecl
+
 
 int adder(int a,int b){
   decl
   int sum;
   enddecl
-
   begin
-  sum = a+b;
+  sum = a + b;
   end;
 
 }
+
 
 int subtractor(int a,int b){
   decl
   int dif;
   enddecl
-
   begin
-  dif = a-b;
+  dif = adder(a,b);
   end;
 
+}
+
+int multiplier(int a,int b){
+  decl
+  int mul;
+  enddecl
+  begin
+  mul = adder(adder(a,b),subtractor(a,b));
+  end;
 
 }
 

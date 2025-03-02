@@ -86,12 +86,13 @@ struct Lsymbol* lookLUp(char* name){
 
 struct Lsymbol* getLSymbolTable(){
   if(Lhead){
-    printf("---------------------------- LOCAL SYMBOL TABLE ----------------------------\n");
+    printf("--------------- LOCAL SYMBOL TABLE ---------------------\n\n");
     struct Lsymbol* cur = Lhead;
     while(cur != NULL){
-      printf("Name : %s | Type : %d | Address : %d |\n",cur->name,cur->type,cur->address);
+      printf("| name : %s | type : %d | address : %d |\n",cur->name,cur->type,cur->address);
       cur = cur->next;
     }
+    printf("\n");
   }
 
   return Lhead;

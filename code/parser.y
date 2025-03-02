@@ -21,7 +21,7 @@ extern FILE* yyin;
 
 int yylex(void);
 void yyerror(char* s);
-
+FILE* xsm;
 
 
 %}
@@ -131,20 +131,21 @@ GidList :
         ;
 
 FdefBlock :
-          FdefBlock Fdef |
+          FdefBlock Fdef 
+          |
           Fdef
           ;
 
 Fdef :
      TYPE ID '(' ParamList ')' '{' LdeclBlock Body '}' {
-     printf("------------------- FUNCTION :  %s -----------------------------------------------\n",$<string>2);
+     printf("|| ------------------------- FUNCTION : %s ---------------------- ||\n\n",$<string>2);
 
      // PRINT THE PARAMETERS
      printParameters($4);
      // PRINT THE LOCAL SYMBOL TABLE
      getLSymbolTable();
      // CHECK IF FUNCTION IS DEFINED
-     checkFunctionDefined($<string>2);
+     checkFunctionDeclared($<string>2);
      // CHECK IF DEFINED PARAMETERS ARE VALID (in paramlist) to DECLARED PARAMETERS (in symboltable->param) (NAME AND TYPE)
      checkValidParams($4,$<string>2);
      // CHECK IF RETURN TYPES OF DECLARED AND DEFINED FUNCTIONS ARE VALID
@@ -206,16 +207,16 @@ LidList :
 
 MainBlock :
           INT MAIN '(' ')' '{' LdeclBlock Body '}' {
-          printf("------------------- FUNCTION : Main -----------------------------------------------\n");
+          printf("|| ------------------------- FUNCTION : Main ---------------------- ||\n\n");
+
+          
+
           // GETTING LOCAL SYMBOL TABLE
           getLSymbolTable();
 
 
           // GENERATING CODE FOR THE MAIN FUNCTION
 
-          FILE* xsm = fopen("assembly_code.xsm","w");
-          fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
-          //fprintf(xsm,"BRKP\n");
           codeGen(xsm,root,-1,-1);
           fprintf(xsm,"JMP L51\n");
 
@@ -438,6 +439,10 @@ OUTPUT :
 int main(int argc, char* argv[]){
 
 
+  xsm = fopen("assembly_code.xsm","w");
+  fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
+  //fprintf(xsm,"BRKP\n");
+  
 // --------------------------------- PARSING INPUT 
   FILE* f = fopen(argv[1],"r");
   yyin = f;

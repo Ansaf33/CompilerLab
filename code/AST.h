@@ -35,7 +35,7 @@ struct TreeNode{
   struct Lsymbol* Lsymbol;
 };
 
-bool isOverflow(struct TreeNode* root);
+
 
 bool typeSatisfied(struct TreeNode* root);
 

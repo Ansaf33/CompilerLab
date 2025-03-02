@@ -17,11 +17,11 @@ bool checkValidParams(struct paramlist* param,char* name){
 
   while( p && s ){
     if( p->type != s->type  ){
-      printf("Declared and defined parameter types don't match.\n");
+      printf("Declared parameter type | %d | and defined parameter type | %d | of function | %s | don't match.\n",s->type,p->type,name);
       exit(1);
     }
     if( strcmp(p->name,s->name) != 0 ){
-      printf("Declared and defined parameter names don't match.\n");
+      printf("Declared parameter name | %s | and defined parameter name | %s | of function | %s | don't match.\n",s->name,p->name,name);
       exit(1);
 
     }
@@ -44,7 +44,7 @@ bool checkValidParams(struct paramlist* param,char* name){
 bool checkValidRetType(int declaredType,char* name){
   int definedType = lookGUp(name)->type;
   if(declaredType!=definedType){
-    printf("Ret type of declared and defined function do not match.\n");
+    printf("Return type of declared and defined function do not match.\n");
     exit(1);
   }
   return true;
@@ -52,10 +52,11 @@ bool checkValidRetType(int declaredType,char* name){
 
 // --------------------- CHECK IF DECLARED FUNCTION WAS DEFINED
 
-bool checkFunctionDefined(char* name){
+bool checkFunctionDeclared(char* name){
   if( lookGUp(name) == NULL ){
-    printf("Function is not defined.\n");
+    printf("Function | %s | is not defined.\n",name);
     exit(1);
   }
+  lookGUp(name)->defined = true;
   return true;
 }
