@@ -7,6 +7,7 @@
 #include "evaluator.h"
 #include "operators/optrans.h"
 #include "symbol_table/Gsymbol.h"
+#include "symbol_table/Lsymbol.h"
 
 
 
@@ -131,17 +132,27 @@ struct TreeNode* createIdNode(char* varname,struct TreeNode* row,struct TreeNode
 
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
   temp->Gsymbol = lookGUp(varname);
+  temp->Lsymbol = lookLUp(varname);
 
-  if(temp->Gsymbol == NULL){
+  // ------------------------- DECIDING LOCAL / GLOBAL / NOT DECLARED
+  
+  if( temp->Lsymbol  ){
+    temp->Gsymbol = NULL;
+  }
+  else if( temp->Gsymbol ){
+    temp->Lsymbol = NULL;
+  }
+  else{
     printf("Cannot declare variables outside declaration scope\n");
     exit(1);
   }
+  // ------------------------- DECIDING DONE
  
   temp->val = -1;
   temp->string = NULL;
 
   temp->op = -1;
-  temp->type = temp->Gsymbol->type;
+  temp->type = temp->Lsymbol?temp->Lsymbol->type:temp->Gsymbol->type;
   temp->varname = (char*)malloc(sizeof(char)*100);
   strcpy(temp->varname,varname);
 
@@ -272,12 +283,32 @@ struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
 // -------------- CREATE LIST OF ARGUMENTS
 
 struct TreeNode* addArgToList(struct TreeNode* listHead,struct TreeNode* argHead){
-  argHead->next = listHead;
-  listHead = argHead;
+
+
+  // ADDING ARGHEAD TO END OF LINKED LIST
+  if( listHead == NULL ){
+    listHead = argHead;
+  }
+  else{
+
+    struct TreeNode* end = listHead;
+    while(end->next != NULL){
+      end = end->next;
+    }
+    end->next = argHead;
+  }
+
 
   return listHead;
 }
 
+
+
+
+
+
+
+// ------------------- INORDER TRAVERSAL
 
 void Inorder(struct TreeNode* root){
   if(root == NULL){
@@ -286,21 +317,22 @@ void Inorder(struct TreeNode* root){
   Inorder(root->left);
   // IT IS A NUMBER
   if(root->val != -1 ){
-    printf(" ( %d )\n",root->val);
+    printf(" ( %d )",root->val);
   }
   // IT IS A STRING
   if(root->string != NULL ){
-    printf(" ( %s )\n",root->string);
+    printf(" ( %s )",root->string);
   }
   // IT IS AN OPERATOR
   else if(root->op != -1 ){
-    printf(" ( %s )\n",map(root->op));
+    printf(" ( %s )",map(root->op));
   }
   // IT IS A VARIABLE / A FUNCTION
   else if( root->varname != NULL ){
-    printf(" ( %s )\n",root->varname);
-
-    printExprList(root->argList);
+    printf(" ( %s )",root->varname);
+    if(root->argList){
+      printExprList(root->argList);
+    }
 
 
   }
@@ -312,12 +344,11 @@ void Inorder(struct TreeNode* root){
 
 void printExprList(struct TreeNode* head){
   struct TreeNode* cur = head;
-  printf("------------ PRINTING ARGUMENT LIST ----------- \n");
+  printf(" [");
   while(cur){
-    printf("ARGUMENT\n");
     Inorder(cur);
     cur = cur->next;
   }
-  printf(" ------------ DONE -------------- \n");
+  printf(" ]");
 
 }

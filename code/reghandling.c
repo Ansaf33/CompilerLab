@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "AST.h"
 #include "symbol_table/Gsymbol.h"
+#include "symbol_table/Lsymbol.h"
 
 // define the maximum limit of registers R0 to R19
 #define NOR 20
@@ -21,12 +22,16 @@ int getSymbolAddress(FILE* f,struct TreeNode* root){
   // CONTAINS ADDRESS
 
   int adReg = getReg();
-  fprintf(f,"MOV R%d, %d\n",adReg,root->Gsymbol->address);
+  if( root->Lsymbol ){
+    fprintf(f,"MOV R%d, %d\n",adReg,root->Lsymbol->address);
+  }
+  else{
+    fprintf(f,"MOV R%d, %d\n",adReg,root->Gsymbol->address);
+  }
 
   // CONTAINS COPIED ADDRESS VALUE TO CHECK OVERFLOW CONDITION
 
   
-
   // IF 1D ARRAY , EVALUATE THE COLUMN EXPRESSION AND ADD IT ( root->symbol->address + 0*size + c )
   
   if( root->column ){

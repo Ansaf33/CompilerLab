@@ -1,15 +1,18 @@
 decl
-
-int a,factorial(int n,int a,int b);
-
+int mainvar;
+int adder(int a,int b);
+int subtractor(int a,int b);
 enddecl
 
 
 int main(){
+
   decl
-  int a,b,c;
   enddecl
+
   begin
+  mainvar = 5 + 3*2;
+  write(mainvar);
   end;
 
 }

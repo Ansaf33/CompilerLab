@@ -16,10 +16,12 @@ struct TreeNode{
   int type;
   char* varname;
 
+  // USED FOR VARIABLES/ARRAYS
   struct TreeNode* row;
   struct TreeNode* column;
 
 
+  // USED FOR EXPRESSIONS / STATEMENTS
   struct TreeNode* left;
   struct TreeNode* middle;
   struct TreeNode* right;
@@ -28,8 +30,9 @@ struct TreeNode{
   struct TreeNode* argList;
   struct TreeNode* next;
 
+  // POINTER TO GLOBAL SYMBOL TABLE ENTRY AND/OR LOCAL SYMBOL TABLE ENTRY
   struct Gsymbol* Gsymbol;
-  struct Gsymbol* Lsymbol;
+  struct Lsymbol* Lsymbol;
 };
 
 bool isOverflow(struct TreeNode* root);

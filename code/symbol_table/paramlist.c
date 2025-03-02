@@ -4,6 +4,10 @@
 #include <stdbool.h>
 #include "paramlist.h"
 
+
+
+// --------------------- CREATING A NODE FOR PARAMETER
+
 struct paramlist* createParamNode(char* name,int type){
 
   struct paramlist* temp = (struct paramlist*)malloc(sizeof(struct paramlist));
@@ -15,21 +19,36 @@ struct paramlist* createParamNode(char* name,int type){
 
 }
 
+// -------------------- ADDING A PARAMETER TO PARAMETER LIST
+
 struct paramlist* addParameter(struct paramlist* head,char* name,int type){
 
-    if( paramPresent(head,name) ){
-      printf("Cannot have parameters with same name.\n");
-      exit(1);
-    }
+  if( paramPresent(head,name) ){
+    printf("Cannot have parameters with same name.\n");
+    exit(1);
+  }
 
-    struct paramlist* temp = createParamNode(name,type);
-    temp->next = head;
+  struct paramlist* temp = createParamNode(name,type);
+
+  if( head == NULL ){
     head = temp;
+  }
+  else{
+    struct paramlist* end = head;
+    while( end->next != NULL ){
+      end = end->next;
+    }
+    end->next = temp;
+  }
+    
+
 
     return head;
 
 
 }
+
+// --------------------- CHECKING IF A PARAMETER IS PRESENT
 
 bool paramPresent(struct paramlist* head,char* name){
   struct paramlist* cur = head;
@@ -43,14 +62,14 @@ bool paramPresent(struct paramlist* head,char* name){
 
 }
 
-
+// -------------------- PRINTING PARAMETERS
 
 void printParameters(struct paramlist* head){
-  printf("------- PARAMETER LIST -------");
+  printf("-------------------- PARAMETER LIST --------------------\n");
   struct paramlist* cur = head;
   while(cur!=NULL){
     printf("Name : %s | Type : %d |\n",cur->name,cur->type);
     cur = cur->next;
   }
-
 }
+

@@ -45,7 +45,7 @@ bool checkIfDeclared(char* name);
 
 void getGSymbolTable(void);
 
-// PRINTING PARAMETER DETAILS ( CALLED VIA GETALL )
+// PRINTING PARAMETER DETAILS ( CALLED VIA GETGSYMBOLTABLE )
 
 void getParamTable(void);
 

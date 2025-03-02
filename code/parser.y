@@ -10,6 +10,8 @@
 #include "symbol_table/varList.h"
 #include "symbol_table/paramlist.h"
 #include "symbol_table/Lsymbol.h"
+#include "functions/checker.h"
+
 
 
 struct TreeNode* root;
@@ -30,6 +32,7 @@ void yyerror(char* s);
   int integer;
   struct list* list;
   struct paramlist* paramlist;
+  struct Lsymbol* Lsymbol;
 
 
 
@@ -38,7 +41,7 @@ void yyerror(char* s);
 %type<paramlist>ParamList
 %type<list> GidList LidList
 %type<integer> TYPE
-%type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST REPEATST DOWHILEST IDENTIFIER CONSTANT ArgList
+%type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST REPEATST DOWHILEST IDENTIFIER CONSTANT ArgList Body
 %token STRING ID NUM PLUS MINUS MUL DIV EQUALS 
 %token LT LTE GT GTE EQ NEQ 
 %token READ WRITE END BEG MAIN 
@@ -123,6 +126,7 @@ GidList :
         |
         ID '(' ParamList ')' {
           $$ = addFunction(NULL,$<string>1,$3);
+          deleteLSymbolTable();
         }
         ;
 
@@ -134,16 +138,23 @@ FdefBlock :
 
 Fdef :
      TYPE ID '(' ParamList ')' '{' LdeclBlock Body '}' {
-          
+     printf("------------------- FUNCTION :  %s -----------------------------------------------\n",$<string>2);
 
-      
+     // PRINT THE PARAMETERS
+     printParameters($4);
+     // PRINT THE LOCAL SYMBOL TABLE
+     getLSymbolTable();
+     // CHECK IF FUNCTION IS DEFINED
+     checkFunctionDefined($<string>2);
+     // CHECK IF DEFINED PARAMETERS ARE VALID (in paramlist) to DECLARED PARAMETERS (in symboltable->param) (NAME AND TYPE)
+     checkValidParams($4,$<string>2);
+     // CHECK IF RETURN TYPES OF DECLARED AND DEFINED FUNCTIONS ARE VALID
+     checkValidRetType($1,$<string>2);
 
+     // DO THE CODE GENERATION PART
 
-
-
-      
-
-
+     // DELETE THE LOCAL SYMBOL TABLE
+     deleteLSymbolTable();
      }
 
      ;
@@ -151,10 +162,12 @@ Fdef :
 ParamList :
           ParamList ',' TYPE ID {
            $$ = addParameter($1,$<string>4,$3);
+           addLastParamToLSymbolTable($$);
           }
           |
           TYPE ID {
            $$ = addParameter(NULL,$<string>2,$1);
+           addLastParamToLSymbolTable($$);
           }
           |
            {
@@ -165,8 +178,6 @@ ParamList :
 
 LdeclBlock :
            DECL LdeclList ENDDECL {
-           printf("All Local Declarations Parsed\n");
-           getLSymbolTable();
            }
            |
            DECL ENDDECL
@@ -196,16 +207,35 @@ LidList :
 
 MainBlock :
           INT MAIN '(' ')' '{' LdeclBlock Body '}' {
+          printf("------------------- FUNCTION : Main -----------------------------------------------\n");
+          // GETTING LOCAL SYMBOL TABLE
+          getLSymbolTable();
+          // GENERATING CODE FOR THE MAIN FUNCTION
 
+          FILE* xsm = fopen("assembly_code.xsm","w");
+          fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
+          //fprintf(xsm,"BRKP\n");
+          codeGen(xsm,root,-1,-1);
+          fprintf(xsm,"JMP L51\n");
 
+          // OVERFLOW CONDITION
+          fprintf(xsm,"L50:\n");
+          getInput(xsm,"Overflow");
+          fprintf(xsm,"INT 10\n");
 
+          // END
+          fprintf(xsm,"L51:\n");
+          fprintf(xsm,"INT 10\n");
+
+          printf("Deleting Local Symbol Table of Main\n");
+
+          deleteLSymbolTable();
           }
-
-
 
 
 Body :
   BEG SL END ';' {
+    $$ = $2;
     root = $2;
     printf("Valid Program.\n");
     Inorder($2);
@@ -417,7 +447,7 @@ int main(int argc, char* argv[]){
 // --------------------------------- ASSEMBLY CODE
 
 
-
+/*
   FILE* xsm = fopen(argv[2],"w");
   fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
   //fprintf(xsm,"BRKP\n");
@@ -432,9 +462,7 @@ int main(int argc, char* argv[]){
   // END
   fprintf(xsm,"L51:\n");
   fprintf(xsm,"INT 10\n");
-
-
-
+*/
 
 
 

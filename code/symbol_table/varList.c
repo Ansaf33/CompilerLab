@@ -24,9 +24,20 @@ struct list* createVarNode(char* name,int rowSize,int colSize){
 
 struct list* addVariable(struct list* head,char* name){
   struct list* temp = createVarNode(name,1,1);
-  temp->next = head;
-  head = temp;
+   
+  // ADDING TO END OF LINKED LIST
+  if( head == NULL ){
+    head = temp;
+  }
+  else{
+    struct list* end = head;
+    while(end->next != NULL){
+      end = end->next;
+    }
+    end->next = temp;
+  }
 
+ 
   return head;
 }
 
@@ -34,8 +45,19 @@ struct list* addVariable(struct list* head,char* name){
 
 struct list* addArray(struct list* head,char* name,int rowSize,int colSize){
   struct list* temp = createVarNode(name,rowSize,colSize);
-  temp->next = head;
-  head = temp;
+
+  // ADDING TO END OF LINKED LIST
+  if( head == NULL ){
+    head = temp;
+  }
+  else{
+    struct list* end = head;
+    while(end->next != NULL){
+      end = end->next;
+    }
+    end->next = temp;
+  }
+
 
   return head;
 }
@@ -45,8 +67,18 @@ struct list* addArray(struct list* head,char* name,int rowSize,int colSize){
 struct list* addFunction(struct list* head,char* name,struct paramlist* param){
   struct list* temp = createVarNode(name,1,1);
   temp->param = param;
-  temp->next = head;
-  head = temp;
+  // ADDING TO END OF LINKED LIST
+  if( head == NULL ){
+    head = temp;
+  }
+  else{
+    struct list* end = head;
+    while(end->next != NULL){
+      end = end->next;
+    }
+    end->next = temp;
+  }
+
 
   return head;
 
@@ -87,40 +119,4 @@ void addAllLSymbols(struct list* head,int type){
 
 }
 
-// ---------------------- CHECK IF DECLARED AND DEFINED PARAMETERS ARE THE SAME
 
-bool checkValidParams(struct paramlist* param,struct Gsymbol* symbol){
-
-  // CHECKING IF PARAMETERS ARE THE SAME
-
-  struct paramlist* p = param;
-  struct paramlist* s = symbol->param;
-
-  while( p && s ){
-    if( p->type != s->type ){
-      printf("Declared and defined parameters don't match.\n");
-      exit(1);
-    }
-    p = p->next;
-    s = s->next;
-  }
-
-  if ( p || s ){
-    printf("Sizes of declared and defined parameters don't match.\n");
-    exit(1);
-
-  }
-
-  return true;
-
-}
-
-// --------------------- CHECK IF DECLARED AND DEFINED RETURN TYPES ARE THE SAME
-
-bool checkValidRetType(int declaredType,int definedType){
-  if(declaredType!=definedType){
-    printf("Return type of declared and defined function do not match.\n");
-    exit(1);
-  }
-  return true;
-}
