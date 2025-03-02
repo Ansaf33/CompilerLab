@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "symbol_table/Gsymbol.h"
+#include "symbol_table/Lsymbol.h"
 
 struct TreeNode{
 
@@ -23,7 +24,12 @@ struct TreeNode{
   struct TreeNode* middle;
   struct TreeNode* right;
 
+  // FOR STORING ARGUMENTS OF A FUNCTION IN A LIST
+  struct TreeNode* argList;
+  struct TreeNode* next;
+
   struct Gsymbol* Gsymbol;
+  struct Gsymbol* Lsymbol;
 };
 
 bool isOverflow(struct TreeNode* root);
@@ -42,7 +48,13 @@ struct TreeNode* createIfNode(struct TreeNode* middle, struct TreeNode* left,str
 
 struct TreeNode* createWhileNode(int op,struct TreeNode* left, struct TreeNode* right);
 
+struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argListHead);
+
+struct TreeNode* addArgToList(struct TreeNode* listHead,struct TreeNode* argHead);
+
 void Inorder(struct TreeNode* root);
+
+void printExprList(struct TreeNode* head);
 
 #endif
 

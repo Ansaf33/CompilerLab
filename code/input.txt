@@ -1,37 +1,15 @@
 decl
-int i,n,s,fact[10],calculator(int a,int b,int c);
-str getLCS(str a,str m);
+
+int a,factorial(int n,int a,int b);
 
 enddecl
 
 
+int main(){
+  decl
+  int a,b,c;
+  enddecl
+  begin
+  end;
 
-begin
-
-read(n);
-
-fact[1] = 1;
-write(1);
-s = 1;
-i = 2;
-
-while ( i <= n ) do 
-
-  fact[i] = fact[i-1] * i;
-  write(fact[i]);
-  s = s + fact[i];
-
-  i = i + 1;
-
-endwhile;
-
-write("sum is");
-write(s);
-
-
-
-
-end;
-
-
-
+}

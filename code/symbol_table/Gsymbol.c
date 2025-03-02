@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "Gsymbol.h"
 
-struct Gsymbol* head = NULL;
+struct Gsymbol* Ghead = NULL;
 static int address = 4096;
 static int label = 0;
 
@@ -30,12 +30,12 @@ struct Gsymbol* createGNode(char* name, int type,int rowSize,int colSize,struct 
 }
 
 
-void addSymbol(char* name,int type,int rowSize,int colSize,struct paramlist* param){
+void addGSymbol(char* name,int type,int rowSize,int colSize,struct paramlist* param){
 
-  if( !lookUp(name) ){
+  if( !lookGUp(name) ){
     struct Gsymbol* temp = createGNode(name,type,rowSize,colSize,param);
-    temp->next = head;
-    head = temp;
+    temp->next = Ghead;
+    Ghead = temp;
 
   }
   else{
@@ -51,9 +51,9 @@ void addSymbol(char* name,int type,int rowSize,int colSize,struct paramlist* par
 
 }
 
-struct Gsymbol* lookUp(char* name){
+struct Gsymbol* lookGUp(char* name){
 
-  struct Gsymbol* current = head;
+  struct Gsymbol* current = Ghead;
 
   while(current != NULL){
 
@@ -73,7 +73,7 @@ struct Gsymbol* lookUp(char* name){
 
 bool checkIfDeclared(char* name){
 
-  struct Gsymbol* current = head;
+  struct Gsymbol* current = Ghead;
   while(current!=NULL){
     if( strcmp(current->name,name) == 0 ){
       return true;    
@@ -91,7 +91,7 @@ bool checkIfDeclared(char* name){
 
 void getGSymbolTable(){
   printf("---------------------------- GLOBAL SYMBOL TABLE ----------------------------\n");
-  struct Gsymbol* current = head;
+  struct Gsymbol* current = Ghead;
   while( current != NULL ){
     printf("name : %s | type : %d | rowSize : %d | colSize : %d | address : %d | flabel : %d\n",current->name,current->type,current->rowSize,current->colSize,current->address,current->flabel);
     current = current->next;
@@ -100,7 +100,7 @@ void getGSymbolTable(){
 }
 
 void getParamTable(){
-  struct Gsymbol* current = head;
+  struct Gsymbol* current = Ghead;
   while( current != NULL ){
     if( current->param != NULL ){
       printf("---------------- PARAMETER TABLE FOR FUNCTION : %s ---------------\n",current->name);

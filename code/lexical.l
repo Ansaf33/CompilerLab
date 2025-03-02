@@ -32,6 +32,10 @@
   return INT;
 }
 
+"main" {
+  return MAIN;
+}
+
 "str" {
   yylval.integer = 2;
   return STR;

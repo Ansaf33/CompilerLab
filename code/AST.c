@@ -130,7 +130,7 @@ struct TreeNode* createIdNode(char* varname,struct TreeNode* row,struct TreeNode
 
 
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
-  temp->Gsymbol = lookUp(varname);
+  temp->Gsymbol = lookGUp(varname);
 
   if(temp->Gsymbol == NULL){
     printf("Cannot declare variables outside declaration scope\n");
@@ -217,6 +217,67 @@ struct TreeNode* createWhileNode(int op,struct TreeNode* left,struct TreeNode* r
 
 }
 
+//--------------- CREATE NODE FOR FUNCTIONS
+
+struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
+  struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+
+
+  // ---------------- CHECK IF PRESENT IN GLOBAL TABLE -------------------
+  temp->Gsymbol = lookGUp(varname);
+
+  if(temp->Gsymbol == NULL){
+    printf("Cannot declare functions outside declaration scope\n");
+    exit(1);
+  }
+  // ------------------ CHECKING DONE ----------------------
+
+  temp->val = -1;
+  temp->op = -1;
+  temp->type = temp->Gsymbol->type;
+  temp->varname = (char*)malloc(sizeof(char)*100);
+  strcpy(temp->varname,varname);
+
+  temp->left = NULL;
+  temp->right = NULL;
+  temp->middle = NULL;
+
+  //  ---------- CHECK IF ARGLIST GIVEN MATCHES THE TYPE IN THE PARAMETER TABLE OF THAT FUNCTION ----------------
+
+    temp->argList = argList;
+
+    struct TreeNode* arg = temp->argList;
+    struct paramlist* param = temp->Gsymbol->param;
+
+    while( arg && param ){
+      if( arg->type != param->type ){
+        printf("Argument and parameter does not match types\n");
+        exit(1);
+      }
+      arg = arg->next;
+      param = param->next;
+    }
+
+    if( !arg && param || !param && arg ){
+      printf("Argument size does not match parameter size.\n");
+      exit(1);
+    }
+
+  // ------------ CHECKING DONE ----------------
+  
+
+  return temp;
+}
+
+// -------------- CREATE LIST OF ARGUMENTS
+
+struct TreeNode* addArgToList(struct TreeNode* listHead,struct TreeNode* argHead){
+  argHead->next = listHead;
+  listHead = argHead;
+
+  return listHead;
+}
+
 
 void Inorder(struct TreeNode* root){
   if(root == NULL){
@@ -225,21 +286,38 @@ void Inorder(struct TreeNode* root){
   Inorder(root->left);
   // IT IS A NUMBER
   if(root->val != -1 ){
-    printf(" ( %d )",root->val);
+    printf(" ( %d )\n",root->val);
   }
   // IT IS A STRING
   if(root->string != NULL ){
-    printf(" ( %s )",root->string);
+    printf(" ( %s )\n",root->string);
   }
   // IT IS AN OPERATOR
   else if(root->op != -1 ){
-    printf(" ( %s )",map(root->op));
+    printf(" ( %s )\n",map(root->op));
   }
-  // IT IS A VARIABLE
+  // IT IS A VARIABLE / A FUNCTION
   else if( root->varname != NULL ){
-    printf(" ( %s )",root->varname);
+    printf(" ( %s )\n",root->varname);
+
+    printExprList(root->argList);
+
+
   }
+  
 
   Inorder(root->middle);
   Inorder(root->right);
+}
+
+void printExprList(struct TreeNode* head){
+  struct TreeNode* cur = head;
+  printf("------------ PRINTING ARGUMENT LIST ----------- \n");
+  while(cur){
+    printf("ARGUMENT\n");
+    Inorder(cur);
+    cur = cur->next;
+  }
+  printf(" ------------ DONE -------------- \n");
+
 }

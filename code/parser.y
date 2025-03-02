@@ -9,6 +9,7 @@
 #include "symbol_table/Gsymbol.h"
 #include "symbol_table/varList.h"
 #include "symbol_table/paramlist.h"
+#include "symbol_table/Lsymbol.h"
 
 
 struct TreeNode* root;
@@ -35,12 +36,12 @@ void yyerror(char* s);
 }
 
 %type<paramlist>ParamList
-%type<list> GidList;
+%type<list> GidList LidList
 %type<integer> TYPE
-%type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST REPEATST DOWHILEST IDENTIFIER CONSTANT
+%type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST REPEATST DOWHILEST IDENTIFIER CONSTANT ArgList
 %token STRING ID NUM PLUS MINUS MUL DIV EQUALS 
 %token LT LTE GT GTE EQ NEQ 
-%token READ WRITE END BEG 
+%token READ WRITE END BEG MAIN 
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE REPEAT UNTIL
 %token DECL ENDDECL INT STR
 %left EQ NEQ
@@ -62,7 +63,7 @@ PROGRAM :
 
 GdeclBlock :
              DECL GdeclList ENDDECL{
-                printf("All declarations parsed.\n");
+                printf("All Global Declarations parsed.\n");
                 getGSymbolTable();
               }
              |
@@ -77,7 +78,7 @@ GdeclList :
 
 Gdecl :
      TYPE GidList ';' {
-        addAllSymbols($2,$1);
+        addAllGSymbols($2,$1);
      }
      ;
 
@@ -132,7 +133,13 @@ FdefBlock :
           ;
 
 Fdef :
-     TYPE ID '(' ParamList ')' '{' LdeclBlock Body '}' 
+     TYPE ID '(' ParamList ')' '{' LdeclBlock Body '}' {
+
+
+
+
+     }
+
      ;
 
 ParamList :
@@ -143,10 +150,19 @@ ParamList :
           TYPE ID {
            $$ = addParameter(NULL,$<string>2,$1);
           }
+          |
+           {
+           $$ = NULL;
+          }
+
           ;
 
 LdeclBlock :
-           DECL LdeclList ENDDECL
+           DECL LdeclList ENDDECL {
+           printf("All Local Declarations Parsed\n");
+           getLSymbolTable();
+
+           }
            |
            DECL ENDDECL
            ;
@@ -154,49 +170,37 @@ LdeclBlock :
 LdeclList :
           LdeclList Ldecl
           |
-          Ldecl
+          Ldecl {
+
+          }
           ;
 
 Ldecl :
-      TYPE LidList ';'
+      TYPE LidList ';' {
+         addAllLSymbols($2,$1);
+      }
 
 LidList : 
-        LidList ',' ID
+        LidList ',' ID {
+        $$ = addVariable($1,$<string>3);
+        }
         |
-        ID
+        ID {
+        $$ = addVariable(NULL,$<string>1);
+        }
         ;
-
-Body :
-     BEG SL END ';'
-     ;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 MainBlock :
+          INT MAIN '(' ')' '{' LdeclBlock Body '}' {
+
+
+          }
+
+
+
+
+Body :
   BEG SL END ';' {
     root = $2;
     printf("Valid Program.\n");
@@ -341,18 +345,22 @@ IDENTIFIER :
             }
             |
             ID '(' ')' {
-            $$ = NULL;
+            $$ = createFunctionNode($<string>1,NULL);
             }
             |
-            ID '(' ArgList ')' {
-            $$ = NULL;
+            ID '(' ArgList ')' { 
+            $$ = createFunctionNode($<string>1,$3);
             }
             ;
 
 ArgList :
-        ArgList ','  E
+        ArgList ','  E {
+        $$ = addArgToList($1,$3);
+        }
         |
-        E
+        E {
+        $$ = $1;
+        }
         ;
 
 

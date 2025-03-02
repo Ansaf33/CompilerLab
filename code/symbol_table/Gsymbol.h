@@ -30,12 +30,12 @@ struct Gsymbol* createGNode(char* name,int type,int rowSize,int colSize,struct p
 
 // ADDING IT TO LL
 
-void addSymbol(char* name,int type,int rowSize,int colSize,struct paramlist* param);
+void addGSymbol(char* name,int type,int rowSize,int colSize,struct paramlist* param);
 
 
 // LOOKUP DETAILS BASED ON NAME
 
-struct Gsymbol* lookUp(char* name);
+struct Gsymbol* lookGUp(char* name);
 
 // CHECK IF DECLARED, IF NO, THEN EXIT
 

@@ -3,7 +3,7 @@
 #include <string.h>
 #include "varList.h"
 #include "Gsymbol.h"
-
+#include "Lsymbol.h"
 
 struct list* createVarNode(char* name,int rowSize,int colSize){
 
@@ -53,10 +53,22 @@ void printDetails(struct list* head){
   }
 }
 
-void addAllSymbols(struct list* head, int type){
+void addAllGSymbols(struct list* head, int type){
   struct list* cur = head;
   while(cur != NULL){
-    addSymbol(cur->name,type,cur->rowSize,cur->colSize,cur->param);
+    addGSymbol(cur->name,type,cur->rowSize,cur->colSize,cur->param);
     cur = cur->next;
   }
+}
+
+void addAllLSymbols(struct list* head,int type){
+  struct Lsymbol* Lhead = NULL;
+  struct list* cur = head;
+  while(cur != NULL){
+    Lhead = addLSymbol(cur->name,type);
+    cur = cur->next;
+  }
+
+
+
 }

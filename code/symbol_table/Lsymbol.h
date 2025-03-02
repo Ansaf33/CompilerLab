@@ -10,13 +10,14 @@ struct Lsymbol{
   int type;
   int address;
   struct Lsymbol* next;
-
 };
 
-struct Lsymbol* createLNode(char* name,int type,int address);
+struct Lsymbol* createLNode(char* name,int type);
 
-struct Lsymbol* addLsymbol(struct Lsymbol* head,char* name,int type,int address);
+struct Lsymbol* addLSymbol(char* name,int type);
 
-void getLSymbolTable(struct Lsymbol* head);
+struct Lsymbol* lookLUp(char* name);
+
+void getLSymbolTable(void);
 
 #endif

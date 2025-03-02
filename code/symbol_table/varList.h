@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "paramlist.h"
+#include "Lsymbol.h"
 
 struct list{
   char* name;
@@ -26,7 +27,9 @@ struct list* addFunction(struct list* head,char* name,struct paramlist* param);
 
 void printDetails(struct list* head);
 
-void addAllSymbols(struct list* head,int type);
+void addAllGSymbols(struct list* head,int type);
+
+void addAllLSymbols(struct list* head,int type);
 
 
 #endif
