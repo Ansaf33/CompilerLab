@@ -17,9 +17,14 @@
 #include "udt/fieldlist.h"
 #include "typetable/typetable.h"
 
+#include "class/classtable.h"
+#include "class/classmember.h"
+#include "class/classmethod.h"
+
 
 
 struct TreeNode* root;
+struct classtable* C;
 
 
 extern FILE* yyin;
@@ -60,7 +65,7 @@ void endxsm(FILE* f);
 %token LT LTE GT GTE EQ NEQ 
 %token PLUS MINUS MUL DIV EQUALS
 %token END BEG MAIN DECL ENDDECL BEGINTYPE ENDTYPE BEGINCLASS ENDCLASS
-%token NEW DELETE
+%token NEW DELETE EXTENDS
 %token READ WRITE
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE REPEAT UNTIL RETURN
 %token INT STR
@@ -75,11 +80,11 @@ void endxsm(FILE* f);
 %%
 
 PROGRAM :
-        TypeDefBlock GdeclBlock FdefBlock MainBlock
+        TypeDefBlock ClassDefBlock GdeclBlock FdefBlock MainBlock
         |
-        TypeDefBlock GdeclBlock MainBlock
+        TypeDefBlock ClassDefBlock GdeclBlock MainBlock
         |
-        TypeDefBlock MainBlock
+        TypeDefBlock ClassDefBlock MainBlock
 
 TypeDefBlock :
              BEGINTYPE TypeDefList ENDTYPE{
@@ -116,6 +121,68 @@ FieldDeclList :
               }
               ;
 
+
+ClassDefBlock :
+              BEGINCLASS ClassDefList ENDCLASS
+              |
+              ;
+
+ClassDefList :
+             ClassDefList ClassDef
+             |
+             ClassDef
+             ;
+
+ClassDef :
+         Cname '{' DECL MemberDeclList MethodDeclList ENDDECL MethodDefList '}' {
+         printf("Class declared\n");
+         printClass(C);
+         }
+         ;
+
+Cname :
+      ID {
+      C = addClassNode($<string>1);
+      }
+      |
+      ID EXTENDS ID
+      ;
+
+MemberDeclList :
+          MemberDeclList MemberDecl
+          |
+          MemberDecl
+          ;
+
+MemberDecl :
+      TYPE ID ';' {
+        addMemberToClass(C,lookTTUp($1),lookClassUp($1),$<string>2);
+      }
+
+MethodDeclList : 
+           MethodDeclList MethodDecl
+           |
+           MethodDecl
+           ;
+
+MethodDecl :
+      TYPE ID '(' ParamList ')' ';' {
+        addMethodToClass(C,lookTTUp($1),$<string>2,$4);
+        deleteLSymbolTable();
+      }
+      ;
+
+MethodDefList :
+           MethodDefList MethodDef
+           |
+        
+           ;
+
+MethodDef :
+          TYPE ID '(' ParamList ')' '{' LdeclBlock Body '}' {
+          }
+
+
 GdeclBlock :
              DECL GdeclList ENDDECL{
                 printf("All Global Declarations parsed.\n");
@@ -133,7 +200,7 @@ GdeclList :
 
 Gdecl :
      TYPE GidList ';' {
-          addAllGSymbols($2,lookTTUp($1));
+          addAllGSymbols($2,lookTTUp($1),lookClassUp($1));
      }
      ;
 
@@ -529,7 +596,7 @@ int main(int argc, char* argv[]){
 
   //SOME INITIAL STUFF
   createPrimitive();
-  addGSymbol("main",lookTTUp("int"),1,1,NULL,1);
+  addGSymbol("main",lookTTUp("int"),NULL,1,1,NULL,1);
 
   FILE* f = fopen(argv[1],"r");
   yyin = f;

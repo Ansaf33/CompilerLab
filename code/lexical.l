@@ -39,8 +39,8 @@
   return BEGINCLASS;
 }
 
-"endclass" {
-  return ENDCLASS;
+"extends" {
+  return EXTENDS;
 }
 
 "new" {
@@ -49,6 +49,10 @@
 
 "delete" {
   return DELETE;
+}
+
+"endclass" {
+  return ENDCLASS;
 }
 
 "type" {

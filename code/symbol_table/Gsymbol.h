@@ -7,10 +7,12 @@
 #include <stdbool.h>
 #include "paramlist.h"
 #include "../typetable/typetable.h"
+#include "../class/classtable.h"
 
 struct Gsymbol{
   char* name;
   struct typetable* type;
+  struct classtable* Ctype;
 
   int rowSize;
   int colSize;
@@ -30,11 +32,11 @@ struct Gsymbol{
 
 // CREATING A NODE
 
-struct Gsymbol* createGNode(char* name,struct typetable* type,int rowSize,int colSize,struct paramlist* param,int isFunction);
+struct Gsymbol* createGNode(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction);
 
 // ADDING IT TO LL
 
-void addGSymbol(char* name,struct typetable* type,int rowSize,int colSize,struct paramlist* param,int isFunction);
+void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction);
 
 
 // LOOKUP DETAILS BASED ON NAME

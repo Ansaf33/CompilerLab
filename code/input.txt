@@ -7,8 +7,24 @@ List{
 
 endtype
 
+class
+
+Person{
+  decl
+  str name;
+  int age;
+  str quote;
+  Person bff;
+  int getSomeQuote(int a,int b);
+  str getName(int c,int d);
+  enddecl
+}
+
+endclass
+
 decl
 List head;
+Person p;
 enddecl
 
 int main(){

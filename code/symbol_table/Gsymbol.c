@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "Gsymbol.h"
 #include "../typetable/typetable.h"
+#include "../class/classtable.h"
 
 struct Gsymbol* Ghead = NULL;
 static int address = 4096;
@@ -12,13 +13,14 @@ static int label = 0;
 
 // ------------ CREATE A Gsymbol Node
 
-struct Gsymbol* createGNode(char* name, struct typetable* type,int rowSize,int colSize,struct paramlist* param,int isFunction){
+struct Gsymbol* createGNode(char* name, struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction){
 
   struct Gsymbol* temp = (struct Gsymbol*)malloc(sizeof(struct Gsymbol));
 
   temp->name = (char*)malloc(sizeof(char)*100);
   temp->name = strcpy(temp->name,name);
   temp->type = type;
+  temp->Ctype = Ctype;
 
   temp->rowSize = rowSize;
   temp->colSize = colSize;
@@ -35,11 +37,11 @@ struct Gsymbol* createGNode(char* name, struct typetable* type,int rowSize,int c
 
 // ------------------------ ADD A Gsymbol to the table
 
-void addGSymbol(char* name,struct typetable* type,int rowSize,int colSize,struct paramlist* param,int isFunction){
+void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction){
 
 
   if( !lookGUp(name) ){
-    struct Gsymbol* temp = createGNode(name,type,rowSize,colSize,param,isFunction);
+    struct Gsymbol* temp = createGNode(name,type,Ctype,rowSize,colSize,param,isFunction);
 
     // ADDING TO END OF LINKED LIST
     if( Ghead == NULL ){
@@ -89,7 +91,16 @@ void getGSymbolTable(){
   printf("------------------------------ G L O B A L S Y M B O L T A B L E ------------------------------\n");
   struct Gsymbol* current = Ghead;
   while( current != NULL ){ 
-    printf("| name : %s | type : %s | rowSize : %d | colSize : %d  | binding : %d  | flabel : %d | hasParam : %d |\n",current->name,current->type->name,current->rowSize,current->colSize,current->binding,current->flabel,current->param?1:0);
+    printf("| name : %s | type : %s | Ctype : %s | rowSize : %d | colSize : %d  | binding : %d  | flabel : %d | hasParam : %d |\n",
+           current->name,
+           current->type?current->type->name:"NULL",
+           current->Ctype?current->Ctype->name:"NULL",
+           current->rowSize,
+           current->colSize,
+           current->binding,
+           current->flabel,
+           current->param?1:0);
+
     current = current->next;
   }
   printf("\n");

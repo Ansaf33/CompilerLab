@@ -6,6 +6,7 @@
 #include "Gsymbol.h"
 #include "Lsymbol.h"
 #include "../typetable/typetable.h"
+#include "../class/classtable.h"
 
 struct list* createVarNode(char* name,int rowSize,int colSize){
 
@@ -101,10 +102,10 @@ void printDetails(struct list* head){
 
 // ---------------- INPUT IS A LIST, ADDED TO GSYMBOL TABLE
 
-void addAllGSymbols(struct list* head,struct typetable* type){
+void addAllGSymbols(struct list* head,struct typetable* type,struct classtable* Ctype){
   struct list* cur = head;
   while(cur != NULL){
-    addGSymbol(cur->name,type,cur->rowSize,cur->colSize,cur->param,cur->isFunction);
+    addGSymbol(cur->name,type,Ctype,cur->rowSize,cur->colSize,cur->param,cur->isFunction);
     cur = cur->next;
   }
 }
