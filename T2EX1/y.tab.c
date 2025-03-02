@@ -1883,15 +1883,26 @@ int main(int argc, char* argv[]){
   fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
   //fprintf(xsm,"BRKP\n");
   codeGen(xsm,root,-1,-1);
+  fprintf(xsm,"JMP L51\n");
+
+  // OVERFLOW CONDITION
   fprintf(xsm,"L50:\n");
+  getInput(xsm,"Overflow");
   fprintf(xsm,"INT 10\n");
+
+  // END
+  fprintf(xsm,"L51:\n");
+  fprintf(xsm,"INT 10\n");
+
+
+
 
 
 
 // --------------------------------- EXERCISE 1
 
-/*
 
+/*
   printf("RUNNING EXERCISE1\n");
   evaluate(root);
   getDetails();

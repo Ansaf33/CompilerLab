@@ -11,7 +11,7 @@ static bool continueFlag = false;
 // ---------------------------------- GETTING ADDRESS FROM A NODE
 
 int getSA(struct TreeNode* root){
-  return root->symbol->address + (root->left?arithmetic_expressionEvaluator(root->left):0);
+  return root->symbol->address + (root->middle?arithmetic_expressionEvaluator(root->middle):0);
 
 }
 
@@ -28,8 +28,10 @@ void evaluate(struct TreeNode* root){
     // ASSIGNMENT
 
     case 4:
+
       int idx = getSA(root->left) - 4096;
       variables[idx] = arithmetic_expressionEvaluator(root->right);
+
       break;
 
     // READ OP

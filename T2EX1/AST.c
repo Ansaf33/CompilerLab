@@ -9,17 +9,7 @@
 #include "symbol_table/symbol.h"
 
 
-// -------------- CHECK OVERFLOW CONDITION
 
-bool isOverflow(struct TreeNode* root){
-  if(!root->left){
-    return false;
-  }
-  int idx = arithmetic_expressionEvaluator(root->left);
-  return idx >= root->symbol->size;
-
-
-}
 
 // ------------- CHECK IF TYPE IS SAME
 
@@ -30,7 +20,7 @@ bool typeSatisfied(struct TreeNode* root){
     if(root->op >=0 && root->op <= 3){
       return root->left->type == 0 && root->right->type == 0;
     }
-    // if assigns, left should be an identifier (integer) and right should be integer
+    // if assigns, left should be an identifier (integer/string) and right should be an expression (integer/string)
     else if( root->op == 4 ){
        return root->left->type == 0 && root->right->type == 0 || root->left->type == 2 && root->right->type == 2;
     }
@@ -93,14 +83,14 @@ struct TreeNode* createOpNode(int type,int op,struct TreeNode* left,struct TreeN
   temp->string = NULL;
   temp->op = op;
   temp->type = type;
-  temp->varname = "\0";
+  temp->varname = NULL;
   temp->left = left;
   temp->right = right;
   temp->middle = NULL;
   temp->symbol = NULL;
 
 
-  if( left  ){ 
+  if( left ){ 
     if(!typeSatisfied(temp)){
       printf("Operator Condition : Type not matching.\n");
       exit(1);
@@ -136,8 +126,7 @@ struct TreeNode* createStringNode(char* string){
 
 // -------------- CREATE NODE FOR IDs
 
-struct TreeNode* createIdNode(char* varname,struct TreeNode* left){
-
+struct TreeNode* createIdNode(char* varname,struct TreeNode* middle){
 
 
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
@@ -154,16 +143,9 @@ struct TreeNode* createIdNode(char* varname,struct TreeNode* left){
   temp->type = temp->symbol->type;
   temp->varname = (char*)malloc(sizeof(char)*100);
   strcpy(temp->varname,varname);
-  temp->left = left;
+  temp->left = NULL;
   temp->right = NULL;
-  temp->middle = NULL;
-
-  if( isOverflow(temp) ){
-    printf("Index overflow.\n");
-    exit(1);
-  }
-
-
+  temp->middle = middle;
 
 
   return temp;
@@ -217,7 +199,7 @@ struct TreeNode* createWhileNode(int op,struct TreeNode* left,struct TreeNode* r
 
   // CHECK IF SATISFIABLE
 
-  if( left && right ){ 
+  if( left ){ 
     if(!typeSatisfied(temp)){
       printf("While Condition : Type not matching.\n");
       exit(1);

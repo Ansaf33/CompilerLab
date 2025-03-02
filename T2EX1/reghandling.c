@@ -24,9 +24,22 @@ int getSymbolAddress(FILE* f,struct TreeNode* root){
 
   // IF VARIABLE, EVALUATE THE LEFT EXPRESSION AND ADD IT
   
-  if( root->left ){
-    int resReg = arithmetic_expression_codeGen(f,root->left);
+  if( root->middle ){
+    int resReg = arithmetic_expression_codeGen(f,root->middle);
     fprintf(f,"ADD R%d, R%d\n",adReg,resReg);
+    freeReg();
+
+    int adReg2 = getReg();
+    fprintf(f,"MOV R%d, R%d\n",adReg2,adReg);
+    int limit_Reg = getReg();
+    fprintf(f,"MOV R%d, %d\n",limit_Reg,root->symbol->address);
+    fprintf(f,"ADD R%d, %d\n",limit_Reg,root->symbol->size);
+    
+    // R [ ADREG2 ] < R [ LIMIT_REG ]
+    fprintf(f,"GE R%d, R%d\n",adReg2,limit_Reg);
+    fprintf(f,"JNZ R%d, L50\n",adReg2);
+
+    freeReg();
     freeReg();
 
   }
@@ -126,7 +139,7 @@ void getInput(FILE* f,char* s){
 int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
 
   // IF AT LEAF NODE, THEN ONLY NUMBER OR CONSTANT
-  if( root->right == NULL ){
+  if( root->left == NULL && root->right == NULL ){
     int regIdx = getReg();
     // IF NUMBER, MOVE THE NUMBER TO REGISTER
     if(root->val != -1 ){
@@ -305,9 +318,6 @@ void read_codeGen(FILE* f,struct TreeNode* root){
 // --------------------------------------------------------- CODE GENERATION FOR WRITE ASSIGNMENTS
 
 void write_codeGen(FILE* f,struct TreeNode* root){
-
-
-
 
 
   //getInput(f,"Output : ");
