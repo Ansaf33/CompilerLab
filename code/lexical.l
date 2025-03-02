@@ -19,6 +19,14 @@
   return NUM;
 }
 
+"type" {
+  return BEGINTYPE;
+}
+
+"endtype" {
+  return ENDTYPE;
+}
+
 "decl" {
   return DECL;
 }
@@ -28,13 +36,13 @@
 }
 
 "int" {
-  yylval.typetable = lookTTUp("int");
+  yylval.string = "int";
   return INT;
 }
 
 "str" {
-  yylval.typetable = lookTTUp("str");
-  return STR; 
+  yylval.string = "str";
+  return STR;
 }
 
 "main" {
@@ -150,9 +158,11 @@
 }
 
 [a-zA-Z][a-zA-Z0-9]* {
+
   yylval.string = (char*)malloc(sizeof(char)*100);
   strcpy(yylval.string,yytext);
-  //yylval.node = createIdTree(0,yytext);
+
+
   return ID;
 }
 

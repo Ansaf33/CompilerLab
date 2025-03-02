@@ -30,7 +30,6 @@ struct Gsymbol* createGNode(char* name, struct typetable* type,int rowSize,int c
   address = address + rowSize*colSize;
 
   return temp;
-
 }
 
 
@@ -56,16 +55,15 @@ void addGSymbol(char* name,struct typetable* type,int rowSize,int colSize,struct
 
   }
   else{
-    if( !param ){
-      printf("Variable %s already declared.\n",name);
+    if( !isFunction ){
+      printf("Variable | %s | already declared.\n",name);
     }
     else{
-      printf("Function %s already declared.\n",name);
+      printf("Function | %s | already declared.\n",name);
     }
     exit(1);
   }
   
-
 }
 
 // ------------------------ RETURN A POINTER TO THE Gsymbol ENTRY IN THE TABLE BASED ON THE NAME
@@ -73,20 +71,14 @@ void addGSymbol(char* name,struct typetable* type,int rowSize,int colSize,struct
 struct Gsymbol* lookGUp(char* name){
 
   struct Gsymbol* current = Ghead;
-
   while(current != NULL){
-
     if( strcmp(current->name,name) == 0 ){
       return current;
     }
-
     current = current->next;
-
   }
 
   return NULL;
-
-
 }
 
 
@@ -94,7 +86,7 @@ struct Gsymbol* lookGUp(char* name){
 // ----------------------------- PRINTING DETAILS OF ALL SYMBOLS IN THE LINKED LIST
 
 void getGSymbolTable(){
-  printf("------------------------------ GLOBAL SYMBOL TABLE ------------------------------\n");
+  printf("------------------------------ G L O B A L S Y M B O L T A B L E ------------------------------\n");
   struct Gsymbol* current = Ghead;
   while( current != NULL ){ 
     printf("| name : %s | type : %s | rowSize : %d | colSize : %d  | binding : %d  | flabel : %d | hasParam : %d |\n",current->name,current->type->name,current->rowSize,current->colSize,current->binding,current->flabel,current->param?1:0);

@@ -88,7 +88,9 @@ extern int yydebug;
     DECL = 289,                    /* DECL  */
     ENDDECL = 290,                 /* ENDDECL  */
     INT = 291,                     /* INT  */
-    STR = 292                      /* STR  */
+    STR = 292,                     /* STR  */
+    BEGINTYPE = 293,               /* BEGINTYPE  */
+    ENDTYPE = 294                  /* ENDTYPE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -132,6 +134,8 @@ extern int yydebug;
 #define ENDDECL 290
 #define INT 291
 #define STR 292
+#define BEGINTYPE 293
+#define ENDTYPE 294
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -146,10 +150,11 @@ union YYSTYPE
   struct paramlist* paramlist;
   struct Lsymbol* Lsymbol;
   struct typetable* typetable;
+  struct fieldlist* fieldlist;
 
 
 
-#line 153 "y.tab.h"
+#line 158 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

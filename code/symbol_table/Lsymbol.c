@@ -96,7 +96,7 @@ struct Lsymbol* lookLUp(char* name){
 
 struct Lsymbol* getLSymbolTable(){
   if(Lhead){
-    printf("--------------- LOCAL SYMBOL TABLE ---------------------\n\n");
+    printf("--------------- L O C A L S Y M B O L T A B L E ---------------------\n\n");
     struct Lsymbol* cur = Lhead;
     while(cur != NULL){
       printf("| name : %s | type : %s | binding : %d |\n",cur->name,cur->type->name,cur->binding);

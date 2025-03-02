@@ -14,7 +14,7 @@
 
 #include "functions/checker.h"
 
-#include "user_defined_type/fieldlist.h"
+#include "udt/fieldlist.h"
 #include "typetable/typetable.h"
 
 
@@ -39,19 +39,21 @@ FILE* xsm;
   struct paramlist* paramlist;
   struct Lsymbol* Lsymbol;
   struct typetable* typetable;
+  struct fieldlist* fieldlist;
 
 
 }
 
+%type<fieldlist> FieldDeclList
 %type<paramlist>ParamList
 %type<list> GidList LidList
-%type<typetable> TYPE
-%type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST REPEATST DOWHILEST IDENTIFIER CONSTANT ArgList Body
+%type<string> TYPE
+%type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST REPEATST DOWHILEST FIELD IDENTIFIER CONSTANT ArgList Body
 %token STRING ID NUM PLUS MINUS MUL DIV EQUALS 
 %token LT LTE GT GTE EQ NEQ 
 %token READ WRITE END BEG 
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE REPEAT UNTIL RETURN MAIN
-%token DECL ENDDECL INT STR
+%token DECL ENDDECL INT STR BEGINTYPE ENDTYPE
 %left EQ NEQ
 %left LT LTE GT GTE
 %left PLUS MINUS
@@ -62,12 +64,46 @@ FILE* xsm;
 %%
 
 PROGRAM :
-        GdeclBlock FdefBlock MainBlock
+        TypeDefBlock GdeclBlock FdefBlock MainBlock
         |
-        GdeclBlock MainBlock
+        TypeDefBlock GdeclBlock MainBlock
         |
-        MainBlock
+        TypeDefBlock MainBlock
 
+TypeDefBlock :
+             BEGINTYPE TypeDefList ENDTYPE{
+             printf("All Type definitions parsed.\n");
+             printTT();
+             }
+             | 
+             {
+             printf("No Type definitions present\n");
+             printTT();
+             }
+             ;
+
+TypeDefList :
+            TypeDefList TypeDef
+            |
+            TypeDef
+            ;
+
+TypeDef :
+        ID '{' FieldDeclList '}' {
+         addTTNode($<string>1,getFLSize($3),$3);
+         addTypes($3);
+        }
+        ;
+
+FieldDeclList :
+              FieldDeclList TYPE ID ';' {
+              $$ = addFLNode($1,$<string>3,$2);
+              }
+              |
+              TYPE ID ';' {
+              $$ = addFLNode(NULL,$<string>2,$1);
+              }
+              ;
 
 GdeclBlock :
              DECL GdeclList ENDDECL{
@@ -86,17 +122,21 @@ GdeclList :
 
 Gdecl :
      TYPE GidList ';' {
-          addAllGSymbols($2,$1);
+          addAllGSymbols($2,lookTTUp($1));
      }
      ;
 
 TYPE :
      INT {
-     $$ = $<typetable>1;
+     $$ = $<string>1;
      }
      |
      STR {
-     $$ = $<typetable>1;
+     $$ = $<string>1;
+     }
+     |
+     ID {
+     $$ = $<string>1;  
      }
      ;
 
@@ -143,7 +183,7 @@ FdefBlock :
 
 Fdef :
      TYPE ID '(' ParamList ')' '{' LdeclBlock Body '}' {
-     printf("|| ------------------------- FUNCTION : %s ---------------------- ||\n\n",$<string>2);
+     printf("|| ------------------------- F U N C T I O N : %s ---------------------- ||\n\n",$<string>2);
 
      // --------------------------------------- CHECKING FUNCTION REQUIREMENTS ---------------------------------------------
      // PRINT THE PARAMETERS
@@ -155,27 +195,25 @@ Fdef :
      // CHECK IF DEFINED PARAMETERS ARE VALID (in paramlist) to DECLARED PARAMETERS (in symboltable->param) (NAME AND TYPE)
      checkValidParams($4,$<string>2);
      // CHECK IF RETURN TYPES OF DECLARED AND DEFINED FUNCTIONS ARE VALID
-     checkValidRetType($1,$<string>2);
+     checkValidRetType(lookTTUp($1),$<string>2);
      // ---------------------------------------- CHECKING DONE --------------------------------------------------------------
 
-     // GENERATE CODE FOR THE FUNCTION ( PASS IN THE NAME OF FUNCTION, AND ROOT OF TREE )
-  
+ 
      define_function_codeGen(xsm,$<string>2,$8);
 
      deleteLSymbolTable();
-
      }
 
      ;
 
 ParamList :
           ParamList ',' TYPE ID {
-           $$ = addParameter($1,$<string>4,$3);
+           $$ = addParameter($1,$<string>4,lookTTUp($3));
            addLastParamToLSymbolTable($$);
           }
           |
           TYPE ID {
-           $$ = addParameter(NULL,$<string>2,$1);
+           $$ = addParameter(NULL,$<string>2,lookTTUp($1));
            addLastParamToLSymbolTable($$);
           }
           |
@@ -200,7 +238,7 @@ LdeclList :
 
 Ldecl :
       TYPE LidList ';' {
-         addAllLSymbols($2,$1);
+         addAllLSymbols($2,lookTTUp($1));
       }
 
 LidList : 
@@ -216,7 +254,7 @@ LidList :
 
 MainBlock :
           INT MAIN '(' ')' '{' LdeclBlock Body '}' {
-          printf("|| ------------------------- FUNCTION : Main ---------------------- ||\n\n");
+          printf("|| ------------------------- F U N C T I O N : Main ---------------------- ||\n\n");
  
           // GETTING LOCAL SYMBOL TABLE
           getLSymbolTable();
@@ -324,6 +362,10 @@ ASSG :
   IDENTIFIER EQUALS E {
   $$ = createOpNode(NULL,4,$<node>1,$3);
   }
+  |
+  FIELD EQUALS E {
+  $$ = createOpNode(NULL,4,$1,$3);
+  }
   ;
 
 E :
@@ -374,6 +416,8 @@ E :
   CONSTANT
   |
   IDENTIFIER
+  |
+  FIELD
   ;
 
 IDENTIFIER : 
@@ -397,6 +441,17 @@ IDENTIFIER :
             $$ = createFunctionNode($<string>1,$3);
             }
             ;
+
+FIELD :
+      FIELD '.' ID {
+      $$ = addFieldToEnd($1,$<string>3);
+      }
+      |
+      ID '.' ID {
+      $$ = createIdNode($<string>1,NULL,NULL);
+      $$ = addFieldToEnd($$,$<string>3);
+      }
+      ;
 
 ArgList :
         ArgList ','  E {
@@ -445,10 +500,8 @@ int main(int argc, char* argv[]){
   FILE* f = fopen(argv[1],"r");
   yyin = f;
 
-  addGSymbol("main",lookTTUp("int"),0,0,NULL,1);
+  addGSymbol("main",lookTTUp("int"),1,1,NULL,1);
 
-
-  printTT();
 
 
   xsm = fopen("assembly_code.xsm","w");

@@ -17,8 +17,9 @@ struct Gsymbol{
 
   int binding;
 
-
+  // parameters of function
   struct paramlist* param;
+
   int flabel;
   bool defined;
 

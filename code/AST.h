@@ -15,7 +15,11 @@ struct TreeNode{
 
   int op;
   struct typetable* type;
+
   char* varname;
+  
+  // FOR USER DEFINED FUNCTIONS
+  char* fieldName;
 
   // USED FOR VARIABLES/ARRAYS
   struct TreeNode* row;
@@ -55,6 +59,8 @@ struct TreeNode* createWhileNode(int op,struct TreeNode* left, struct TreeNode* 
 struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argListHead);
 
 struct TreeNode* createReturnNode(struct TreeNode* middle);
+
+struct TreeNode* addFieldToEnd(struct TreeNode* head,char* fieldName);
 
 struct TreeNode* addArgToList(struct TreeNode* listHead,struct TreeNode* argHead);
 

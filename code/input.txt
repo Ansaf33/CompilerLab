@@ -1,46 +1,37 @@
-decl
-int factarr[10];
-int fact(int n);
+type
 
+List{
+  int val;
+  List next;
+}
+
+Party{
+  int days;
+  List attendees;
+}
+
+endtype
+
+decl
+Party party;
 enddecl
 
 
-int fact(int n){
-  decl
-  enddecl
-  begin
-  if( n == 0 ) then
-    return 0;
-  else if ( n == 1 ) then
-    return 1;
-    endif;
-  endif;
-  return n*fact(n-1);
-
-  end;
-
-
-}
 
 int main(){
   decl
-  int i;
+  List head;
   enddecl
+
   begin
-
-  i = 0;
-  while(i<10) do
-    factarr[i] = fact(i);
-    i = i + 1;
+  head = party.attendees;
+  while(head.val != 0) do
+    head = head.next;
   endwhile;
-
-  i = 0;
-  while(i<10) do
-    write(factarr[i]);
-    i = i + 1;
-  endwhile;
-
   end;
 
 }
+
+
+
 

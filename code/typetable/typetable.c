@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../user_defined_type/fieldlist.h"
+#include "../udt/fieldlist.h"
 #include "../AST.h"
 
 struct typetable* TThead = NULL;
@@ -25,6 +25,7 @@ struct typetable* createTTNode(char* name,int size,struct fieldlist* fieldlist){
 // --------- ADDING NODE TO END OF LINKED LIST
 
 void addTTNode(char* name,int size,struct fieldlist* fieldlist){
+
 
   if( lookTTUp(name) != NULL ){
     printf("Type | %s | already exists.\n",name);
@@ -84,6 +85,10 @@ void printTT(void){
   struct typetable* cur = TThead;
   while( cur != NULL ){
     printf("| name : %s | size : %d | fieldlist : %d |\n",cur->name,cur->size,cur->fieldlist?1:0);
+    if(cur->fieldlist){
+      printFL(cur->fieldlist);
+
+    }
     cur = cur->next;
   }
 
@@ -94,3 +99,4 @@ void printTT(void){
 bool same(char* t1,char* t2){
   return strcmp(t1,t2) == 0;
 }
+

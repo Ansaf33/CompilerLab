@@ -11,56 +11,60 @@
 
 
 
-
 // ------------- CHECK IF TYPE IS SAME
 
 
 bool typeSatisfied(struct TreeNode* root){
 
-
-
    
     // if arithmetic operator, left and right should be integers
-
     if(root->op >=0 && root->op <= 3){
-
       return same(root->left->type->name,"int") && same(root->right->type->name,"int");
     }
-    // if assigns, left should be an identifier (integer/string) and right should be an expression (integer/string)
+
+    // if assigns, left should be an identifier (integer/string/user_defined) and right should be an expression (integer/string/user_defined)
     else if( root->op == 4 ){
-       return same(root->left->type->name,"int") && same(root->right->type->name,"int") || same(root->left->type->name,"str") && same(root->right->type->name,"str");
+    return same(root->left->type->name,root->right->type->name) && !same(root->left->type->name,"bool") && !same(root->right->type->name,"bool");
     }
-    // if logical operators, left and right type should be the type for expressions (integer)
+
+    // if logical operators, left and right type should be integers
     else if( root->op >= 5 && root->op <= 10 ){
           return same(root->left->type->name,"int") && same(root->right->type->name,"int");
    }
+
     // if READ statement, left type should be integer/string
     else if( root->op == 11 ){
         return same(root->left->type->name,"int") || same(root->left->type->name,"str");
    }
+
    // if WRITE statement, left type should be integer/string
     else if( root->op == 12 ){
         return same(root->left->type->name,"int") || same(root->left->type->name,"str");
    }
+
     // if IF statement, condition type should be boolean
     else if( root->op == 14 ){
         return same(root->middle->type->name,"bool");
     }
+
     // if WHILE statement, condition type should be boolean
     else if( root->op == 15 ){
         return same(root->left->type->name,"bool");
     }
+
     // if REPEAT statement, condition type should be boolean
     else if( root->op == 18 ){
         return same(root->left->type->name,"bool");
     }
+
     // if DOWHILE statement, condition type should be boolean
     else if( root->op == 19 ){
         return same(root->left->type->name,"bool");
     }
-    // if RETURN statement, expression must evaluate to integer
+
+    // if RETURN statement, expression must evaluate to anything but bool
     else if( root->op == 20 ){
-        return same(root->middle->type->name,"int");
+        return !same(root->middle->type->name,"bool");
   }
 
    return true;
@@ -99,9 +103,8 @@ struct TreeNode* createOpNode(struct typetable* type,int op,struct TreeNode* lef
   temp->middle = NULL;
 
   if( left ){ 
-
     if(!typeSatisfied(temp)){
-      printf("Operator | %s | Condition : Type not matching.\n",map(temp->op));
+      printf("Operator | %s | Condition : Type not matching. [%s %s]\n",map(temp->op),temp->left->type->name,temp->right->type->name);
       exit(1);
     }
 
@@ -195,7 +198,6 @@ struct TreeNode* createIfNode(struct TreeNode* middle,struct TreeNode* left,stru
   // CHECK IF SATISFIABLE
 
   if( middle ){ 
-
     if(!typeSatisfied(temp)){
       printf("If Condition : Type not matching.\n");
       exit(1);
@@ -223,14 +225,11 @@ struct TreeNode* createWhileNode(int op,struct TreeNode* left,struct TreeNode* r
 
   // CHECK IF SATISFIABLE
 
-  if( left ){ 
-
-    if(!typeSatisfied(temp)){
-      printf("While Condition : Type not matching.\n");
-      exit(1);
-    }
-
+  if( left && !typeSatisfied(temp)){
+    printf("While Condition : Type not matching.\n");
+    exit(1);
   }
+
   
 
   return temp;
@@ -253,6 +252,7 @@ struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
     exit(1);
   }
   // -------------------- CHECK IF FUNCTION IS DEFINED ------------------- ( SMALL SACRIFICE MADE HERE )
+
   /*
   if( !temp->Gsymbol->defined ){
     printf("Function | %s | is not defined.\n",varname);
@@ -291,7 +291,7 @@ struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
       printf("Argument size does not match parameter size.\n");
       exit(1);
     }
-  // ------------ CHECKING DONE ----------------
+  // ------------------------------------------------ CHECKING DONE --------------------------------------------
   
   return temp;
 }
@@ -331,11 +331,60 @@ struct TreeNode* createReturnNode(struct TreeNode* middle){
   temp->type = NULL;
   temp->varname = NULL;
 
+  temp->left = NULL;
   temp->middle = middle;
+  temp->right = NULL;
+
+  if( !typeSatisfied(temp) ){
+    printf("Return : Type not matching\n");
+    exit(1);
+  }
+
 
   return temp;
 }
 
+// ------------------- ADD CHILD TO ROOT'S MIDDLE
+
+struct TreeNode* addFieldToEnd(struct TreeNode* head,char* fieldName){
+
+  struct TreeNode* cur = head;
+
+  while(cur->middle!=NULL){
+    cur = cur->middle;
+  }
+
+  struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+  temp->val = -1;
+  temp->string = NULL;
+  temp->op = -1;
+  temp->varname = NULL;
+
+  temp->fieldName = (char*)malloc(sizeof(char)*100);
+  strcpy(temp->fieldName,fieldName);
+
+  // GET CURRENT'S FIELD LIST
+  struct fieldlist* cur_fieldlist = cur->type->fieldlist;
+
+  // CHECK IF FIELDNAME IS IN THE FIELDLIST OF CURRENT
+  struct fieldlist* tempfield_in_cur = lookFLUp(cur_fieldlist,fieldName);
+
+  // IF NOT,
+  if( !tempfield_in_cur ){
+    printf("Field | %s | not present in the fieldlist of type | %s |\n",fieldName,cur->type->name);
+    exit(1);
+  }
+
+  // EXTEND THE TREE
+  cur->middle = temp;
+  temp->type = tempfield_in_cur->type;
+  head->type = temp->type;
+
+
+
+  return head;
+
+}
 
 
 
@@ -365,11 +414,11 @@ void Inorder(struct TreeNode* root){
     if(root->argList){
       printExprList(root->argList);
     }
-
-
   }
-  
-
+  // IT IS A FIELD MEMBER
+  else if( root->fieldName != NULL ){
+    printf(" (.%s)",root->fieldName);
+  }
   Inorder(root->middle);
   Inorder(root->right);
 }

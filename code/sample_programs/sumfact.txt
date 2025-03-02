@@ -1,7 +1,13 @@
 decl
 int i,n,s,fact[10];
-
 enddecl
+
+
+int main(){
+
+  decl
+  enddecl
+
 
 begin
 
@@ -29,5 +35,6 @@ write(s);
 
 end;
 
+}
 
 
