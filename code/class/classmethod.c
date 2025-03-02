@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "classmethod.h"
+#include "classtable.h"
 #include "../symbol_table/paramlist.h"
 
 static int methodPos = 0;
@@ -86,3 +88,5 @@ void printClassMethods(struct classmethod* head){
     cur = cur->next;
   }
 }
+
+

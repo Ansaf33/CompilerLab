@@ -19,7 +19,7 @@ struct classtable{
   struct classtable* next;
 };
 
-struct classtable* createClassNode(char* name);
+struct classtable* createCNode(char* name);
 
 struct classtable* addClassNode(char* name);
 
@@ -29,6 +29,12 @@ struct classmethod* addMethodToClass(struct classtable* c,struct typetable* type
 
 struct classtable* lookClassUp(char* name);
 
+struct classmember* lookMemberInClassUp(struct classtable* c,char* name);
+
+struct classmethod* lookMethodInClassUp(struct classtable* c,char* name);
+
 void printClass(struct classtable* head);
+
+void checkDeclDef(struct classtable* c,struct typetable* type,char* name,struct paramlist* param);
 
 #endif

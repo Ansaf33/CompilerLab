@@ -14,7 +14,9 @@ struct TreeNode{
   char* string;
 
   int op;
+
   struct typetable* type;
+  struct classtable* Ctype;
 
   char* varname;
   
@@ -38,6 +40,9 @@ struct TreeNode{
   // POINTER TO GLOBAL SYMBOL TABLE ENTRY AND/OR LOCAL SYMBOL TABLE ENTRY
   struct Gsymbol* Gsymbol;
   struct Lsymbol* Lsymbol;
+
+  // FOR CLASSES
+  char* methodName;
 };
 
 char* getName(struct TreeNode* root);
@@ -60,7 +65,6 @@ bool return_typeSatisfied(struct TreeNode* root);
 
 bool free_typeSatisfied(struct TreeNode* root);
 
-bool typeSatisfied(struct TreeNode* root);
 
 struct TreeNode* createNumNode(int val);
 
@@ -80,11 +84,19 @@ struct TreeNode* createReturnNode(struct TreeNode* middle);
 
 struct TreeNode* addFieldToEnd(struct TreeNode* head,char* fieldName);
 
+struct TreeNode* addMethodToEnd(struct TreeNode* head,char* name,struct TreeNode* argList);
+
 struct TreeNode* addArgToList(struct TreeNode* listHead,struct TreeNode* argHead);
 
 struct TreeNode* createFreeNode(struct TreeNode* id);
 
+struct TreeNode* createDeleteNode(struct TreeNode* id);
+
 struct TreeNode* createNullNode(void);
+
+struct TreeNode* createSelfNode(struct classtable* c,char* memberName,struct TreeNode* argList);
+
+struct TreeNode* createNewNode(char* id);
 
 void Inorder(struct TreeNode* root);
 

@@ -8,175 +8,12 @@
 #include "symbol_table/Gsymbol.h"
 #include "symbol_table/Lsymbol.h"
 #include "typetable/typetable.h"
+#include "typesatisfy/typesatisfy.h"
 
 
 
-//GET TYPENAME
-char* getName(struct TreeNode* root){
-  struct TreeNode* cur = root;
-  while(cur->middle != NULL ){
-    cur = cur->middle;
-  }
-  return cur == NULL ? "NULL" : cur->type->name;
- }
 
-
-// CONDITION FOR ARITHMETIC OPERATORS
-bool arithmetic_typeSatisfied(struct TreeNode* root){
-  if( root == NULL ){
-    printf("Nothing passed\n");
-    exit(1);
-  }
-  // true condition, both should be integers
-  if( same( getName(root->left) , "int" ) && same( getName(root->right) , "int" ) ){
-    return true;
-  }
-
-  printf("Arithmetic type | %s | not satisfied", map(root->op) );
-  printf("[L R] = [%s %s]\n",root->left->type->name,root->right->type->name);
-  exit(1);
-
-}
-
-// CONDITION FOR ASSIGNMENT STATEMENTS
-bool assignment_typeSatisfied(struct TreeNode* root){
-  if( root == NULL ){
-    printf("Nothing passed\n");
-    exit(1);
-  }
-  // if allocating, can only allocate for user defined datatype
-  if( root->right->op == 22 && ( same(getName(root->left),"str") || same(getName(root->left),"int")  ) ){
-    printf("Cannot dynamically allocate space for primitive datatype | %s |\n",getName(root->left));
-    exit(1);
-  }
-  // true condition, both should be of the same type ( right can be null )
-  bool nullCondition = same(getName(root->right),"null");
-  bool bothsameCondition = same(getName(root->left),getName(root->right));
-  bool notBoolCondition = !same(getName(root->left),"bool") && !same(getName(root->right),"bool");
-
-  if ( nullCondition || bothsameCondition && notBoolCondition ){
-    return true;
-  }
-
-  printf("Assignment type | %s | not satisfied", map(root->op) );
-  printf("[L R] = [%s %s]\n",root->left->type->name,root->right->type->name);
-  exit(1);
-
-
-}
-
-// CONDITION FOR LOGICAL OPERATORS
-bool logical_typeSatisfied(struct TreeNode* root){
-  if( root == NULL ){
-    printf("Nothing passed\n");
-    exit(1);
-  }
-  // either rhs is null, or both are integers
-  bool isNullCondition = same(getName(root->right),"null");
-  bool bothIntCondition = same(getName(root->left),"int") && same(getName(root->right),"int");
-
-  if( isNullCondition || bothIntCondition ){
-    return true;
-  }
-
-  printf("Logical type | %s | not satisfied", map(root->op) );
-  printf("[L R] = [%s %s]\n",root->left->type->name,root->right->type->name);
-  exit(1);
-}
-
-// CONDITION FOR READ STATEMENT
-bool read_typeSatisfied(struct TreeNode* root){
-  if( root == NULL ){
-    printf("Nothing passed\n");
-    exit(1);
-  }
-  // left is either int or str
-  bool intorstringCondition = same(getName(root->left),"int") || same(getName(root->left),"str");
-  if( intorstringCondition ){
-    return true;
-  }
-  printf("Read type is | %s |\n",getName(root->left));
-  exit(1);
-}
-
-// CONDITION FOR WRITE STATEMENT
-bool write_typeSatisfied(struct TreeNode* root){
-  if( root == NULL ){
-    printf("Nothing passed\n");
-    exit(1);
-  }
-  // left is either int or str
-  bool intorstringCondition = same(getName(root->left),"int") || same(getName(root->left),"str");
-  if( intorstringCondition ){
-    return true;
-  }
-  printf("Write type is | %s |\n",getName(root->left));
-  exit(1);
-}
-
-
-// CONDITION FOR IF STATEMENT
-bool if_typeSatisfied(struct TreeNode* root){
-  if( root == NULL ){
-    printf("Nothing passed\n");
-    exit(1);
-  }
-  // middle must be bool
-  bool boolCondition = same(getName(root->middle),"bool");
-  if( boolCondition ){
-    return true;
-  }
-  printf("IF type is | %s |\n",getName(root->middle));
-  exit(1);
-}
-
-// CONDITION FOR WHILE, DOWHILE AND REPEAT STATEMENT
-bool while_typeSatisfied(struct TreeNode* root){
-  if( root == NULL ){
-    printf("Nothing passed\n");
-    exit(1);
-  }
-  // middle must be bool
-  bool boolCondition = same(getName(root->left),"bool");
-  if( boolCondition ){
-    return true;
-  }
-  printf("WHILE/DOWHILE/REPEAT type is | %s |\n",getName(root->left));
-  exit(1);
-}
-
-// CONDITION FOR RETURN STATEMENT
-bool return_typeSatisfied(struct TreeNode* root){
-  if( root == NULL ){
-    printf("Nothing passed\n");
-    exit(1);
-  }
-  // middle must not be bool
-  bool notboolCondition = !same(getName(root->middle),"bool");
-  if( notboolCondition ){
-    return true;
-  }
-  printf("RETURN type is | %s |\n",getName(root->middle));
-  exit(1);
-}
-
-// CONDITION FOR FREE STATEMENT
-bool free_typeSatisfied(struct TreeNode* root){
-  if( root == NULL ){
-    printf("Nothing passed\n");
-    exit(1);
-  }
-  // can only free user defined datatype
-  bool udtCondition = !same(getName(root->middle),"int") && !same(getName(root->middle),"str");
-  if( udtCondition ){
-    return true;
-  }
-  printf("FREE type is | %s |\n",getName(root->middle));
-  exit(1);
-}
-
-
-// -------------- CREATE NODE FOR NUMBERS
+// ------------------------------------------------------------------------------------------------------------ CREATE NODE FOR NUMBERS
 
 struct TreeNode* createNumNode(int val){
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
@@ -193,7 +30,7 @@ struct TreeNode* createNumNode(int val){
   return temp;
 }
 
-// -------------- CREATE NODE FOR OPERATORS
+// -------------------------------------------------------------------------------------------------------------- CREATE NODE FOR OPERATORS
 
 
 struct TreeNode* createOpNode(struct typetable* type,int op,struct TreeNode* left,struct TreeNode* right){
@@ -240,7 +77,7 @@ struct TreeNode* createOpNode(struct typetable* type,int op,struct TreeNode* lef
   return temp;
 }
 
-// --------------- CREATE NODE FOR STRINGS
+// ------------------------------------------------------------------------------------------------------------  CREATE NODE FOR STRINGS
 
 
 struct TreeNode* createStringNode(char* string){
@@ -260,10 +97,9 @@ struct TreeNode* createStringNode(char* string){
 
 
 
-// -------------- CREATE NODE FOR IDs
+// --------------------------------------------------------------------------------------------------------------- CREATE NODE FOR IDs
 
 struct TreeNode* createIdNode(char* varname,struct TreeNode* row,struct TreeNode* column){
-
 
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
   temp->Gsymbol = lookGUp(varname);
@@ -287,7 +123,12 @@ struct TreeNode* createIdNode(char* varname,struct TreeNode* row,struct TreeNode
   temp->string = NULL;
 
   temp->op = -1;
+
+
   temp->type = temp->Lsymbol?temp->Lsymbol->type:temp->Gsymbol->type;
+  temp->Ctype = temp->Gsymbol?temp->Gsymbol->Ctype:NULL;
+
+
   temp->varname = (char*)malloc(sizeof(char)*100);
   strcpy(temp->varname,varname);
 
@@ -305,7 +146,7 @@ struct TreeNode* createIdNode(char* varname,struct TreeNode* row,struct TreeNode
 
 
 
-// -------------- CREATE NODE FOR IF STATEMENTS
+// ------------------------------------------------------------------------------------------------------------ CREATE NODE FOR IF STATEMENTS
 
 struct TreeNode* createIfNode(struct TreeNode* middle,struct TreeNode* left,struct TreeNode* right){
 
@@ -327,7 +168,7 @@ struct TreeNode* createIfNode(struct TreeNode* middle,struct TreeNode* left,stru
 
 }
 
-// ---------------- CREATE NODE FOR WHILE STATEMENTS
+// ------------------------------------------------------------------------------------------------------------ CREATE NODE FOR WHILE STATEMENTS
 
 struct TreeNode* createWhileNode(int op,struct TreeNode* left,struct TreeNode* right){
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));  
@@ -349,7 +190,7 @@ struct TreeNode* createWhileNode(int op,struct TreeNode* left,struct TreeNode* r
 
 }
 
-//--------------- CREATE NODE FOR FUNCTIONS
+// ------------------------------------------------------------------------------------------------------------ CREATE NODE FOR FUNCTIONS
 
 struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
 
@@ -407,7 +248,7 @@ struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
   return temp;
 }
 
-// -------------- CREATE LIST OF ARGUMENTS
+// ------------------------------------------------------------------------------------------------------------- CREATE LIST OF ARGUMENTS
 
 struct TreeNode* addArgToList(struct TreeNode* listHead,struct TreeNode* argHead){
   if( listHead == NULL ){
@@ -425,7 +266,7 @@ struct TreeNode* addArgToList(struct TreeNode* listHead,struct TreeNode* argHead
 
 
 
-// ----------------- CREATE RETURN NODE 
+// ---------------------------------------------------------------------------------------------------------------------- CREATE RETURN NODE 
 
 struct TreeNode* createReturnNode(struct TreeNode* middle){
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
@@ -446,9 +287,16 @@ struct TreeNode* createReturnNode(struct TreeNode* middle){
   return temp;
 }
 
-// ------------------- ADD CHILD TO ROOT'S MIDDLE
+// ------------------------------------------------------------------------------------------------------------------ ADD FIELD TO END ( TT & CT )
 
 struct TreeNode* addFieldToEnd(struct TreeNode* head,char* fieldName){
+
+  // CANNOT ADD FIELDS TO OBJECT BECAUSE ENCAPSULATION
+  if( head->Ctype != NULL ){
+    printf("Object | %s | cannot access members | %s | outside class.\n",head->varname,fieldName);
+    exit(1);
+  }
+
 
   struct TreeNode* cur = head;
 
@@ -462,32 +310,80 @@ struct TreeNode* addFieldToEnd(struct TreeNode* head,char* fieldName){
   temp->op = -1;
   temp->varname = NULL;
 
+
   temp->fieldName = (char*)malloc(sizeof(char)*100);
   strcpy(temp->fieldName,fieldName);
 
+
   // GET CURRENT'S FIELD LIST
   struct fieldlist* cur_fieldlist = cur->type->fieldlist;
-
   // CHECK IF FIELDNAME IS IN THE FIELDLIST OF CURRENT
   struct fieldlist* tempfield_in_cur = lookFLUp(cur_fieldlist,fieldName);
-
   // IF NOT,
   if( !tempfield_in_cur ){
     printf("Field | %s | not present in the fieldlist of type | %s |\n",fieldName,cur->type->name);
     exit(1);
   }
-
   // EXTEND THE TREE
   cur->middle = temp;
   temp->type = tempfield_in_cur->type;
-
-
 
   return head;
 
 }
 
-// ----------------------------- CREATE NODE FOR FREE
+// -------------------------------------------------------------------------------------------------------------------------- ADD METHOD TO END 
+
+struct TreeNode* addMethodToEnd(struct TreeNode* head,char* name,struct TreeNode* argList){
+
+  struct TreeNode* cur = head;
+  while(cur->middle){
+    cur = cur->middle;
+  }
+
+
+  // CHECK IF METHODNAME EXISTS IN THE CLASS
+  struct classmethod* cm = lookMethodInClassUp(cur->Ctype,name);
+  if(!cm){
+    printf("Method | %s | does not exist in class | %s |\n",name,cur->Ctype->name);
+    exit(1);
+  }
+
+
+  // ------------- CHECK IF ARGUMENTS AND PARAMETERS TYPE ARE CORRECT ----------------
+  struct paramlist* c = cm->param;
+  struct TreeNode* a = argList;
+  while(c && a){
+    if(c->type!=a->type){
+      printf("Argument type | %s | does not match with declared type | %s | for function | %s |\n",a->type->name,c->type->name,name);
+      exit(1);
+    }
+    c = c->next;
+    a = a->next;
+  }
+  if(c||a){
+    printf("Size of Arguments and Parameters of method | %s | does not match\n",name);
+    exit(1);
+  }
+  // ------------------------- CHECKING DONE -------------------------------------------
+
+
+  struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+  temp->val = -1;
+  temp->op = -1;
+  temp->type = cm->type;
+  temp->string = NULL;
+  temp->methodName = (char*)malloc(sizeof(char)*100);
+  strcpy(temp->methodName,name);
+  temp->argList = argList;
+
+  cur->middle = temp;
+
+
+  return head;
+}
+
+// --------------------------------------------------------------------------------------------------------------------- CREATE NODE FOR FREE
 
 struct TreeNode* createFreeNode(struct TreeNode* id){
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
@@ -504,7 +400,25 @@ struct TreeNode* createFreeNode(struct TreeNode* id){
   return temp;
 }
 
-// ------------------- CREATING A NULL NODE FOR TYPE NULL
+// ------------------------------------------------------------------------------------------------------------------------ CREATE NODE FOR DELETE
+
+struct TreeNode* createDeleteNode(struct TreeNode* id){
+
+  struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+  temp->val = -1;
+  temp->op = 24;
+  temp->Ctype = lookClassUp(getName(id));
+  temp->string = NULL;
+  temp->varname = NULL;
+  temp->left = NULL;
+  temp->right = NULL;
+  temp->middle = id;
+
+  delete_typeSatisfied(temp->middle);
+  return temp;
+}
+
+// --------------------------------------------------------------------------------------------------------- CREATING A NULL NODE FOR TYPE NULL
 
 struct TreeNode* createNullNode(){
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
@@ -524,7 +438,96 @@ struct TreeNode* createNullNode(){
   return temp;
 }
 
-// ------------------- INORDER TRAVERSAL
+
+// ----------------------------------------------------------------------------------------------------------------- CREATING A NODE FOR SELF
+
+struct TreeNode* createSelfNode(struct classtable* c,char* name,struct TreeNode* argList){
+
+  // ------- CHECK IF SELF WAS DEFINED OUTSIDE CLASS DEFINITIONS
+
+  if( c == NULL ){
+    printf("Self cannot be declared outside classmethod definitions\n");
+    exit(1);
+  }
+
+  // -------- CREATING THE SELF NODE
+  struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+  temp->val = -1;
+  temp->op = -1;
+
+  temp->type = NULL;
+  temp->Ctype = c;
+
+  temp->string = NULL;
+  temp->varname = (char*)malloc(sizeof(char)*100);
+  strcpy(temp->varname,"self");
+
+  temp->left = NULL;
+  temp->right = NULL;
+
+  // -------- CREATING CHILD OF SELF NODE
+  struct TreeNode* middle = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+  middle->val = -1;
+  middle->op = -1;
+
+  middle->fieldName = (char*)malloc(sizeof(char)*100);
+  strcpy(middle->fieldName,name);
+
+  struct classmember* member = lookMemberInClassUp(c,name);
+  struct classmethod* method = lookMethodInClassUp(c,name);
+
+  // if name does not exist in class
+  if( member == NULL && method == NULL ){
+    printf("No Member/Method named | %s | in class | %s | exists.\n",name,c->name);
+    exit(1);
+  }
+
+  if( method != NULL ){
+    middle->argList = argList;
+    middle->type = method->type;
+  }
+
+  else if( member != NULL ){
+    middle->type = member->type;
+    middle->Ctype = member->Ctype;
+  }
+
+  temp->middle = middle;
+
+  return temp;
+}
+
+
+
+// ------------------------------------------------------------------------------------------------------------------------ CREATE NEW NODE
+
+struct TreeNode* createNewNode(char* id){
+
+  struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+  temp->val = -1;
+  temp->op = 25;
+  temp->string = NULL;
+  temp->Ctype = lookClassUp(id);
+
+  struct TreeNode* cur = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+  cur->val = -1;
+  cur->op = -1;
+  cur->string = NULL;
+  cur->varname = (char*)malloc(sizeof(char)*100);
+  cur->Ctype = lookClassUp(id);
+  strcpy(cur->varname,id);
+
+
+  temp->middle = cur;
+
+  
+
+  return temp;
+}
+
+
+
+// ----------------------------------------------------------------------------------------------------------------------- INORDER TRAVERSAL
 
 void Inorder(struct TreeNode* root){
   if(root == NULL){
@@ -533,27 +536,32 @@ void Inorder(struct TreeNode* root){
   Inorder(root->left);
   // IT IS A NUMBER
   if(root->val != -1 ){
-    printf(" ( %d )",root->val);
+    printf("-- %d --",root->val);
   }
   // IT IS A STRING
   if(root->string != NULL ){
-    printf(" ( %s )",root->string);
+    printf("-- %s --",root->string);
   }
   // IT IS AN OPERATOR
   else if(root->op != -1 ){
-    printf(" ( %s )",map(root->op));
+    printf("-- %s --",map(root->op));
   }
   // IT IS A VARIABLE
   else if( root->varname != NULL ){
-    printf(" ( %s )",root->varname);
+    printf("-- %s --",root->varname);
     if(root->argList){
       printExprList(root->argList);
     }
   }
   // IT IS A FIELD MEMBER
   else if( root->fieldName != NULL ){
-    printf(" (.%s)",root->fieldName);
+    printf("-- .%s --",root->fieldName);
   }
+  else if(root->methodName != NULL ){
+    printf("-- .%s --",root->methodName);
+    printExprList(root->argList);
+  }
+  printf(" TYPE : [%s]\n",root->type?root->type->name:(root->Ctype?root->Ctype->name:"NULL"));
   Inorder(root->middle);
   Inorder(root->right);
 }

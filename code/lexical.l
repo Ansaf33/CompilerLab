@@ -39,6 +39,10 @@
   return BEGINCLASS;
 }
 
+"self" {
+  return SELF;
+}
+
 "extends" {
   return EXTENDS;
 }

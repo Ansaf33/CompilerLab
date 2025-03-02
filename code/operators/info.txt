@@ -27,6 +27,8 @@
 21 : INITIALIZE
 22 : ALLOC
 23 : FREE
+24 : DELETE
+25 : NEW
 
 
 // -------------- TYPE FIELD IN THE STRUCTURE
@@ -57,3 +59,11 @@ root->left = Expression to be evaluated and placed at BP - 2
 //--------------- STRUCTURE OF FREE STATEMENTS
 
 root->middle = ID to be freed.
+
+// ------------ STRUCTURE OF DELETE STATEMENTS
+
+root->middle = Field to be deleted
+
+// ----------- STRUCTURE OF NEW STATEMENT
+
+root->middle = Type of class to be created.

@@ -20,7 +20,7 @@ struct Lsymbol* createLNode(char* name,struct typetable* type){
   temp->type = type;
 
   if(type == NULL){
-    printf("Type not present.\n");
+    printf("Type for Local Symbol | %s | not present.\n",name);
     exit(1);
   }
 

@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include "classtable.h"
 #include "../typetable/typetable.h"
 #include "../symbol_table/paramlist.h"
 

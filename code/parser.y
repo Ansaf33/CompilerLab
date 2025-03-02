@@ -24,7 +24,7 @@
 
 
 struct TreeNode* root;
-struct classtable* C;
+struct classtable* C = NULL;
 
 
 extern FILE* yyin;
@@ -60,12 +60,12 @@ void endxsm(FILE* f);
 %type<node> IFST WHILEST REPEATST DOWHILEST
 %type<node> ASSG INPUT OUTPUT
 %type<node> E S SL Body
-%type<node> FIELD IDENTIFIER CONSTANT ArgList
+%type<node> FIELD IDENTIFIER CONSTANT ArgList FIELDFUNCTION
 %token STRING ID NUM
 %token LT LTE GT GTE EQ NEQ 
 %token PLUS MINUS MUL DIV EQUALS
 %token END BEG MAIN DECL ENDDECL BEGINTYPE ENDTYPE BEGINCLASS ENDCLASS
-%token NEW DELETE EXTENDS
+%token NEW DELETE EXTENDS SELF
 %token READ WRITE
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE REPEAT UNTIL RETURN
 %token INT STR
@@ -135,7 +135,6 @@ ClassDefList :
 
 ClassDef :
          Cname '{' DECL MemberDeclList MethodDeclList ENDDECL MethodDefList '}' {
-         printf("Class declared\n");
          printClass(C);
          }
          ;
@@ -175,17 +174,21 @@ MethodDecl :
 MethodDefList :
            MethodDefList MethodDef
            |
-        
+           MethodDef
            ;
 
 MethodDef :
           TYPE ID '(' ParamList ')' '{' LdeclBlock Body '}' {
+          checkDeclDef(C,lookTTUp($1),$<string>2,$4);
+
+
+          deleteLSymbolTable();
           }
 
 
 GdeclBlock :
              DECL GdeclList ENDDECL{
-                printf("All Global Declarations parsed.\n");
+                C = NULL;
                 getGSymbolTable();
               }
              |
@@ -404,6 +407,10 @@ S :
   FREE '(' IDENTIFIER ')' ';' {
     $<node>$ = createFreeNode($3);
   }
+  |
+  DELETE '(' FIELD ')' ';' {
+    $<node>$ = createDeleteNode($3);
+  }
   ;
 
 IFST :
@@ -451,8 +458,19 @@ ASSG :
   IDENTIFIER EQUALS ALLOCATE {
   $3->type = $1->type;
   $$ = createOpNode(NULL,4,$1,$3);
-  } 
+  }
+  |
+  IDENTIFIER EQUALS NEW '(' ID ')' {
+  struct TreeNode* RHS = createNewNode($<string>5);
+  $$ = createOpNode(NULL,4,$1,RHS);
+  }
+  |
+  FIELD EQUALS NEW '(' ID ')' {
+  struct TreeNode* RHS = createNewNode($<string>5);
+  $$ = createOpNode(NULL,4,$1,RHS);
+  }
   ;
+
 
 E :
   E PLUS E {
@@ -504,6 +522,8 @@ E :
   IDENTIFIER
   |
   FIELD
+  |
+  FIELDFUNCTION
   ;
 
 IDENTIFIER : 
@@ -537,14 +557,49 @@ FIELD :
       $$ = createIdNode($<string>1,NULL,NULL);
       $$ = addFieldToEnd($$,$<string>3);
       }
+      |
+      SELF '.' ID {
+      $$ = createSelfNode(C,$<string>3,NULL);
+      }
       ;
 
+FIELDFUNCTION :
+              SELF '.' ID '(' ArgList ')' {
+              $$ = createSelfNode(C,$<string>3,$5);
+              $$ = addMethodToEnd($$,$<string>3,$5);
+              }
+              |
+              ID '.' ID '(' ArgList ')' {
+              $$ = createIdNode($<string>1,NULL,NULL);
+              $$ = addMethodToEnd($$,$<string>3,$5);
+              }
+              |
+              FIELD '.' ID '(' ArgList ')' {
+                $$ = addMethodToEnd($1,$<string>3,$5);
+              }
+              |
+              SELF '.' ID '(' ')' {
+              $$ = createSelfNode(C,$<string>3,NULL);
+              $$ = addMethodToEnd($$,$<string>3,NULL);
+              }
+              |
+              ID '.' ID '(' ')' {
+              $$ = createIdNode($<string>1,NULL,NULL);
+              $$ = addMethodToEnd($$,$<string>3,NULL);
+              }
+              |
+              FIELD '.' ID '(' ')' {
+                $$ = addMethodToEnd($1,$<string>3,NULL);
+              }
+              ;
+
 ArgList :
-        ArgList ','  E {
+        ArgList ',' E {
         $$ = addArgToList($1,$3);
         }
         |
-        E {
+        E
+        {
         $$ = $1;
         }
         ;
@@ -569,6 +624,10 @@ INPUT :
        READ '(' IDENTIFIER ')' {
        $$ = createOpNode(NULL,11,$<node>3,NULL);
       }
+      |
+      READ '(' FIELD ')' {
+      $$ = createOpNode(NULL,11,$3,NULL);
+      }
        ;
 
 OUTPUT :
@@ -588,6 +647,7 @@ ALLOCATE :
          $$ = createOpNode(lookTTUp("int"),22,NULL,NULL);
          }
          ;
+
 
 %%
 

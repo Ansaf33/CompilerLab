@@ -80,26 +80,27 @@ extern int yydebug;
     NEW = 281,                     /* NEW  */
     DELETE = 282,                  /* DELETE  */
     EXTENDS = 283,                 /* EXTENDS  */
-    READ = 284,                    /* READ  */
-    WRITE = 285,                   /* WRITE  */
-    IF = 286,                      /* IF  */
-    THEN = 287,                    /* THEN  */
-    ELSE = 288,                    /* ELSE  */
-    ENDIF = 289,                   /* ENDIF  */
-    WHILE = 290,                   /* WHILE  */
-    DO = 291,                      /* DO  */
-    ENDWHILE = 292,                /* ENDWHILE  */
-    BREAK = 293,                   /* BREAK  */
-    CONTINUE = 294,                /* CONTINUE  */
-    REPEAT = 295,                  /* REPEAT  */
-    UNTIL = 296,                   /* UNTIL  */
-    RETURN = 297,                  /* RETURN  */
-    INT = 298,                     /* INT  */
-    STR = 299,                     /* STR  */
-    INIT = 300,                    /* INIT  */
-    ALLOC = 301,                   /* ALLOC  */
-    FREE = 302,                    /* FREE  */
-    NULLVAL = 303                  /* NULLVAL  */
+    SELF = 284,                    /* SELF  */
+    READ = 285,                    /* READ  */
+    WRITE = 286,                   /* WRITE  */
+    IF = 287,                      /* IF  */
+    THEN = 288,                    /* THEN  */
+    ELSE = 289,                    /* ELSE  */
+    ENDIF = 290,                   /* ENDIF  */
+    WHILE = 291,                   /* WHILE  */
+    DO = 292,                      /* DO  */
+    ENDWHILE = 293,                /* ENDWHILE  */
+    BREAK = 294,                   /* BREAK  */
+    CONTINUE = 295,                /* CONTINUE  */
+    REPEAT = 296,                  /* REPEAT  */
+    UNTIL = 297,                   /* UNTIL  */
+    RETURN = 298,                  /* RETURN  */
+    INT = 299,                     /* INT  */
+    STR = 300,                     /* STR  */
+    INIT = 301,                    /* INIT  */
+    ALLOC = 302,                   /* ALLOC  */
+    FREE = 303,                    /* FREE  */
+    NULLVAL = 304                  /* NULLVAL  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -134,26 +135,27 @@ extern int yydebug;
 #define NEW 281
 #define DELETE 282
 #define EXTENDS 283
-#define READ 284
-#define WRITE 285
-#define IF 286
-#define THEN 287
-#define ELSE 288
-#define ENDIF 289
-#define WHILE 290
-#define DO 291
-#define ENDWHILE 292
-#define BREAK 293
-#define CONTINUE 294
-#define REPEAT 295
-#define UNTIL 296
-#define RETURN 297
-#define INT 298
-#define STR 299
-#define INIT 300
-#define ALLOC 301
-#define FREE 302
-#define NULLVAL 303
+#define SELF 284
+#define READ 285
+#define WRITE 286
+#define IF 287
+#define THEN 288
+#define ELSE 289
+#define ENDIF 290
+#define WHILE 291
+#define DO 292
+#define ENDWHILE 293
+#define BREAK 294
+#define CONTINUE 295
+#define REPEAT 296
+#define UNTIL 297
+#define RETURN 298
+#define INT 299
+#define STR 300
+#define INIT 301
+#define ALLOC 302
+#define FREE 303
+#define NULLVAL 304
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -172,7 +174,7 @@ union YYSTYPE
 
 
 
-#line 176 "y.tab.h"
+#line 178 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

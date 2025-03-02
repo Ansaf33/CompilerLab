@@ -39,6 +39,11 @@ struct Gsymbol* createGNode(char* name, struct typetable* type,struct classtable
 
 void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction){
 
+  if( type == NULL && Ctype == NULL ){
+    printf("Invalid type for global variable | %s |\n",name);
+    exit(1);
+  }
+
 
   if( !lookGUp(name) ){
     struct Gsymbol* temp = createGNode(name,type,Ctype,rowSize,colSize,param,isFunction);

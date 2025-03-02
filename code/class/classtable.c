@@ -10,7 +10,7 @@ static int classIndex = 0;
 struct classtable* Chead = NULL;
 
 
-struct classtable* createClassNode(char* name){
+struct classtable* createCNode(char* name){
   struct classtable* temp = (struct classtable*)malloc(sizeof(struct classtable));
 
   temp->name = (char*)malloc(sizeof(char)*100);
@@ -37,7 +37,7 @@ struct classtable* addClassNode(char* name){
     exit(1);
   }
 
-  struct classtable* temp = createClassNode(name);
+  struct classtable* temp = createCNode(name);
 
 
   if( Chead == NULL ){
@@ -77,6 +77,14 @@ struct classtable* lookClassUp(char* name){
 
 }
 
+struct classmember* lookMemberInClassUp(struct classtable* c,char* name){
+  return lookMemberUp(c->classmember,name);
+}
+
+struct classmethod* lookMethodInClassUp(struct classtable* c,char* name){
+  return lookMethodUp(c->classmethod,name);
+}
+
 void printClass(struct classtable* c){
   printf(" | N A M E : %s | C L A S S I N D E X : %d | M E M B E R C O U N T : %d | M E T H O D C O U N T : %d\n",
          c->name,
@@ -94,4 +102,50 @@ void printClass(struct classtable* c){
 
 
 
+// CHECK DECLARED AND DEFINED TYPES AND PARAMETERS
+void checkDeclDef(struct classtable* c,struct typetable* type,char* name,struct paramlist* param){
+
+  // CHECK IF METHOD NAME IS IN classmethod of C
+  struct classmethod* method = lookMethodInClassUp(c,name);
+
+  if( method == NULL ){
+    printf("Method | %s | not declared in class.\n",name);
+    exit(1);
+  }
+
+  if( method->type == NULL ){
+    printf("Type for function | %s | not defined in typetable.\n",name);
+    exit(1);
+  }
+
+  if( method->type != type ){
+    printf("Declared return type | %s | does not match with defined return type | %s | for function | %s |\n",method->type->name,type->name,name);
+    exit(1);
+  }
+
+
+  struct paramlist* defined = param;
+  struct paramlist* declared = method->param;
+
+  while( defined && declared ){
+    // NAME AND TYPE CHECKING
+    if( strcmp(defined->name,declared->name) != 0 ){
+      printf("Defined name | %s | does not match with declared name | %s | of function | %s |\n",defined->name,declared->name,name);
+      exit(1);
+    }
+    if( defined->type != declared->type ){
+      printf("Defined type | %s | does not match with declared type | %s | of function | %s |\n",defined->type->name,declared->type->name,name);
+      exit(1);
+    }
+
+    defined = defined->next;
+    declared = declared->next;
+  }
+
+  if( defined || declared ){
+    printf("Defined size does not match Declared size of function | %s |\n",name);
+    exit(1);
+  }
+
+}
 
