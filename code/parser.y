@@ -51,12 +51,19 @@ void endxsm(FILE* f);
 %type<paramlist>ParamList
 %type<list> GidList LidList
 %type<string> TYPE
-%type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST REPEATST DOWHILEST FIELD IDENTIFIER CONSTANT ArgList Body INITIALIZE ALLOCATE
-%token STRING ID NUM PLUS MINUS MUL DIV EQUALS 
+%type<node> INITIALIZE ALLOCATE
+%type<node> IFST WHILEST REPEATST DOWHILEST
+%type<node> ASSG INPUT OUTPUT
+%type<node> E S SL Body
+%type<node> FIELD IDENTIFIER CONSTANT ArgList
+%token STRING ID NUM
 %token LT LTE GT GTE EQ NEQ 
-%token READ WRITE END BEG 
-%token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE REPEAT UNTIL RETURN MAIN
-%token DECL ENDDECL INT STR BEGINTYPE ENDTYPE
+%token PLUS MINUS MUL DIV EQUALS
+%token END BEG MAIN DECL ENDDECL BEGINTYPE ENDTYPE BEGINCLASS ENDCLASS
+%token NEW DELETE
+%token READ WRITE
+%token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE REPEAT UNTIL RETURN
+%token INT STR
 %token INIT ALLOC FREE NULLVAL
 %left EQ NEQ
 %left LT LTE GT GTE
@@ -552,11 +559,6 @@ void initxsm(FILE* f){
 void endxsm(FILE* f){
           fprintf(xsm,"JMP L51\n");
 
-          // ALREADY FREED SPACE
-
-
-
-
           // NO MEMORY ALLOCATED
           fprintf(xsm,"L52:\n");
           getInput(xsm,"Not Allocated");
@@ -570,8 +572,5 @@ void endxsm(FILE* f){
           // END
           fprintf(xsm,"L51:\n");
           fprintf(xsm,"INT 10\n");
-
-
-
 
 }

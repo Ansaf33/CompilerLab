@@ -40,7 +40,6 @@ struct Lsymbol* addLSymbol(char* name,struct typetable* type){
     exit(1);
   }
 
-
   struct Lsymbol* temp = createLNode(name,type);
 
   // ADDING TO END OF LINKED LIST

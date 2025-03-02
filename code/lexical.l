@@ -35,6 +35,22 @@
   return NULLVAL;
 }
 
+"class" {
+  return BEGINCLASS;
+}
+
+"endclass" {
+  return ENDCLASS;
+}
+
+"new" {
+  return NEW;
+}
+
+"delete" {
+  return DELETE;
+}
+
 "type" {
   return BEGINTYPE;
 }

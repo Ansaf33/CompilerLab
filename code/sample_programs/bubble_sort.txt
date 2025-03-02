@@ -2,7 +2,9 @@ decl
 int n,i,j,ar[10],temp;
 enddecl
 
-
+int main(){
+decl
+enddecl
 begin
 
 write("Enter N");
@@ -46,3 +48,5 @@ endwhile;
 
 
 end;
+
+}

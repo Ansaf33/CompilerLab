@@ -224,66 +224,63 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
     if( root->left == NULL && root->right == NULL ){
       int regIdx = getReg();
 
-    // IF NUMBER, MOVE THE NUMBER TO REGISTER
-    if(root->val != -1 ){
-      fprintf(f,"MOV R%d, %d\n",regIdx,root->val);
-    }
-
-    // IF STRING, MOVE THE STRING TO REGISTER
-    if(root->string != NULL ){
-      fprintf(f,"MOV R%d, %s\n",regIdx,root->string);
-    }
-
-    // IF VARIABLE OR FUNCTION
-    else if( root->varname != NULL  ){
-
-      struct Gsymbol* global = lookGUp(root->varname);
-      struct Lsymbol* local = lookLUp(root->varname);
-
-
-      // IF IT IS NULL
-      if( strcmp(root->varname,"null") == 0 ){
-        fprintf(f,"MOV R%d, %d\n",regIdx,0);
+      // IF NUMBER, MOVE THE NUMBER TO REGISTER
+      if(root->val != -1 ){
+        fprintf(f,"MOV R%d, %d\n",regIdx,root->val);
       }
 
+      // IF STRING, MOVE THE STRING TO REGISTER
+      if(root->string != NULL ){
+        fprintf(f,"MOV R%d, %s\n",regIdx,root->string);
+      }
 
-      // IF VARIABLE, MOVE IT FROM MEMORY TO REGISTER
+      // IF VARIABLE OR FUNCTION
+      else if( root->varname != NULL  ){
+
+        struct Gsymbol* global = lookGUp(root->varname);
+        struct Lsymbol* local = lookLUp(root->varname);
+
+
+        // IF IT IS NULL
+        if( strcmp(root->varname,"null") == 0 ){
+          fprintf(f,"MOV R%d, %d\n",regIdx,0);
+        }
+
+
+        // IF VARIABLE, MOVE IT FROM MEMORY TO REGISTER
       
-      else if( local || global->flabel == -1 ){
-        int memlocationReg = getSymbolAddress(f,root);
-        fprintf(f, "MOV R%d, [R%d]\n",regIdx,memlocationReg);
-        freeReg();
+        else if( local || global->flabel == -1 ){
+          int memlocationReg = getSymbolAddress(f,root);
+          fprintf(f, "MOV R%d, [R%d]\n",regIdx,memlocationReg);
+          freeReg();
+        }
+
+        // IF FUNCTION, WRITE CODEGEN FOR THE FUNCTION AND STORE IT IN REGISTER
+
+        else if( global->flabel >= 0 ){
+          int retReg = invoke_function_codeGen(f,root);
+          fprintf(f,"MOV R%d, R%d\n",regIdx,retReg);
+          freeReg();
+        }
+
       }
 
-      // IF FUNCTION, WRITE CODEGEN FOR THE FUNCTION AND STORE IT IN REGISTER
-
-      else if( global->flabel >= 0 ){
-        int retReg = invoke_function_codeGen(f,root);
+      // IF INITIALIZE FUNCTION
+      if( root->op == 21 ){
+        int retReg = initialize_codeGen(f);
         fprintf(f,"MOV R%d, R%d\n",regIdx,retReg);
         freeReg();
       }
 
+      // IF ALLOC FUNCTION
+      if( root->op == 22 ){
+        int retReg = alloc_codeGen(f);
+        fprintf(f,"MOV R%d, R%d\n",regIdx,retReg);
+        freeReg();
+      }
+
+      return regIdx;
     }
-
-    // IF INITIALIZE FUNCTION
-    if( root->op == 21 ){
-      int retReg = initialize_codeGen(f);
-      fprintf(f,"MOV R%d, R%d\n",regIdx,retReg);
-      freeReg();
-    }
-
-    // IF ALLOC FUNCTION
-    if( root->op == 22 ){
-      int retReg = alloc_codeGen(f);
-      fprintf(f,"MOV R%d, R%d\n",regIdx,retReg);
-      freeReg();
-    }
-
-
-
-
-    return regIdx;
-  }
 
   int lReg = arithmetic_expression_codeGen(f,root->left);
   int rReg = arithmetic_expression_codeGen(f,root->right);
@@ -720,7 +717,7 @@ void return_codeGen(FILE* f,struct TreeNode* root){
   freeReg();
   
 
-  // SET BP TO OLD VALUE OF BP
+  // POP BP AND SET BP TO OLD VALUE OF BP 
   
   reg = getReg();
   fprintf(f,"POP R%d\n",reg);

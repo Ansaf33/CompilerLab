@@ -64,11 +64,19 @@ void addTypes(struct fieldlist* head){
   struct fieldlist* cur = head;
   while(cur != NULL){
     cur->type = lookTTUp(cur->deemed);
+    cur->Ctype = lookCUp(cur->deemed);
 
-    if( cur->type == NULL ){
-      printf("Type | %s | does not exist within typetable.\n",cur->deemed);
+    // IF BOTH TYPE AND CTYPE PRESENT
+    if( cur->type && cur->Ctype ){
+      printf("Both Class and Type | %s | are present within typetable and classtable.\n",cur->deemed);
       exit(1);
     }
+
+    if( cur->type == NULL && cur->Ctype == NULL ){
+      printf("Class and Type | %s | does not exist within typetable.\n",cur->deemed);
+      exit(1);
+    }
+
     cur = cur->next;
   }
 }

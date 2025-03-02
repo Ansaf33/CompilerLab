@@ -53,3 +53,7 @@ root->type = body of the loop (Statement List)
 //--------------- STRUCTURE OF RETURN STATEMENTS
 
 root->left = Expression to be evaluated and placed at BP - 2
+
+//--------------- STRUCTURE OF FREE STATEMENTS
+
+root->middle = ID to be freed.

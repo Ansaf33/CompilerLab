@@ -71,6 +71,7 @@ struct list* addFunction(struct list* head,char* name,struct paramlist* param){
   struct list* temp = createVarNode(name,1,1);
   temp->isFunction = 1;
   temp->param = param;
+
   // ADDING TO END OF LINKED LIST
   if( head == NULL ){
     head = temp;

@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "../typetable/typetable.h"
+#include "../class/classtable.h"
 
 struct fieldlist{
   char* name;
@@ -10,6 +11,7 @@ struct fieldlist{
 
   char* deemed;
   struct typetable* type;
+  struct classtable* Ctype;
 
   struct fieldlist* next;
 

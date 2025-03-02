@@ -6,6 +6,7 @@ enddecl
 
 int fact(int n){
   decl
+  int a,b,c;
   enddecl
   begin
   if( n == 1 ) then

@@ -11,8 +11,7 @@
 
 
 
-// ------------- CHECK IF TYPE IS SAME
-
+//GET TYPENAME
 char* getName(struct TreeNode* root){
   struct TreeNode* cur = root;
   while(cur->middle != NULL ){
@@ -24,7 +23,6 @@ char* getName(struct TreeNode* root){
 
 // CONDITION FOR ARITHMETIC OPERATORS
 bool arithmetic_typeSatisfied(struct TreeNode* root){
-  // if nothing passed in
   if( root == NULL ){
     printf("Nothing passed\n");
     exit(1);
@@ -33,7 +31,7 @@ bool arithmetic_typeSatisfied(struct TreeNode* root){
   if( same( getName(root->left) , "int" ) && same( getName(root->right) , "int" ) ){
     return true;
   }
-  // false condition, both not integers
+
   printf("Arithmetic type | %s | not satisfied", map(root->op) );
   printf("[L R] = [%s %s]\n",root->left->type->name,root->right->type->name);
   exit(1);
@@ -51,7 +49,7 @@ bool assignment_typeSatisfied(struct TreeNode* root){
     printf("Cannot dynamically allocate space for primitive datatype | %s |\n",getName(root->left));
     exit(1);
   }
-  // true condition, both should be of the same type
+  // true condition, both should be of the same type ( right can be null )
   bool nullCondition = same(getName(root->right),"null");
   bool bothsameCondition = same(getName(root->left),getName(root->right));
   bool notBoolCondition = !same(getName(root->left),"bool") && !same(getName(root->right),"bool");
@@ -59,6 +57,7 @@ bool assignment_typeSatisfied(struct TreeNode* root){
   if ( nullCondition || bothsameCondition && notBoolCondition ){
     return true;
   }
+
   printf("Assignment type | %s | not satisfied", map(root->op) );
   printf("[L R] = [%s %s]\n",root->left->type->name,root->right->type->name);
   exit(1);
@@ -72,12 +71,14 @@ bool logical_typeSatisfied(struct TreeNode* root){
     printf("Nothing passed\n");
     exit(1);
   }
+  // either rhs is null, or both are integers
   bool isNullCondition = same(getName(root->right),"null");
   bool bothIntCondition = same(getName(root->left),"int") && same(getName(root->right),"int");
 
   if( isNullCondition || bothIntCondition ){
     return true;
   }
+
   printf("Logical type | %s | not satisfied", map(root->op) );
   printf("[L R] = [%s %s]\n",root->left->type->name,root->right->type->name);
   exit(1);
@@ -89,6 +90,7 @@ bool read_typeSatisfied(struct TreeNode* root){
     printf("Nothing passed\n");
     exit(1);
   }
+  // left is either int or str
   bool intorstringCondition = same(getName(root->left),"int") || same(getName(root->left),"str");
   if( intorstringCondition ){
     return true;
@@ -103,6 +105,7 @@ bool write_typeSatisfied(struct TreeNode* root){
     printf("Nothing passed\n");
     exit(1);
   }
+  // left is either int or str
   bool intorstringCondition = same(getName(root->left),"int") || same(getName(root->left),"str");
   if( intorstringCondition ){
     return true;
@@ -118,6 +121,7 @@ bool if_typeSatisfied(struct TreeNode* root){
     printf("Nothing passed\n");
     exit(1);
   }
+  // middle must be bool
   bool boolCondition = same(getName(root->middle),"bool");
   if( boolCondition ){
     return true;
@@ -132,6 +136,7 @@ bool while_typeSatisfied(struct TreeNode* root){
     printf("Nothing passed\n");
     exit(1);
   }
+  // middle must be bool
   bool boolCondition = same(getName(root->left),"bool");
   if( boolCondition ){
     return true;
@@ -146,6 +151,7 @@ bool return_typeSatisfied(struct TreeNode* root){
     printf("Nothing passed\n");
     exit(1);
   }
+  // middle must not be bool
   bool notboolCondition = !same(getName(root->middle),"bool");
   if( notboolCondition ){
     return true;
@@ -392,8 +398,7 @@ struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
       arg = arg->next;
       param = param->next;
     }
-
-    if( !arg && param || !param && arg ){
+    if( arg || param ){
       printf("Argument size does not match parameter size.\n");
       exit(1);
     }
@@ -405,22 +410,16 @@ struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
 // -------------- CREATE LIST OF ARGUMENTS
 
 struct TreeNode* addArgToList(struct TreeNode* listHead,struct TreeNode* argHead){
-
-
-  // ADDING ARGHEAD TO END OF LINKED LIST
   if( listHead == NULL ){
     listHead = argHead;
   }
   else{
-
     struct TreeNode* end = listHead;
     while(end->next != NULL){
       end = end->next;
     }
     end->next = argHead;
   }
-
-
   return listHead;
 }
 
@@ -499,13 +498,9 @@ struct TreeNode* createFreeNode(struct TreeNode* id){
   temp->varname = NULL;
   temp->left = NULL;
   temp->right = NULL;
-
   temp->middle = id;
 
- 
-
   free_typeSatisfied(temp);
-
   return temp;
 }
 
@@ -527,16 +522,7 @@ struct TreeNode* createNullNode(){
   temp->right = NULL;
 
   return temp;
-
 }
-
-
-
-
-
-
-
-
 
 // ------------------- INORDER TRAVERSAL
 
