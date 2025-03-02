@@ -234,7 +234,7 @@ struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
   temp->Gsymbol = lookGUp(varname);
 
   if(temp->Gsymbol == NULL){
-    printf("Function %s is not declared.\n",varname);
+    printf("Function | %s | is not declared.\n",varname);
     exit(1);
   }
   // -------------------- CHECK IF FUNCTION IS DEFINED -------------------

@@ -41,8 +41,8 @@ bool checkValidParams(struct paramlist* param,char* name){
 
 // --------------------- CHECK IF DECLARED AND DEFINED RETURN TYPES ARE THE SAME
 
-bool checkValidRetType(int declaredType,char* name){
-  int definedType = lookGUp(name)->type;
+bool checkValidRetType(int definedType,char* name){
+  int declaredType = lookGUp(name)->type;
   if(declaredType!=definedType){
     printf("Return type of declared and defined function do not match.\n");
     exit(1);
@@ -54,7 +54,7 @@ bool checkValidRetType(int declaredType,char* name){
 
 bool checkFunctionDeclared(char* name){
   if( lookGUp(name) == NULL ){
-    printf("Function | %s | is not defined.\n",name);
+    printf("Function | %s | is not declared.\n",name);
     exit(1);
   }
   lookGUp(name)->defined = true;
