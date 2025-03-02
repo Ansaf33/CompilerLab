@@ -18,6 +18,12 @@ struct Lsymbol* createLNode(char* name,struct typetable* type){
   temp->name = (char*)malloc(sizeof(char)*100);
   strcpy(temp->name,name);
   temp->type = type;
+
+  if(type == NULL){
+    printf("Type not present.\n");
+    exit(1);
+  }
+
   temp->binding = binding++;
 
   temp->next = NULL;

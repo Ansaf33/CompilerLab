@@ -5,5 +5,5 @@ gcc AST.c reghandling.c symbol_table/Gsymbol.c symbol_table/Lsymbol.c symbol_tab
 cd label_translation
 ./script.sh
 cd ../../xsm_expl
-./xsm -l library.lib -e ../code/proper_assembly_code.xsm --debug
+./xsm -l library.lib -e ../code/proper_assembly_code.xsm
 

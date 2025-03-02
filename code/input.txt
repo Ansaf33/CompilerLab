@@ -1,33 +1,41 @@
+
+
 type
 
 List{
-  int val;
+  int data;
   List next;
-}
-
-Party{
-  int days;
-  List attendees;
 }
 
 endtype
 
 decl
-Party party;
+List l1;
+int a,b,c,d;
 enddecl
-
-
 
 int main(){
   decl
-  List head;
   enddecl
 
   begin
-  head = party.attendees;
-  while(head.val != 0) do
-    head = head.next;
-  endwhile;
+  a = initialize();
+  write(a);
+  a = alloc();
+  write(a);
+  b = alloc();
+  write(b);
+  c = alloc();
+  write(c);
+  free(b);
+  d = alloc();
+  write(d);
+  a = alloc();
+  write(a);
+  a = alloc();
+  write(a);
+ 
+
   end;
 
 }

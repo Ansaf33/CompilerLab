@@ -7,8 +7,11 @@
 
 // GETTING THE SMALLEST FREE REGISTER
 
-
 int getReg(void);
+
+// CHECK FOR REGISTER LEAKS
+
+bool checkLeak(void);
 
 // FREEING THE HIGHEST OCCUPIED REGISTER
 
@@ -109,6 +112,17 @@ void popArgs(FILE* f,struct TreeNode* head);
 
 void codeGen(FILE* f,struct TreeNode* root,int bl,int cl);
 
+// codeGen for initialize statement
+
+int initialize_codeGen(FILE* f);
+
+// codeGen for alloc statement
+
+int alloc_codeGen(FILE* f);
+
+// codeGen for free statement
+
+void free_codeGen(FILE* f,struct TreeNode* root);
 
 // boolean return values if the root value is an assignment/read/write/expression node
 

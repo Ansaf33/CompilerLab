@@ -64,6 +64,8 @@ struct TreeNode* addFieldToEnd(struct TreeNode* head,char* fieldName);
 
 struct TreeNode* addArgToList(struct TreeNode* listHead,struct TreeNode* argHead);
 
+struct TreeNode* createFreeNode(struct TreeNode* id);
+
 void Inorder(struct TreeNode* root);
 
 void printExprList(struct TreeNode* head);

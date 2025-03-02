@@ -90,7 +90,10 @@ extern int yydebug;
     INT = 291,                     /* INT  */
     STR = 292,                     /* STR  */
     BEGINTYPE = 293,               /* BEGINTYPE  */
-    ENDTYPE = 294                  /* ENDTYPE  */
+    ENDTYPE = 294,                 /* ENDTYPE  */
+    INIT = 295,                    /* INIT  */
+    ALLOC = 296,                   /* ALLOC  */
+    FREE = 297                     /* FREE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -136,6 +139,9 @@ extern int yydebug;
 #define STR 292
 #define BEGINTYPE 293
 #define ENDTYPE 294
+#define INIT 295
+#define ALLOC 296
+#define FREE 297
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -154,7 +160,7 @@ union YYSTYPE
 
 
 
-#line 158 "y.tab.h"
+#line 164 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

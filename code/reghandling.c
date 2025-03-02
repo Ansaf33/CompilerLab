@@ -10,6 +10,10 @@
 #define NOR 20
 #define SP 4500
 #define BP 4500
+#define ALLOC_ID 196
+#define INIT_ID 128
+#define FREE_ID 244
+
 
 
 // INITIALLY, NO REGISTERS ARE USED
@@ -110,6 +114,13 @@ int getReg(void){
 
 }
 
+bool checkLeak(){
+  if(highestUsedReg > -1 ){
+    printf("Register leak present\n");
+    exit(1);
+  }
+}
+
 // ----------------------------------------------------------- FREE REG FUNCTION
 
 void freeReg(){
@@ -175,9 +186,9 @@ void getInput(FILE* f,char* s){
 
 int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
 
-  // IF AT LEAF NODE, THEN ONLY NUMBER OR CONSTANT
-  if( root->left == NULL && root->right == NULL ){
-    int regIdx = getReg();
+    // IF AT LEAF NODE, THEN ONLY NUMBER OR CONSTANT
+    if( root->left == NULL && root->right == NULL ){
+      int regIdx = getReg();
 
     // IF NUMBER, MOVE THE NUMBER TO REGISTER
     if(root->val != -1 ){
@@ -189,6 +200,7 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
       fprintf(f,"MOV R%d, %s\n",regIdx,root->string);
     }
 
+    // IF VARIABLE OR FUNCTION
     else if( root->varname != NULL  ){
       struct Gsymbol* global = lookGUp(root->varname);
       struct Lsymbol* local = lookLUp(root->varname);
@@ -211,7 +223,20 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
       }
 
     }
-    
+
+    // IF INITIALIZE FUNCTION
+    if( root->op == 21 ){
+      int retReg = initialize_codeGen(f);
+      fprintf(f,"MOV R%d, R%d\n",regIdx,retReg);
+      freeReg();
+    }
+
+    // IF ALLOC FUNCTION
+    if( root->op == 22 ){
+      int retReg = alloc_codeGen(f);
+      fprintf(f,"MOV R%d, R%d\n",regIdx,retReg);
+      freeReg();
+    }
 
 
 
@@ -297,7 +322,6 @@ void assignment_codeGen(FILE* f,struct TreeNode* root){
   freeReg();
 
 
-
   int fReg = arithmetic_expression_codeGen(f,root->right);
 
   // move the contents of fReg to memory location specified by r1
@@ -308,9 +332,7 @@ void assignment_codeGen(FILE* f,struct TreeNode* root){
   // freeing r1
   freeReg();
 
-
-  
-
+  checkLeak();
 }
 
 // ----------------------------------------------------------------------CODE GENERATION FOR READ OPERATIONS
@@ -555,9 +577,6 @@ void dowhile_codeGen(FILE* f,struct TreeNode* root){
 
 int invoke_function_codeGen(FILE* f,struct TreeNode* root){
 
-
-
-
   // PUSH USED REGISTERS
   pushRegisters(f);
 
@@ -722,10 +741,87 @@ void popArgs(FILE* f,struct TreeNode* head){
 
 }
 
+// ------------------------------------------------------------ INITIALIZE CODEGEN ( IMPLEMENTED IN LIBRARY )
+
+int initialize_codeGen(FILE* f){
+  fprintf(f,"BRKP\n");
+
+  // PUSHING USED REGISTERS
+  pushRegisters(f);
+
+  // PUSHING FOR RETURN VALUE
+  fprintf(f,"PUSH R0\n");
+
+  // CALLING
+  fprintf(f,"CALL %d\n",INIT_ID);
+
+  // STORING RETURN VALUE
+  int returnReg = getReg();
+  fprintf(f,"POP R%d\n",returnReg);
 
 
+  popRegisters(f);
+
+  return returnReg;
+}
+
+// ------------------------------------------------------------ CODE GEN FOR ALLOC() FUNCTION
+
+int alloc_codeGen(FILE* f){
+
+  // PUSH USED REGISTERS TO STACK
+  fprintf(f,"BRKP\n");
+  pushRegisters(f);
+
+  // PUSH EMPTY REGISTER FOR RETURN VALUE ( ADDRESS )
+  fprintf(f,"PUSH R0\n");
+
+  // CALL THE ADDRESS
+  fprintf(f,"CALL %d\n",ALLOC_ID);
+
+  // NOW THE TOP OF STACK HAS THE RETURN VALUE
+  int returnReg = getReg();
+  fprintf(f,"POP R%d\n",returnReg);
+
+  // POP USED REGISTERS FROM STACK
+  popRegisters(f);
+
+  return returnReg;
+}
+
+// ------------------------------------------------------------- CODE GEN FOR FREE ( ID ) FUNCTION
 
 
+void free_codeGen(FILE* f,struct TreeNode* root){
+
+  fprintf(f,"BRKP\n");
+
+  // PUSH REGISTERS TO STACK
+  pushRegisters(f);
+
+  // PUSH ONLY ARGUMENT TO STACK
+  int ptrReg = getSymbolAddress(f,root->middle);
+  fprintf(f,"PUSH R%d\n",ptrReg);
+  freeReg();
+
+  // PUSH REGISTER FOR RETURN VALUE ( NOT NECESSARY )
+  fprintf(f,"PUSH R0\n");
+
+  // CALL FREE FUNCTION
+  fprintf(f,"CALL %d\n",FREE_ID);
+
+  // NO RETURN VALUES, SO COMPLETED.
+  int returnReg = getReg();
+  fprintf(f,"POP R%d\n",returnReg);
+  
+  // POP ALL REGISTERS
+  popRegisters(f);
+
+  // FREE THE RETURN VALUE REGISTER
+  freeReg();
+
+  checkLeak();
+}
 
 
 
@@ -817,7 +913,13 @@ void codeGen(FILE* f,struct TreeNode* root,int bl,int cl){
     // RETURN STATEMENT
     case 20:
           return_codeGen(f,root);
+          break;
+    // FREE STATEMENT
+    case 23:
+          free_codeGen(f,root);
+          break;
     }
+  
 
 
   

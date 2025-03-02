@@ -19,6 +19,18 @@
   return NUM;
 }
 
+"initialize" {
+  return INIT;
+}
+
+"alloc" {
+  return ALLOC;
+}
+
+"free" {
+  return FREE;
+}
+
 "type" {
   return BEGINTYPE;
 }

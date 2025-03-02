@@ -24,6 +24,17 @@ bool typeSatisfied(struct TreeNode* root){
 
     // if assigns, left should be an identifier (integer/string/user_defined) and right should be an expression (integer/string/user_defined)
     else if( root->op == 4 ){
+
+    // can only allocate space dynamically for user defined types
+    /*
+    if(root->right->op == 22){
+      if( same(root->left->type->name,"str") || same(root->left->type->name,"int") ){
+        printf("Cannot Dynamically Allocate Space for Primitive data types\n");
+        exit(1);
+      }
+    }
+    */
+
     return same(root->left->type->name,root->right->type->name) && !same(root->left->type->name,"bool") && !same(root->right->type->name,"bool");
     }
 
@@ -104,10 +115,11 @@ struct TreeNode* createOpNode(struct typetable* type,int op,struct TreeNode* lef
 
   if( left ){ 
     if(!typeSatisfied(temp)){
-      printf("Operator | %s | Condition : Type not matching. [%s %s]\n",map(temp->op),temp->left->type->name,temp->right->type->name);
+      printf("Operator | %s | Condition : Type not matching.\n",map(temp->op));
+      printf("Left type : %s\n",temp->left?temp->left->type->name:"NULL");
+      printf("Right type : %s\n",temp->right?temp->right->type->name:"NULL");
       exit(1);
     }
-
   }
 
   
@@ -386,6 +398,22 @@ struct TreeNode* addFieldToEnd(struct TreeNode* head,char* fieldName){
 
 }
 
+// ----------------------------- CREATE NODE FOR FREE
+
+struct TreeNode* createFreeNode(struct TreeNode* id){
+  struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+  temp->val = -1;
+  temp->op = 23;
+
+  temp->string = NULL;
+  temp->varname = NULL;
+  temp->left = NULL;
+  temp->right = NULL;
+
+  temp->middle = id;
+
+  return temp;
+}
 
 
 

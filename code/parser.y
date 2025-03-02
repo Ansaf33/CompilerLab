@@ -48,12 +48,13 @@ FILE* xsm;
 %type<paramlist>ParamList
 %type<list> GidList LidList
 %type<string> TYPE
-%type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST REPEATST DOWHILEST FIELD IDENTIFIER CONSTANT ArgList Body
+%type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST REPEATST DOWHILEST FIELD IDENTIFIER CONSTANT ArgList Body INITIALIZE ALLOCATE
 %token STRING ID NUM PLUS MINUS MUL DIV EQUALS 
 %token LT LTE GT GTE EQ NEQ 
 %token READ WRITE END BEG 
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE REPEAT UNTIL RETURN MAIN
 %token DECL ENDDECL INT STR BEGINTYPE ENDTYPE
+%token INIT ALLOC FREE
 %left EQ NEQ
 %left LT LTE GT GTE
 %left PLUS MINUS
@@ -249,6 +250,7 @@ LidList :
         ID {
         $$ = addVariable(NULL,$<string>1);
         }
+
         ;
 
 
@@ -327,6 +329,10 @@ S :
   RETURN E ';' {
     $<node>$ = createReturnNode($2);
   }
+  |
+  FREE '(' IDENTIFIER ')' ';' {
+    $<node>$ = createFreeNode($3);
+  }
   ;
 
 IFST :
@@ -366,6 +372,15 @@ ASSG :
   FIELD EQUALS E {
   $$ = createOpNode(NULL,4,$1,$3);
   }
+  |
+  IDENTIFIER EQUALS INITIALIZE {
+  $$ = createOpNode(NULL,4,$1,$3);
+  }
+  |
+  IDENTIFIER EQUALS ALLOCATE {
+  $3->type = $1->type;
+  $$ = createOpNode(NULL,4,$1,$3);
+  } 
   ;
 
 E :
@@ -487,7 +502,17 @@ OUTPUT :
       }
        ;
 
+INITIALIZE :
+           INIT '(' ')' {
+           $$ = createOpNode(lookTTUp("int"),21,NULL,NULL);
+           }
+           ;
 
+ALLOCATE :
+         ALLOC '(' ')' {
+         $$ = createOpNode(lookTTUp("int"),22,NULL,NULL);
+         }
+         ;
 
 %%
 
@@ -506,7 +531,7 @@ int main(int argc, char* argv[]){
 
   xsm = fopen("assembly_code.xsm","w");
   fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
-  //fprintf(xsm,"BRKP\n");
+  fprintf(xsm,"BRKP\n");
   fprintf(xsm,"MOV SP, 4500\n");
   fprintf(xsm,"MOV BP, SP\n");
   fprintf(xsm,"JMP F0\n"); 
