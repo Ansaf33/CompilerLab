@@ -124,29 +124,8 @@ int alloc_codeGen(FILE* f);
 
 void free_codeGen(FILE* f,struct TreeNode* root);
 
-// boolean return values if the root value is an assignment/read/write/expression node
+// codeGen to check if heap memory was allocated for a user defined datatype
 
-bool isAssignment(struct TreeNode* root);
-
-bool isRead(struct TreeNode* root);
-
-bool isWrite(struct TreeNode* root);
-
-bool isArithmeticExpression(struct TreeNode* root);
-
-bool isBooleanExpression(struct TreeNode* root);
-
-bool isIf(struct TreeNode* root);
-
-bool isWhile(struct TreeNode* root);
-
-bool isBreak(struct TreeNode* root);
-
-bool isContinue(struct TreeNode* root);
-
-bool isRepeat(struct TreeNode* root);
-
-bool isDoWhile(struct TreeNode* root);
-
+void checkIfAllocated(FILE* f,int ptrReg);
 
 #endif

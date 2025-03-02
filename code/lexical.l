@@ -31,6 +31,10 @@
   return FREE;
 }
 
+"null" {
+  return NULLVAL;
+}
+
 "type" {
   return BEGINTYPE;
 }

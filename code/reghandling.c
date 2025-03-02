@@ -5,8 +5,9 @@
 #include "AST.h"
 #include "symbol_table/Gsymbol.h"
 #include "symbol_table/Lsymbol.h"
+#include "udt/fieldlist.h"
 
-// define the maximum limit of registers R0 to R19
+// DEFINTIONS
 #define NOR 20
 #define SP 4500
 #define BP 4500
@@ -29,19 +30,15 @@ int getSymbolAddress(FILE* f,struct TreeNode* root){
 
   int adReg = getReg();
   if( root->Lsymbol ){
-    //printf("Local symbol | %s |, so trying to get binding\n",root->Lsymbol->name);
     fprintf(f,"MOV R%d, %d\n",adReg,root->Lsymbol->binding);
     fprintf(f,"ADD R%d, BP\n",adReg);
-    //printf("Got binding as %d + %d\n",BP,root->Lsymbol->binding);
   }
   else{
-   //printf("Global symbol | %s |, so trying to get binding\n",root->Gsymbol->name);
     fprintf(f,"MOV R%d, %d\n",adReg,root->Gsymbol->binding);
-    //printf("Got binding as %d\n",root->Gsymbol->binding);
   }
 
-  
-  
+  // ----- FOR VARIABLES AND ARRAYS ----
+
   if( root->column ){
     
     int b = getReg();
@@ -58,7 +55,6 @@ int getSymbolAddress(FILE* f,struct TreeNode* root){
       fprintf(f,"JNZ R%d, L50\n",rReg);
       freeReg();
       // ------------------------ END OVERFLOW CHECK -----------------------------
-
 
       fprintf(f,"ADD R%d, R%d\n",b,exprReg);
       freeReg();
@@ -77,13 +73,52 @@ int getSymbolAddress(FILE* f,struct TreeNode* root){
     fprintf(f,"JNZ R%d, L50\n",cReg);
     freeReg();
     // ----------------------- END OVERFLOW CHECK ----------------------------------
-
-
-
     fprintf(f,"ADD R%d, R%d\n",adReg,resReg);
+    freeReg();   
+  }
 
+  // --- FOR FIELD MEMBERS ----  
+
+  else if( root->middle != NULL ){
+    int dynamic_start = getReg();
+    fprintf(f,"MOV R%d, [R%d]\n",dynamic_start,adReg);
+
+    // -------- CHECK IF IT IS 0, IF IT IS, THEN ERR ------------
+    int zReg = getReg();
+    fprintf(f,"MOV R%d, %d\n",zReg,0);
+    fprintf(f,"EQ R%d, R%d\n",zReg,dynamic_start);
+    fprintf(f,"JNZ R%d, L52\n",zReg);
     freeReg();
-          
+    // ----------- CHECKING DONE -------------------------------
+
+
+    struct TreeNode* cur = root;
+
+    // IF FIELD MEMBERS EXIST THAT ARE NOT PRIMITIVE
+    while( cur->middle && !same(cur->type->name,"int") && !same(cur->type->name,"str") ){
+
+
+      struct fieldlist* fieldlist = cur->type->fieldlist;
+        
+    
+      // CALCULATE OFFSET AND ADD IT TO STARTING ADDRESS
+      cur = cur->middle;
+      struct fieldlist* curField = lookFLUp(fieldlist,cur->fieldName);
+      int offset = 1 + curField->fieldIndex;
+      fprintf(f,"ADD R%d, %d\n",dynamic_start,offset);  
+
+      // JUMPNG CONDITION
+      if( cur->middle ){
+        fprintf(f,"MOV R%d, [R%d]\n",dynamic_start,dynamic_start);
+      }
+      
+    }
+
+    fprintf(f,"MOV R%d, R%d\n",adReg,dynamic_start);
+
+    // FREE DYNAMIC START REGISTER
+    freeReg();
+
   }
 
 
@@ -92,7 +127,6 @@ int getSymbolAddress(FILE* f,struct TreeNode* root){
  
 
 }
-
 
 // --------------------------------------------------------- GET LABEL FUNCTION
 
@@ -202,13 +236,20 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
 
     // IF VARIABLE OR FUNCTION
     else if( root->varname != NULL  ){
+
       struct Gsymbol* global = lookGUp(root->varname);
       struct Lsymbol* local = lookLUp(root->varname);
 
 
+      // IF IT IS NULL
+      if( strcmp(root->varname,"null") == 0 ){
+        fprintf(f,"MOV R%d, %d\n",regIdx,0);
+      }
+
+
       // IF VARIABLE, MOVE IT FROM MEMORY TO REGISTER
       
-      if( local || global->flabel == -1 ){
+      else if( local || global->flabel == -1 ){
         int memlocationReg = getSymbolAddress(f,root);
         fprintf(f, "MOV R%d, [R%d]\n",regIdx,memlocationReg);
         freeReg();
@@ -237,6 +278,7 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
       fprintf(f,"MOV R%d, R%d\n",regIdx,retReg);
       freeReg();
     }
+
 
 
 
@@ -318,6 +360,7 @@ void assignment_codeGen(FILE* f,struct TreeNode* root){
   
   // get memlocation in a register and move the memory location to a register
   int memAddressReg = getSymbolAddress(f,root->left);
+
   fprintf(f,"MOV R%d, R%d\n",r1,memAddressReg);
   freeReg();
 
@@ -339,9 +382,6 @@ void assignment_codeGen(FILE* f,struct TreeNode* root){
 
 void read_codeGen(FILE* f,struct TreeNode* root){
 
-
-
-  // STACK POINTER
 
   // pushing "read"
   int r1 = getReg();
@@ -601,6 +641,7 @@ int invoke_function_codeGen(FILE* f,struct TreeNode* root){
   // POP OUT USED REGISTERS FROM THE STACK
   popRegisters(f);
 
+
   return returnReg;
 
 }
@@ -801,10 +842,16 @@ void free_codeGen(FILE* f,struct TreeNode* root){
 
   // PUSH ONLY ARGUMENT TO STACK
   int ptrReg = getSymbolAddress(f,root->middle);
+
+  // CHECK IF MEMORY WAS ALLOCATED FOR THE UDT
+  checkIfAllocated(f,ptrReg);
+
   fprintf(f,"PUSH R%d\n",ptrReg);
+
   freeReg();
 
-  // PUSH REGISTER FOR RETURN VALUE ( NOT NECESSARY )
+
+  // PUSH REGISTER FOR RETURN VALUE ( NO RETURN VALUES HERE, SO NOT NECESSARY )
   fprintf(f,"PUSH R0\n");
 
   // CALL FREE FUNCTION
@@ -817,50 +864,29 @@ void free_codeGen(FILE* f,struct TreeNode* root){
   // POP ALL REGISTERS
   popRegisters(f);
 
+  ptrReg = getSymbolAddress(f,root->middle);
+  fprintf(f,"MOV [R%d], 0\n",ptrReg);
+  freeReg();
+
+
   // FREE THE RETURN VALUE REGISTER
   freeReg();
 
-  checkLeak();
 }
 
+// ------------------------------------------------------------------- CHECK IF HEAP MEMORY WAS ALLOCATED FOR THE ID
 
-
-// ------------------------------------------------------------- BOOLEAN FUNCTIONS
-
-bool isAssignment(struct TreeNode* root){
-    return root->op == 4;
+void checkIfAllocated(FILE* f,int ptrReg){
+  int addReg = getReg();
+  fprintf(f,"MOV R%d, [R%d]\n",addReg,ptrReg);
+  int zReg = getReg();
+  fprintf(f,"MOV R%d, %d\n",zReg,0);
+  fprintf(f,"EQ R%d, R%d\n",addReg,zReg);
+  fprintf(f,"JNZ R%d, L52\n",addReg);
+  freeReg();
+  freeReg();
+  
 }
-bool isRead(struct TreeNode* root){
-    return root->op == 11;
-}
-bool isWrite(struct TreeNode* root){
-    return root->op == 12;
-}
-bool isArithmeticExpression(struct TreeNode* root){
-    return root->op >= 0 && root->op <= 3;
-}
-bool isBooleanExpression(struct TreeNode* root){
-    return root->op >= 5 && root->op <= 10;
-}
-bool isIf(struct TreeNode* root){
-    return root->op == 14;
-}
-bool isWhile(struct TreeNode* root){
-    return root->op == 15;
-}
-bool isBreak(struct TreeNode* root){
-    return root->op == 16;
-}
-bool isContinue(struct TreeNode* root){
-    return root->op == 17;
-}
-bool isRepeat(struct TreeNode* root){
-    return root->op == 18;
-}
-bool isDoWhile(struct TreeNode* root){
-    return root->op == 19;
-}
-
 
 // ------------------------------------------------------------------- MAIN CODEGEN FUNCTION
 
@@ -920,10 +946,5 @@ void codeGen(FILE* f,struct TreeNode* root,int bl,int cl){
           break;
     }
   
-
-
-  
-  
-          
 }
 

@@ -93,7 +93,8 @@ extern int yydebug;
     ENDTYPE = 294,                 /* ENDTYPE  */
     INIT = 295,                    /* INIT  */
     ALLOC = 296,                   /* ALLOC  */
-    FREE = 297                     /* FREE  */
+    FREE = 297,                    /* FREE  */
+    NULLVAL = 298                  /* NULLVAL  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -142,12 +143,13 @@ extern int yydebug;
 #define INIT 295
 #define ALLOC 296
 #define FREE 297
+#define NULLVAL 298
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 34 "parser.y"
+#line 37 "parser.y"
 
   struct TreeNode* node;
   char* string;
@@ -160,7 +162,7 @@ union YYSTYPE
 
 
 
-#line 164 "y.tab.h"
+#line 166 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

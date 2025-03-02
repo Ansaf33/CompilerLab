@@ -4,6 +4,8 @@
 #include "../udt/fieldlist.h"
 #include "../AST.h"
 
+#define MAXFLSIZE 7
+
 struct typetable* TThead = NULL;
 
 // ----------- CREATING NODE FOR TYPETABLE
@@ -17,6 +19,11 @@ struct typetable* createTTNode(char* name,int size,struct fieldlist* fieldlist){
   temp->size = size;
 
   temp->fieldlist = fieldlist;
+
+  if( getFLSize(fieldlist) > MAXFLSIZE ){
+    printf("Cannot have more than 7 field members in the type | %s |\n",name);
+    exit(1);
+  }
 
   return temp;
 
@@ -54,6 +61,7 @@ void createPrimitive(){
   addTTNode("int",1,NULL);
   addTTNode("bool",1,NULL);
   addTTNode("str",1,NULL);
+  addTTNode("null",1,NULL);
 }
 
 // ------------- RETURNING TYPETABLE POINTER BASED ON NAME

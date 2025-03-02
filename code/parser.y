@@ -28,6 +28,9 @@ int yylex(void);
 void yyerror(char* s);
 FILE* xsm;
 
+void initxsm(FILE* f);
+void endxsm(FILE* f);
+
 
 %}
 
@@ -54,7 +57,7 @@ FILE* xsm;
 %token READ WRITE END BEG 
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE REPEAT UNTIL RETURN MAIN
 %token DECL ENDDECL INT STR BEGINTYPE ENDTYPE
-%token INIT ALLOC FREE
+%token INIT ALLOC FREE NULLVAL
 %left EQ NEQ
 %left LT LTE GT GTE
 %left PLUS MINUS
@@ -260,20 +263,14 @@ MainBlock :
  
           // GETTING LOCAL SYMBOL TABLE
           getLSymbolTable();
-    
+
+          // DEFINING THE FUNCTION
           define_function_codeGen(xsm,"main",$7);
 
-          fprintf(xsm,"JMP L51\n");
+          // ENDING LABELS
+          endxsm(xsm);
 
-          // OVERFLOW CONDITION
-          fprintf(xsm,"L50:\n");
-          getInput(xsm,"Overflow");
-          fprintf(xsm,"INT 10\n");
-
-          // END
-          fprintf(xsm,"L51:\n");
-          fprintf(xsm,"INT 10\n");
-
+          // DELETING LOCAL SYMBOL TABLE OF MAINN
           deleteLSymbolTable();
 
 
@@ -487,6 +484,10 @@ CONSTANT :
          STRING {
           $$ = createStringNode($<string>1);
           }
+          |
+         NULLVAL {
+          $$ = createNullNode();
+          }
           ;
         
 
@@ -521,20 +522,15 @@ int main(int argc, char* argv[]){
 
   //SOME INITIAL STUFF
   createPrimitive();
+  addGSymbol("main",lookTTUp("int"),1,1,NULL,1);
 
   FILE* f = fopen(argv[1],"r");
   yyin = f;
 
-  addGSymbol("main",lookTTUp("int"),1,1,NULL,1);
-
-
-
   xsm = fopen("assembly_code.xsm","w");
-  fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
-  fprintf(xsm,"BRKP\n");
-  fprintf(xsm,"MOV SP, 4500\n");
-  fprintf(xsm,"MOV BP, SP\n");
-  fprintf(xsm,"JMP F0\n"); 
+
+  initxsm(xsm);
+
   yyparse();
 
 
@@ -545,3 +541,37 @@ void yyerror(char* s){
   printf("ERROR:%s\n",s);
 }
 
+void initxsm(FILE* f){
+  fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
+  fprintf(xsm,"BRKP\n");
+  fprintf(xsm,"MOV SP, 4500\n");
+  fprintf(xsm,"MOV BP, SP\n");
+  fprintf(xsm,"JMP F0\n"); 
+}
+
+void endxsm(FILE* f){
+          fprintf(xsm,"JMP L51\n");
+
+          // ALREADY FREED SPACE
+
+
+
+
+          // NO MEMORY ALLOCATED
+          fprintf(xsm,"L52:\n");
+          getInput(xsm,"Not Allocated");
+          fprintf(xsm,"INT 10\n");
+
+          // OVERFLOW CONDITION
+          fprintf(xsm,"L50:\n");
+          getInput(xsm,"Overflow");
+          fprintf(xsm,"INT 10\n");
+
+          // END
+          fprintf(xsm,"L51:\n");
+          fprintf(xsm,"INT 10\n");
+
+
+
+
+}
