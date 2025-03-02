@@ -5,6 +5,6 @@ gcc AST.c reghandling.c evaluator.c symbol_table/symbol.c symbol_table/varList.c
 cd label_translation
 ./script.sh
 cd ../../xsm_expl
-./xsm -l library.lib -e ../T2EX1/proper_assembly_code.xsm --debug
+./xsm -l library.lib -e ../code/proper_assembly_code.xsm --debug
 
 
