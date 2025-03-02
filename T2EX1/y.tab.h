@@ -54,17 +54,23 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    PLUS = 258,                    /* PLUS  */
-    MINUS = 259,                   /* MINUS  */
-    MUL = 260,                     /* MUL  */
-    DIV = 261,                     /* DIV  */
-    NUM = 262,                     /* NUM  */
-    ID = 263,                      /* ID  */
-    BEG = 264,                     /* BEG  */
-    END = 265,                     /* END  */
-    EQUALS = 266,                  /* EQUALS  */
-    READ = 267,                    /* READ  */
-    WRITE = 268                    /* WRITE  */
+    BEG = 258,                     /* BEG  */
+    ID = 259,                      /* ID  */
+    NUM = 260,                     /* NUM  */
+    PLUS = 261,                    /* PLUS  */
+    MINUS = 262,                   /* MINUS  */
+    MUL = 263,                     /* MUL  */
+    DIV = 264,                     /* DIV  */
+    EQUALS = 265,                  /* EQUALS  */
+    LT = 266,                      /* LT  */
+    LTE = 267,                     /* LTE  */
+    GT = 268,                      /* GT  */
+    GTE = 269,                     /* GTE  */
+    EQ = 270,                      /* EQ  */
+    NEQ = 271,                     /* NEQ  */
+    READ = 272,                    /* READ  */
+    WRITE = 273,                   /* WRITE  */
+    END = 274                      /* END  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -73,28 +79,34 @@ extern int yydebug;
 #define YYEOF 0
 #define YYerror 256
 #define YYUNDEF 257
-#define PLUS 258
-#define MINUS 259
-#define MUL 260
-#define DIV 261
-#define NUM 262
-#define ID 263
-#define BEG 264
-#define END 265
-#define EQUALS 266
-#define READ 267
-#define WRITE 268
+#define BEG 258
+#define ID 259
+#define NUM 260
+#define PLUS 261
+#define MINUS 262
+#define MUL 263
+#define DIV 264
+#define EQUALS 265
+#define LT 266
+#define LTE 267
+#define GT 268
+#define GTE 269
+#define EQ 270
+#define NEQ 271
+#define READ 272
+#define WRITE 273
+#define END 274
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 19 "parser.y"
+#line 21 "parser.y"
 
   struct TreeNode* node;
 
 
-#line 98 "y.tab.h"
+#line 110 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

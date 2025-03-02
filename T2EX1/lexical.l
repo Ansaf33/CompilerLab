@@ -12,23 +12,23 @@
 %%
 
 [0-9]+ {
-  yylval.node = createTree(atoi(yytext),'n',-1,"\0",NULL,NULL);
+  yylval.node = createTree(atoi(yytext),-1,0,"\0",NULL,NULL);
   return NUM;
 }
 
-begin {
+"begin" {
   return BEG;
 }
 
-end {
+"end" {
   return END;
 }
 
-read {
+"read" {
   return READ;
 }
 
-write {
+"write" {
   return WRITE;
 }
 
@@ -53,8 +53,32 @@ write {
   return EQUALS;
 }
 
+[<] {
+  return LT;
+}
+
+"<=" {
+  return LTE;
+}
+
+[>] {
+  return GT;
+}
+
+">=" {
+  return GTE;
+}
+
+"==" {
+  return EQ;
+}
+
+"!=" {
+  return NEQ;
+}
+
 [a-z] {
-  yylval.node = createTree(-1,'n',0,yytext,NULL,NULL);
+  yylval.node = createTree(-1,-1,0,yytext,NULL,NULL);
   return ID;
 }
 

@@ -111,16 +111,16 @@ int expression_codeGen(FILE* f,struct TreeNode* root){
   int rReg = expression_codeGen(f,root->right);
 
   switch(root->op){
-      case '+':
+      case 0:
         fprintf(f,"ADD R%d, R%d\n",lReg,rReg);
         break;
-      case '-':
+      case 1:
         fprintf(f,"SUB R%d, R%d\n",lReg,rReg);
         break;
-      case '*':
+      case 2:
         fprintf(f,"MUL R%d, R%d\n",lReg,rReg);
         break;
-      case '/':
+      case 3:
         fprintf(f,"DIV R%d, R%d\n",lReg,rReg);
         break;
   }
@@ -266,16 +266,16 @@ void write_codeGen(FILE* f,struct TreeNode* root){
 // ------------------------------------------------------------- BOOLEAN FUNCTIONS
 
 bool isAssignment(struct TreeNode* root){
-    return root->op == '=';
+    return root->op == 4;
 }
 bool isRead(struct TreeNode* root){
-    return root->op == 'R';
+    return root->op == 11;
 }
 bool isWrite(struct TreeNode* root){
-    return root->op == 'W';
+    return root->op == 12;
 }
 bool isExpression(struct TreeNode* root){
-    return root->op == '+' || root->op == '-' || root->op == '*' || root->op == '/';
+    return root->op == 0 || root->op == 1 || root->op == 2 || root->op == 3;
 }
 
 // ------------------------------------------------------------------- MAIN CODEGEN FUNCTION

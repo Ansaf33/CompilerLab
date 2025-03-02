@@ -10,17 +10,17 @@ void evaluate(struct TreeNode* root){
   }
   evaluate(root->left);
   switch(root->op){
-    case 'R':
+    case 11:
       char var = root->left->varname;
       printf("Enter value of %c : ",var);
       scanf("%d",&variables[(int)var-97]);
       break;
-    case '=':
+    case 4:
       var = root->left->varname;
       int value = expressionEvaluator(root->right);
       variables[(int)var-97] = value;
       break;
-    case 'W':
+    case 12:
       value = expressionEvaluator(root->left);
       printf("Output of write : %d\n",value);
       break;
@@ -42,19 +42,19 @@ int expressionEvaluator(struct TreeNode* root){
   }
 
   switch(root->op){
-    case '+':
+    case 0:
       return expressionEvaluator(root->left) + expressionEvaluator(root->right);
       break;
 
-    case '-':
+    case 1:
       return expressionEvaluator(root->left) - expressionEvaluator(root->right);
       break;
 
-    case '*':
+    case 2:
       return expressionEvaluator(root->left) * expressionEvaluator(root->right);
       break;
 
-    case '/':
+    case 3:
       return expressionEvaluator(root->left) / expressionEvaluator(root->right);
       break;
 

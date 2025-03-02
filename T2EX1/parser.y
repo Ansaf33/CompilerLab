@@ -1,9 +1,11 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "AST.h"
 #include "reghandling.h"
 #include "evaluator.h"
+
 
 struct TreeNode* root;
 
@@ -22,7 +24,9 @@ void yyerror(char* s);
 }
 
 %type<node> E ASSG INPUT OUTPUT S SL
-%token PLUS MINUS MUL DIV NUM ID BEG END EQUALS READ WRITE
+%token BEG ID NUM PLUS MINUS MUL DIV EQUALS LT LTE GT GTE EQ NEQ READ WRITE END
+%left EQ NEQ
+%left LT LTE GT GTE
 %left PLUS MINUS
 %left MUL DIV
 
@@ -44,7 +48,7 @@ P :
 
 SL :
    SL S '\n' {
-   $$ = createTree(-1,'S',-1,"\0",$1,$2);
+   $$ = createTree(-1,13,-1,"\0",$1,$2);
   }
   |
    S '\n' {
@@ -62,25 +66,49 @@ S :
 
 ASSG :
   ID EQUALS E {
-  $$ = createTree(-1,'=',-1,"\0",$<node>1,$3);
+  $$ = createTree(-1,4,-1,"\0",$<node>1,$3);
   }
   ;
 
 E :
   E PLUS E {
-  $$ = createTree(-1,'+',-1,"\0",$1,$3);
+  $$ = createTree(-1,0,0,"\0",$1,$3);
   }
   |
   E MINUS E {
-  $$ = createTree(-1,'-',-1,"\0",$1,$3);
+  $$ = createTree(-1,1,0,"\0",$1,$3);
   }
   |
   E MUL E {
-  $$ = createTree(-1,'*',-1,"\0",$1,$3);
+  $$ = createTree(-1,2,0,"\0",$1,$3);
   }
   |
   E DIV E {
-  $$ = createTree(-1,'/',-1,"\0",$1,$3);
+  $$ = createTree(-1,3,0,"\0",$1,$3);
+  }
+  |
+  E LT E {
+  $$ = createTree(-1,5,1,"\0",$1,$3);
+  }
+  |
+  E LTE E {
+  $$ = createTree(-1,6,1,"\0",$1,$3);
+  }
+  |
+  E GT E {
+  $$ = createTree(-1,7,1,"\0",$1,$3);
+  }
+  |
+  E GTE E {
+  $$ = createTree(-1,8,1,"\0",$1,$3);
+  }
+  |
+  E NEQ E {
+  $$ = createTree(-1,9,1,"\0",$1,$3);
+  }
+  |
+  E EQ E {
+  $$ = createTree(-1,10,1,"\0",$1,$3);
   }
   |
   '(' E ')' {
@@ -98,13 +126,13 @@ E :
 
 INPUT :
        READ '(' ID ')' {
-       $$ = createTree(-1,'R',-1,"\0",$<node>3,NULL);
+       $$ = createTree(-1,11,-1,"\0",$<node>3,NULL);
       }
        ;
 
 OUTPUT :
        WRITE '(' E ')' {
-        $$ = createTree(-1,'W',-1,"\0",$3,NULL);
+        $$ = createTree(-1,12,-1,"\0",$3,NULL);
       }
        ;
 
