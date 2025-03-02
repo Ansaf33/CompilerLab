@@ -131,8 +131,7 @@ GidList :
         ;
 
 FdefBlock :
-          FdefBlock Fdef
-          |
+          FdefBlock Fdef |
           Fdef
           ;
 
@@ -151,7 +150,7 @@ Fdef :
      // CHECK IF RETURN TYPES OF DECLARED AND DEFINED FUNCTIONS ARE VALID
      checkValidRetType($1,$<string>2);
 
-     // DO THE CODE GENERATION PART
+     // GENERATE CODE FOR THE FUNCTION
 
      // DELETE THE LOCAL SYMBOL TABLE
      deleteLSymbolTable();
@@ -210,6 +209,8 @@ MainBlock :
           printf("------------------- FUNCTION : Main -----------------------------------------------\n");
           // GETTING LOCAL SYMBOL TABLE
           getLSymbolTable();
+
+
           // GENERATING CODE FOR THE MAIN FUNCTION
 
           FILE* xsm = fopen("assembly_code.xsm","w");

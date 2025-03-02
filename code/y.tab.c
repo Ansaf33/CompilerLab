@@ -717,12 +717,12 @@ static const yytype_int16 yyrline[] =
 {
        0,    60,    60,    62,    64,    68,    73,    77,    79,    83,
       89,    93,    99,   103,   107,   111,   115,   119,   123,   127,
-     134,   136,   140,   163,   168,   173,   180,   183,   187,   189,
-     193,   198,   202,   209,   237,   244,   250,   254,   260,   262,
-     264,   266,   268,   270,   272,   274,   278,   284,   288,   294,
-     300,   306,   313,   319,   323,   327,   331,   335,   339,   343,
-     347,   351,   355,   359,   363,   365,   369,   373,   377,   381,
-     385,   391,   395,   402,   406,   413,   419
+     134,   135,   139,   162,   167,   172,   179,   182,   186,   188,
+     192,   197,   201,   208,   238,   245,   251,   255,   261,   263,
+     265,   267,   269,   271,   273,   275,   279,   285,   289,   295,
+     301,   307,   314,   320,   324,   328,   332,   336,   340,   344,
+     348,   352,   356,   360,   364,   366,   370,   374,   378,   382,
+     386,   392,   396,   403,   407,   414,   420
 };
 #endif
 
@@ -1529,7 +1529,7 @@ yyreduce:
     break;
 
   case 22: /* Fdef: TYPE ID '(' ParamList ')' '{' LdeclBlock Body '}'  */
-#line 140 "parser.y"
+#line 139 "parser.y"
                                                        {
      printf("------------------- FUNCTION :  %s -----------------------------------------------\n",(yyvsp[-7].string));
 
@@ -1544,7 +1544,7 @@ yyreduce:
      // CHECK IF RETURN TYPES OF DECLARED AND DEFINED FUNCTIONS ARE VALID
      checkValidRetType((yyvsp[-8].integer),(yyvsp[-7].string));
 
-     // DO THE CODE GENERATION PART
+     // GENERATE CODE FOR THE FUNCTION
 
      // DELETE THE LOCAL SYMBOL TABLE
      deleteLSymbolTable();
@@ -1553,7 +1553,7 @@ yyreduce:
     break;
 
   case 23: /* ParamList: ParamList ',' TYPE ID  */
-#line 163 "parser.y"
+#line 162 "parser.y"
                                 {
            (yyval.paramlist) = addParameter((yyvsp[-3].paramlist),(yyvsp[0].string),(yyvsp[-1].integer));
            addLastParamToLSymbolTable((yyval.paramlist));
@@ -1562,7 +1562,7 @@ yyreduce:
     break;
 
   case 24: /* ParamList: TYPE ID  */
-#line 168 "parser.y"
+#line 167 "parser.y"
                   {
            (yyval.paramlist) = addParameter(NULL,(yyvsp[0].string),(yyvsp[-1].integer));
            addLastParamToLSymbolTable((yyval.paramlist));
@@ -1571,7 +1571,7 @@ yyreduce:
     break;
 
   case 25: /* ParamList: %empty  */
-#line 173 "parser.y"
+#line 172 "parser.y"
            {
            (yyval.paramlist) = NULL;
           }
@@ -1579,14 +1579,14 @@ yyreduce:
     break;
 
   case 26: /* LdeclBlock: DECL LdeclList ENDDECL  */
-#line 180 "parser.y"
+#line 179 "parser.y"
                                   {
            }
 #line 1586 "y.tab.c"
     break;
 
   case 30: /* Ldecl: TYPE LidList ';'  */
-#line 193 "parser.y"
+#line 192 "parser.y"
                        {
          addAllLSymbols((yyvsp[-1].list),(yyvsp[-2].integer));
       }
@@ -1594,7 +1594,7 @@ yyreduce:
     break;
 
   case 31: /* LidList: LidList ',' ID  */
-#line 198 "parser.y"
+#line 197 "parser.y"
                        {
         (yyval.list) = addVariable((yyvsp[-2].list),(yyvsp[0].string));
         }
@@ -1602,7 +1602,7 @@ yyreduce:
     break;
 
   case 32: /* LidList: ID  */
-#line 202 "parser.y"
+#line 201 "parser.y"
            {
         (yyval.list) = addVariable(NULL,(yyvsp[0].string));
         }
@@ -1610,11 +1610,13 @@ yyreduce:
     break;
 
   case 33: /* MainBlock: INT MAIN '(' ')' '{' LdeclBlock Body '}'  */
-#line 209 "parser.y"
+#line 208 "parser.y"
                                                    {
           printf("------------------- FUNCTION : Main -----------------------------------------------\n");
           // GETTING LOCAL SYMBOL TABLE
           getLSymbolTable();
+
+
           // GENERATING CODE FOR THE MAIN FUNCTION
 
           FILE* xsm = fopen("assembly_code.xsm","w");
@@ -1636,286 +1638,286 @@ yyreduce:
 
           deleteLSymbolTable();
           }
-#line 1640 "y.tab.c"
+#line 1642 "y.tab.c"
     break;
 
   case 34: /* Body: BEG SL END ';'  */
-#line 237 "parser.y"
+#line 238 "parser.y"
                  {
     (yyval.node) = (yyvsp[-2].node);
     root = (yyvsp[-2].node);
     printf("Valid Program.\n");
     Inorder((yyvsp[-2].node));
   }
-#line 1651 "y.tab.c"
+#line 1653 "y.tab.c"
     break;
 
   case 35: /* Body: BEG END ';'  */
-#line 244 "parser.y"
+#line 245 "parser.y"
               {
   printf("Valid program.\n");
   }
-#line 1659 "y.tab.c"
+#line 1661 "y.tab.c"
     break;
 
   case 36: /* SL: SL S  */
-#line 250 "parser.y"
+#line 251 "parser.y"
          {
    (yyval.node) = createOpNode(-1,13,(yyvsp[-1].node),(yyvsp[0].node));
   }
-#line 1667 "y.tab.c"
+#line 1669 "y.tab.c"
     break;
 
   case 37: /* SL: S  */
-#line 254 "parser.y"
+#line 255 "parser.y"
       {
     (yyval.node) = (yyvsp[0].node);
   }
-#line 1675 "y.tab.c"
+#line 1677 "y.tab.c"
     break;
 
   case 45: /* S: BREAK ';'  */
-#line 274 "parser.y"
+#line 275 "parser.y"
             {
     (yyval.node) = createOpNode(-1,16,NULL,NULL);
   }
-#line 1683 "y.tab.c"
+#line 1685 "y.tab.c"
     break;
 
   case 46: /* S: CONTINUE ';'  */
-#line 278 "parser.y"
+#line 279 "parser.y"
                {
     (yyval.node) = createOpNode(-1,17,NULL,NULL);
   }
-#line 1691 "y.tab.c"
+#line 1693 "y.tab.c"
     break;
 
   case 47: /* IFST: IF '(' E ')' THEN SL ELSE SL ENDIF  */
-#line 284 "parser.y"
+#line 285 "parser.y"
                                         {
       (yyval.node) = createIfNode((yyvsp[-6].node),(yyvsp[-3].node),(yyvsp[-1].node));
     }
-#line 1699 "y.tab.c"
+#line 1701 "y.tab.c"
     break;
 
   case 48: /* IFST: IF '(' E ')' THEN SL ENDIF  */
-#line 288 "parser.y"
+#line 289 "parser.y"
                                {
       (yyval.node) = createIfNode((yyvsp[-4].node),(yyvsp[-1].node),NULL);
     }
-#line 1707 "y.tab.c"
+#line 1709 "y.tab.c"
     break;
 
   case 49: /* WHILEST: WHILE '(' E ')' DO SL ENDWHILE  */
-#line 294 "parser.y"
+#line 295 "parser.y"
                                        {
         (yyval.node) = createWhileNode(15,(yyvsp[-4].node),(yyvsp[-1].node));
         }
-#line 1715 "y.tab.c"
+#line 1717 "y.tab.c"
     break;
 
   case 50: /* REPEATST: REPEAT SL UNTIL '(' E ')'  */
-#line 300 "parser.y"
+#line 301 "parser.y"
                                    {
          (yyval.node) = createWhileNode(18,(yyvsp[-1].node),(yyvsp[-4].node));
         }
-#line 1723 "y.tab.c"
+#line 1725 "y.tab.c"
     break;
 
   case 51: /* DOWHILEST: DO SL WHILE '(' E ')'  */
-#line 306 "parser.y"
+#line 307 "parser.y"
                                 { 
           (yyval.node) = createWhileNode(19,(yyvsp[-1].node),(yyvsp[-4].node));
           }
-#line 1731 "y.tab.c"
+#line 1733 "y.tab.c"
     break;
 
   case 52: /* ASSG: IDENTIFIER EQUALS E  */
-#line 313 "parser.y"
+#line 314 "parser.y"
                       {
   (yyval.node) = createOpNode(-1,4,(yyvsp[-2].node),(yyvsp[0].node));
   }
-#line 1739 "y.tab.c"
+#line 1741 "y.tab.c"
     break;
 
   case 53: /* E: E PLUS E  */
-#line 319 "parser.y"
+#line 320 "parser.y"
            {
   (yyval.node) = createOpNode(0,0,(yyvsp[-2].node),(yyvsp[0].node));
   }
-#line 1747 "y.tab.c"
+#line 1749 "y.tab.c"
     break;
 
   case 54: /* E: E MINUS E  */
-#line 323 "parser.y"
+#line 324 "parser.y"
             {
   (yyval.node) = createOpNode(0,1,(yyvsp[-2].node),(yyvsp[0].node));
   }
-#line 1755 "y.tab.c"
+#line 1757 "y.tab.c"
     break;
 
   case 55: /* E: E MUL E  */
-#line 327 "parser.y"
+#line 328 "parser.y"
           {
   (yyval.node) = createOpNode(0,2,(yyvsp[-2].node),(yyvsp[0].node));
   }
-#line 1763 "y.tab.c"
+#line 1765 "y.tab.c"
     break;
 
   case 56: /* E: E DIV E  */
-#line 331 "parser.y"
+#line 332 "parser.y"
           {
   (yyval.node) = createOpNode(0,3,(yyvsp[-2].node),(yyvsp[0].node));
   }
-#line 1771 "y.tab.c"
+#line 1773 "y.tab.c"
     break;
 
   case 57: /* E: E LT E  */
-#line 335 "parser.y"
+#line 336 "parser.y"
          {
   (yyval.node) = createOpNode(1,5,(yyvsp[-2].node),(yyvsp[0].node));
   }
-#line 1779 "y.tab.c"
+#line 1781 "y.tab.c"
     break;
 
   case 58: /* E: E LTE E  */
-#line 339 "parser.y"
+#line 340 "parser.y"
           {
   (yyval.node) = createOpNode(1,6,(yyvsp[-2].node),(yyvsp[0].node));
   }
-#line 1787 "y.tab.c"
+#line 1789 "y.tab.c"
     break;
 
   case 59: /* E: E GT E  */
-#line 343 "parser.y"
+#line 344 "parser.y"
          {
   (yyval.node) = createOpNode(1,7,(yyvsp[-2].node),(yyvsp[0].node));
   }
-#line 1795 "y.tab.c"
+#line 1797 "y.tab.c"
     break;
 
   case 60: /* E: E GTE E  */
-#line 347 "parser.y"
+#line 348 "parser.y"
           {
   (yyval.node) = createOpNode(1,8,(yyvsp[-2].node),(yyvsp[0].node));
   }
-#line 1803 "y.tab.c"
+#line 1805 "y.tab.c"
     break;
 
   case 61: /* E: E NEQ E  */
-#line 351 "parser.y"
+#line 352 "parser.y"
           {
   (yyval.node) = createOpNode(1,9,(yyvsp[-2].node),(yyvsp[0].node));
   }
-#line 1811 "y.tab.c"
+#line 1813 "y.tab.c"
     break;
 
   case 62: /* E: E EQ E  */
-#line 355 "parser.y"
+#line 356 "parser.y"
          {
   (yyval.node) = createOpNode(1,10,(yyvsp[-2].node),(yyvsp[0].node));
   }
-#line 1819 "y.tab.c"
+#line 1821 "y.tab.c"
     break;
 
   case 63: /* E: '(' E ')'  */
-#line 359 "parser.y"
+#line 360 "parser.y"
             {
   (yyval.node) = (yyvsp[-1].node);
   }
-#line 1827 "y.tab.c"
+#line 1829 "y.tab.c"
     break;
 
   case 66: /* IDENTIFIER: ID  */
-#line 369 "parser.y"
+#line 370 "parser.y"
               { 
             (yyval.node) = createIdNode((yyvsp[0].string),NULL,NULL);
            }
-#line 1835 "y.tab.c"
+#line 1837 "y.tab.c"
     break;
 
   case 67: /* IDENTIFIER: ID '[' E ']'  */
-#line 373 "parser.y"
+#line 374 "parser.y"
                         {
             (yyval.node) = createIdNode((yyvsp[-3].string),NULL,(yyvsp[-1].node));
             }
-#line 1843 "y.tab.c"
+#line 1845 "y.tab.c"
     break;
 
   case 68: /* IDENTIFIER: ID '[' E ']' '[' E ']'  */
-#line 377 "parser.y"
+#line 378 "parser.y"
                                   {
             (yyval.node) = createIdNode((yyvsp[-6].string),(yyvsp[-4].node),(yyvsp[-1].node));
             }
-#line 1851 "y.tab.c"
+#line 1853 "y.tab.c"
     break;
 
   case 69: /* IDENTIFIER: ID '(' ')'  */
-#line 381 "parser.y"
+#line 382 "parser.y"
                        {
             (yyval.node) = createFunctionNode((yyvsp[-2].string),NULL);
             }
-#line 1859 "y.tab.c"
+#line 1861 "y.tab.c"
     break;
 
   case 70: /* IDENTIFIER: ID '(' ArgList ')'  */
-#line 385 "parser.y"
+#line 386 "parser.y"
                                { 
             (yyval.node) = createFunctionNode((yyvsp[-3].string),(yyvsp[-1].node));
             }
-#line 1867 "y.tab.c"
+#line 1869 "y.tab.c"
     break;
 
   case 71: /* ArgList: ArgList ',' E  */
-#line 391 "parser.y"
+#line 392 "parser.y"
                        {
         (yyval.node) = addArgToList((yyvsp[-2].node),(yyvsp[0].node));
         }
-#line 1875 "y.tab.c"
+#line 1877 "y.tab.c"
     break;
 
   case 72: /* ArgList: E  */
-#line 395 "parser.y"
+#line 396 "parser.y"
           {
         (yyval.node) = (yyvsp[0].node);
         }
-#line 1883 "y.tab.c"
+#line 1885 "y.tab.c"
     break;
 
   case 73: /* CONSTANT: NUM  */
-#line 402 "parser.y"
+#line 403 "parser.y"
              {
           (yyval.node) = createNumNode(atoi((yyvsp[0].string)));
           }
-#line 1891 "y.tab.c"
+#line 1893 "y.tab.c"
     break;
 
   case 74: /* CONSTANT: STRING  */
-#line 406 "parser.y"
+#line 407 "parser.y"
                 {
           (yyval.node) = createStringNode((yyvsp[0].string));
           }
-#line 1899 "y.tab.c"
+#line 1901 "y.tab.c"
     break;
 
   case 75: /* INPUT: READ '(' IDENTIFIER ')'  */
-#line 413 "parser.y"
+#line 414 "parser.y"
                                {
        (yyval.node) = createOpNode(-1,11,(yyvsp[-1].node),NULL);
       }
-#line 1907 "y.tab.c"
+#line 1909 "y.tab.c"
     break;
 
   case 76: /* OUTPUT: WRITE '(' E ')'  */
-#line 419 "parser.y"
+#line 420 "parser.y"
                        {
         (yyval.node) = createOpNode(-1,12,(yyvsp[-1].node),NULL);
       }
-#line 1915 "y.tab.c"
+#line 1917 "y.tab.c"
     break;
 
 
-#line 1919 "y.tab.c"
+#line 1921 "y.tab.c"
 
       default: break;
     }
@@ -2108,7 +2110,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 427 "parser.y"
+#line 428 "parser.y"
 
 
 

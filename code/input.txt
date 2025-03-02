@@ -4,6 +4,28 @@ int adder(int a,int b);
 int subtractor(int a,int b);
 enddecl
 
+int adder(int a,int b){
+  decl
+  int sum;
+  enddecl
+
+  begin
+  sum = a+b;
+  end;
+
+}
+
+int subtractor(int a,int b){
+  decl
+  int dif;
+  enddecl
+
+  begin
+  dif = a-b;
+  end;
+
+
+}
 
 int main(){
 
