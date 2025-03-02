@@ -751,7 +751,7 @@ YY_RULE_SETUP
   add(label,address);
   in++;
   if( run == 1 ){
-      fprintf(f,"JMP %d\n",address+2);
+      fprintf(f,"JMP %d\n",address);
   }
 }
 	YY_BREAK
@@ -1823,7 +1823,7 @@ int main(int argc,char* argv[]){
   yylex();
   printTable();
 
-  in = 0;
+  in = 1;
   f = fopen(argv[2],"w");
   yyin = fopen(argv[1],"r");
   run++;
