@@ -190,13 +190,12 @@ int main(int argc, char* argv[]){
 
 // --------------------------------- EXERCISE 1
 
-/*
+
 
   printf("RUNNING EXERCISE1\n");
   evaluate(root);
   getDetails();
 
-*/
 
   return 0;
 }

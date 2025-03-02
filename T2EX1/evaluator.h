@@ -7,7 +7,9 @@
 
 void evaluate(struct TreeNode* root);
 
-int expressionEvaluator(struct TreeNode* root);
+bool boolean_expressionEvaluator(struct TreeNode* root);
+
+int arithmetic_expressionEvaluator(struct TreeNode* root);
 
 int getDetails(void);
 

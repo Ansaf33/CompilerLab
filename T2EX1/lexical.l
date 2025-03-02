@@ -33,7 +33,7 @@
 }
 
 "if" {
-  printf("if detected\n");
+
   return IF;
 }
 
@@ -46,7 +46,7 @@
 }
 
 "endif" {
-  printf("endif detected\n");
+
   return ENDIF;
 }
 

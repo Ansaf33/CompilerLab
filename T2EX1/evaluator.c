@@ -4,32 +4,67 @@
 
 static int variables[26];
 
+
+// ---------------------------------- MAIN EVALUATION FUNCTION FOR STATEMENTS
+
 void evaluate(struct TreeNode* root){
+
   if(root == NULL){
     return;
   }
-  evaluate(root->left);
+
   switch(root->op){
-    case 11:
-      char var = root->left->varname;
-      printf("Enter value of %c : ",var);
-      scanf("%d",&variables[(int)var-97]);
-      break;
+
+    // ASSIGNMENT
     case 4:
-      var = root->left->varname;
-      int value = expressionEvaluator(root->right);
-      variables[(int)var-97] = value;
+      int idx = (int)root->left->varname-97;
+      variables[idx] = arithmetic_expressionEvaluator(root->right);
       break;
+      break;
+
+    // READ OP
+    case 11:
+      printf("Enter %c : ",root->left->varname);
+      scanf("%d",&variables[(int)root->left->varname-97]);
+      break;
+
+    // WRITE OP
     case 12:
-      value = expressionEvaluator(root->left);
-      printf("Output of write : %d\n",value);
+      int num = arithmetic_expressionEvaluator(root->left);
+      printf("Output : %d\n",num);
+      break;   
+
+    // STATEMENT
+    case 13:
+      evaluate(root->left);
+      evaluate(root->right);
+      break;
+
+    // IF STATEMENT
+    case 14:
+      bool result = boolean_expressionEvaluator(root->middle);
+      if( result ){
+        evaluate(root->left);
+      }
+      else{
+        evaluate(root->right);
+      }
+      break;
+
+    // WHILE STATEMENT
+    case 15:
+      while(boolean_expressionEvaluator(root->left)){
+        evaluate(root->right);
+      }
       break;
   }
-  evaluate(root->right);
 
+ 
 }
 
-int expressionEvaluator(struct TreeNode* root){
+// ------------------------------------ EVALUATION FUNCTION FOR ARITHMETIC EXPRESSIONS
+
+int arithmetic_expressionEvaluator(struct TreeNode* root){
 
   if( root->left == NULL && root->right == NULL ){
     // IF IT IS A VARIABLE
@@ -43,28 +78,53 @@ int expressionEvaluator(struct TreeNode* root){
 
   switch(root->op){
     case 0:
-      return expressionEvaluator(root->left) + expressionEvaluator(root->right);
+      return arithmetic_expressionEvaluator(root->left) + arithmetic_expressionEvaluator(root->right);
       break;
 
     case 1:
-      return expressionEvaluator(root->left) - expressionEvaluator(root->right);
+      return arithmetic_expressionEvaluator(root->left) - arithmetic_expressionEvaluator(root->right);
       break;
 
     case 2:
-      return expressionEvaluator(root->left) * expressionEvaluator(root->right);
+      return arithmetic_expressionEvaluator(root->left) * arithmetic_expressionEvaluator(root->right);
       break;
 
     case 3:
-      return expressionEvaluator(root->left) / expressionEvaluator(root->right);
+      return arithmetic_expressionEvaluator(root->left) / arithmetic_expressionEvaluator(root->right);
       break;
 
+  } 
+
+}
+
+// -------------------------------------- EVALUATION FUNCTION FOR BOOLEAN EXPRESSIONS
+
+bool boolean_expressionEvaluator(struct TreeNode* root){
+  int left = arithmetic_expressionEvaluator(root->left);
+  int right = arithmetic_expressionEvaluator(root->right);
+
+  switch(root->op){
+    case 5:
+      return left < right;
+    case 6:
+      return left <= right;
+    case 7:
+      return left > right;
+    case 8:
+      return left >= right;
+    case 9:
+      return left != right;
+    case 10:
+      return left == right;
   }
-
-
   
+  return 0;
 
 
 }
+
+
+
 
 
 int getDetails(){

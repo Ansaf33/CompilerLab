@@ -803,7 +803,7 @@ case 6:
 YY_RULE_SETUP
 #line 35 "lexical.l"
 {
-  printf("if detected\n");
+
   return IF;
 }
 	YY_BREAK
@@ -825,7 +825,7 @@ case 9:
 YY_RULE_SETUP
 #line 48 "lexical.l"
 {
-  printf("endif detected\n");
+
   return ENDIF;
 }
 	YY_BREAK

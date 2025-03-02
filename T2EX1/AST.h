@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 struct TreeNode{
   int val;
@@ -14,6 +15,8 @@ struct TreeNode{
   struct TreeNode* right;
 
 };
+
+bool typeSatisfied(struct TreeNode* root);
 
 struct TreeNode* createTree(int val,int op,int type,char* varname,struct TreeNode* left, struct TreeNode* right);
 
