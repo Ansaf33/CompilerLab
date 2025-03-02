@@ -740,8 +740,6 @@ YY_RULE_SETUP
 #line 18 "labels.l"
 {
 
-  // THIS IS THE LINE WE WANT TO REPLACE WITH THE JMP STATEMENT (EASY TO IMPLEMENT)
-
   // Get the label
 
   char* label = (char*)malloc(sizeof(char)*3);
@@ -769,7 +767,7 @@ YY_RULE_SETUP
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 46 "labels.l"
+#line 44 "labels.l"
 {
 
   // THIS IS THE LINE TYPICALLY FOUND WITH "JNZ R1 L0" TYPE STATEMENTS
@@ -797,7 +795,7 @@ YY_RULE_SETUP
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 71 "labels.l"
+#line 69 "labels.l"
 {
   in++;
   if( run == 1 ){
@@ -807,7 +805,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 79 "labels.l"
+#line 77 "labels.l"
 {
   if( run == 1 ){
       fprintf(f,"%s",yytext);
@@ -817,10 +815,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 86 "labels.l"
+#line 84 "labels.l"
 ECHO;
 	YY_BREAK
-#line 824 "lex.yy.c"
+#line 822 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1825,7 +1823,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 86 "labels.l"
+#line 84 "labels.l"
 
 
 int yywrap(){
@@ -1839,10 +1837,8 @@ int main(int argc,char* argv[]){
   run = 0;
   yyin = fopen(argv[1],"r");
   yylex();
-  //printTable();
 
   // second run, replace the labels with addresses
-
   in = 1;
   f = fopen(argv[2],"w");
   yyin = fopen(argv[1],"r");

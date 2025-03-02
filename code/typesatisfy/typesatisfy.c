@@ -38,23 +38,18 @@ bool arithmetic_typeSatisfied(struct TreeNode* root){
 // ------------------------------------------------------------------------------------------------------------------ CONDITION FOR ASSIGNMENT STATEMENTS
 bool assignment_typeSatisfied(struct TreeNode* root){
 
-
-
   if( root == NULL ){
     printf("Nothing passed\n");
     exit(1);
   }
 
-  // CONDITION FOR ALLOC STATEMENT
-
-
+  //for alloc statement, cannot alloc primitive datatypes
   if( root->right->op == 22 && ( same(getName(root->left),"str") || same(getName(root->left),"int")  ) ){
     printf("Cannot dynamically allocate space for primitive datatype | %s |\n",getName(root->left));
     exit(1);
   }
 
-  // CONDITION FOR NEW STATEMENT
-
+  //for new statement
   if( root->right->op == 25 && lookClassUp(getName(root->left)) != root->right->Ctype ){
     printf("NEW assignment does not match types\n");
     exit(1); 

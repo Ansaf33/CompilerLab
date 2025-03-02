@@ -105,7 +105,7 @@ void printClass(struct classtable* c){
 // CHECK DECLARED AND DEFINED TYPES AND PARAMETERS
 void checkDeclDef(struct classtable* c,struct typetable* type,char* name,struct paramlist* param){
 
-  // CHECK IF METHOD NAME IS IN classmethod of C
+  // check if method is declared
   struct classmethod* method = lookMethodInClassUp(c,name);
 
   if( method == NULL ){
@@ -128,7 +128,7 @@ void checkDeclDef(struct classtable* c,struct typetable* type,char* name,struct 
   struct paramlist* declared = method->param;
 
   while( defined && declared ){
-    // NAME AND TYPE CHECKING
+  
     if( strcmp(defined->name,declared->name) != 0 ){
       printf("Defined name | %s | does not match with declared name | %s | of function | %s |\n",defined->name,declared->name,name);
       exit(1);

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "string.h"
 #include "../typetable/typetable.h"
 
@@ -26,13 +27,13 @@ struct fieldlist* createFLNode(char* name,char* deemed){
 
 struct fieldlist* addFLNode(struct fieldlist* head,char* name,char* deemed){
 
-  // CHECK IF FIELD ALREADY EXISTS
+  // check if fieldname already exists
   if( lookFLUp(head,name) != NULL ){
     printf("Field | %s | already exists in the fieldlist.\n",name);
     exit(1);
   }
 
-  // RESET FIELD INDEX
+  // reset field index
   if( head == NULL ){
     fieldIndex = 0;
   }
@@ -40,7 +41,7 @@ struct fieldlist* addFLNode(struct fieldlist* head,char* name,char* deemed){
   struct fieldlist* temp = createFLNode(name,deemed);
 
 
-  // ADDING TO END OF LINKED LIST
+  // add to end of ll
   if( head == NULL ){
     head = temp;
   }
@@ -112,3 +113,13 @@ int getFLSize(struct fieldlist* head){
 
 }
 
+// --------------- CHECK IF A GIVEN TYPE IS A UDT
+
+bool isUDT(char* type){
+  if( type == NULL ){
+    return false;
+  }
+  bool isPrimitive = (strcmp(type,"int") == 0 || strcmp(type,"bool") == 0 || strcmp(type,"str") == 0);
+  return !isPrimitive; 
+
+}

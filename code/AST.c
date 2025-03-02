@@ -294,11 +294,12 @@ struct TreeNode* createReturnNode(struct TreeNode* middle){
 struct TreeNode* addFieldToEnd(struct TreeNode* head,char* fieldName){
 
   // CANNOT ADD FIELDS TO OBJECT BECAUSE ENCAPSULATION
-  
+ /* 
   if( head->Ctype != NULL ){
     printf("Object | %s | cannot access members | %s | outside class.\n",head->varname,fieldName);
     exit(1);
   }
+  */
 
 
   struct TreeNode* cur = head;

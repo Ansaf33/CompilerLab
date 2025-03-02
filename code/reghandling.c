@@ -12,6 +12,7 @@
 
 #include "class/classtable.h"
 #include "class/classmember.h"
+#include "class/classmethod.h"
 
 #define NOR 20 // maximum number of registers 
 #define SP 4500 // initial stack pointer
@@ -64,7 +65,7 @@ void columnOverflowCheck(FILE* f,int resReg,struct TreeNode* root){
 
 // ----------------------------------------------------------------------------------------------- NOT ALLOCATED CODEGEN
 
-void notAllocatedCheck(FILE* f,int dynamic_start,struct TreeNode* root){
+void notAllocatedCheck(FILE* f,int dynamic_start){
       int zReg = getReg();
       fprintf(f,"MOV R%d, %d\n",zReg,0);
       fprintf(f,"EQ R%d, R%d\n",zReg,dynamic_start);
@@ -78,12 +79,13 @@ void fieldMemberAddress(FILE* f,int adReg,struct TreeNode* root){
       int dynamic_start = getReg();
       fprintf(f,"MOV R%d, [R%d]\n",dynamic_start,adReg);
 
-      notAllocatedCheck(f,dynamic_start,root); // check if address is zero
+      notAllocatedCheck(f,dynamic_start); // check if address is zero
 
       struct TreeNode* cur = root;
 
       // non primitive field members
       while( cur->middle && !same(cur->type->name,"int") && !same(cur->type->name,"str") ){
+
         struct fieldlist* fieldlist = cur->type->fieldlist;
         cur = cur->middle;
 
@@ -97,7 +99,10 @@ void fieldMemberAddress(FILE* f,int adReg,struct TreeNode* root){
           fprintf(f,"MOV R%d, [R%d]\n",dynamic_start,dynamic_start);
         }
 
+        notAllocatedCheck(f,dynamic_start); // check if allocated again
+
       }
+
       fprintf(f,"MOV R%d, R%d\n",adReg,dynamic_start);
 
       // free dynamic_start register
@@ -111,7 +116,8 @@ void classMemberAddress(FILE* f,int adReg,struct TreeNode* root){
   int dynamic_start = getReg();
   fprintf(f,"MOV R%d, [R%d]\n",dynamic_start,adReg);
 
-  notAllocatedCheck(f,dynamic_start,root); // check if address was allocated
+
+  notAllocatedCheck(f,dynamic_start); // check if address was allocated
 
   struct TreeNode* cur = root;
 
@@ -124,11 +130,13 @@ void classMemberAddress(FILE* f,int adReg,struct TreeNode* root){
     fprintf(f,"ADD R%d, %d\n",dynamic_start,offset);
 
     cur = cur->middle;
-
+    
     // jumping condition
     if( cur->middle ){
       fprintf(f,"MOV R%d, [R%d]\n",dynamic_start,dynamic_start);
     }
+
+    notAllocatedCheck(f,dynamic_start); // check if allocated again or it points to 0
 
   }
 
@@ -198,7 +206,7 @@ int getSymbolAddress(FILE* f,struct TreeNode* root){
   // ------------------------------------ FOR FIELD MEMBERS / CLASS MEMBERS  --------------------------
   
 
-  if( root->middle != NULL ){
+  if( root->middle ){
     // udt member access
     if( root->Ctype == NULL ){
       fieldMemberAddress(f,adReg,root);
@@ -207,7 +215,6 @@ int getSymbolAddress(FILE* f,struct TreeNode* root){
     else{
       classMemberAddress(f,adReg,root);
     }
-
   }
 
   return adReg;
@@ -784,18 +791,13 @@ void return_codeGen(FILE* f,struct TreeNode* root){
   freeReg();
 
 
-
   // pop local variables from stack
   struct Lsymbol* cur = getLHead();
-  reg = getReg();
   int loopReg = getReg();
-  fprintf(f,"MOV R%d, BP\n",reg);
   while( cur != NULL ){
-    fprintf(f,"ADD R%d, %d\n",reg,1);
     fprintf(f,"POP R%d\n",loopReg);
     cur = cur->next;
   }
-  freeReg();
   freeReg();
   
 
@@ -926,6 +928,11 @@ void free_codeGen(FILE* f,struct TreeNode* root){
   // store return value ( unnecessary step )
   int returnReg = getReg();
   fprintf(f,"POP R%d\n",returnReg);
+
+  // pop register for argument
+  int argReg = getReg();
+  fprintf(f,"POP R%d\n",argReg);
+  freeReg();
   
   // pop used registers
   popRegisters(f);
@@ -1095,6 +1102,67 @@ void define_method_codeGen(FILE* f,struct classtable* c,char* name,struct TreeNo
 }
 
 
+// -------------------------------------------------------------------------------------------------------------------------- DELETE OBJECT FUNCTION
+
+void delete_codeGen(FILE* f,struct TreeNode* root){
+
+  // go to the last class and get the classmember list
+  struct TreeNode* cur = root->middle;
+  while(cur->middle){
+    cur = cur->middle;
+  }
+  struct classmember* memberlist = cur->Ctype->classmember;
+
+  while( memberlist ){
+    // if the type is UDT
+    if( memberlist->type && isUDT(memberlist->type->name) ){
+
+      // push registers
+      pushRegisters(f);
+
+      // get the symbol address of the class's heap start, add offset
+      int dynamic_reg = getSymbolAddress(f,root->middle);
+      fprintf(f,"MOV R%d, [R%d]\n",dynamic_reg,dynamic_reg);
+      fprintf(f,"ADD R%d, %d\n",dynamic_reg,memberlist->memberIndex);
+
+      // push argument
+      fprintf(f,"PUSH R%d\n",dynamic_reg);
+      freeReg();
+
+      // push space for return value
+      int retReg = getReg();
+      fprintf(f,"PUSH R%d\n",retReg);
+      freeReg();
+
+      // call
+      fprintf(f,"CALL %d\n",FREE_ID);
+
+      // pop return value
+      retReg = getReg();
+      fprintf(f,"POP R%d\n",retReg);
+
+      // pop argument
+      int argReg = getReg();
+      fprintf(f,"POP R0\n");
+      freeReg();
+
+
+      // pop registers
+      popRegisters(f);
+
+      // free return value register
+      freeReg();
+
+    }
+    memberlist = memberlist->next;
+
+
+  }
+
+
+  free_codeGen(f,root);
+}
+
 // -------------------------------------------------------------------------------------------------------------------------- MAIN CODEGEN FUNCTION
 
 void codeGen(FILE* f,struct TreeNode* root,int bl,int cl){
@@ -1155,6 +1223,10 @@ void codeGen(FILE* f,struct TreeNode* root,int bl,int cl){
     // free statement
     case 23:
           free_codeGen(f,root);
+          break;
+    // delete statement
+    case 24:
+          delete_codeGen(f,root);
           break;
   }
 

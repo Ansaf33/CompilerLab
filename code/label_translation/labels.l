@@ -17,8 +17,6 @@ int in;
 
 [MLF][0-9]+":""\n" {
 
-  // THIS IS THE LINE WE WANT TO REPLACE WITH THE JMP STATEMENT (EASY TO IMPLEMENT)
-
   // Get the label
 
   char* label = (char*)malloc(sizeof(char)*3);
@@ -96,10 +94,8 @@ int main(int argc,char* argv[]){
   run = 0;
   yyin = fopen(argv[1],"r");
   yylex();
-  //printTable();
 
   // second run, replace the labels with addresses
-
   in = 1;
   f = fopen(argv[2],"w");
   yyin = fopen(argv[1],"r");

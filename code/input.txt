@@ -1,3 +1,13 @@
+type
+
+List{
+  int data;
+  List next;
+}
+
+endtype
+
+
 class
 
 
@@ -36,6 +46,7 @@ Person{
   str name;
   int age;
   Teacher teacher;
+  List l;
   int createPerson(str name,int age);
   int printDetails();
   enddecl
@@ -49,7 +60,8 @@ Person{
     self.name = name;
     self.age = age;
     self.teacher = new(Teacher);
-    a = self.teacher.createTeacher("sumita","malayalam");
+    self.l = alloc();
+    a = self.teacher.createTeacher("hanan","chemistry");
     return 1;
     end;
 
@@ -77,6 +89,7 @@ endclass
 decl
 Person p,q;
 Teacher t;
+List l;
 enddecl
 
 int main(){
@@ -88,6 +101,11 @@ int main(){
   p = new(Person);
   a = p.createPerson("Ansaf",21);
   a = p.printDetails();
+
+  delete(p);
+  a = p.teacher.printDetails();
+  a = p.createPerson("Ansaf",22);
+
 
   end;
 }

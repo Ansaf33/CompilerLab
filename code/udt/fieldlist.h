@@ -2,6 +2,7 @@
 #define FIELDLIST_H
 
 #include <stdio.h>
+#include <stdbool.h>
 #include "../typetable/typetable.h"
 
 
@@ -40,5 +41,9 @@ void printFL(struct fieldlist* head);
 // RETURNS FIELD SIZE
 
 int getFLSize(struct fieldlist* head);
+
+// CHECK IF UDT OR NOT
+
+bool isUDT(char* type);
 
 #endif

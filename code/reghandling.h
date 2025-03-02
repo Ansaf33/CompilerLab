@@ -13,9 +13,17 @@ void rowOverflowCheck(FILE* f,int reg,struct TreeNode* root);
 
 void columnOverflowCheck(FILE* f,int reg,struct TreeNode* root);
 
+// CHECK IF ADDRESS IS ALLOCATED
+
+void notAllocatedCheck(FILE* f,int reg);
+
 // GET ADDRESS OF FIELD
 
 void fieldMemberAddress(FILE* f,int reg,struct TreeNode* root);
+
+// GETTING ADDRESS OF CLASS MEMBER ( FINAL MEMBER BEFORE METHOD INVOCATION )
+
+void classMemberAddress(FILE* f,int reg,struct TreeNode* root);
 
 // GETTING THE SMALLEST FREE REGISTER
 
@@ -37,33 +45,23 @@ int getLabel(void);
 
 void getInput(FILE* f,char* s);
 
-// code generation for arithmetic expressions -> returns the register with the final value 
+// CODE GEN FOR ARITHMETIC EXPRESSIONS
 
 int arithmetic_expression_codeGen(FILE* f, struct TreeNode* root);
 
-// code generation for boolean expressions -> returns the register containing 0 or 1
+// CODE GEN FOR BOOLEAN EXPRESSIONS
 
 int boolean_expression_codeGen(FILE* f,struct TreeNode* root);
 
-// code generation for assignments -> ID = E
-// call expression_codeGen on right subtree, we get the register with the final value
-// now we need to move the contents of that register to a memory location using MOV
+// CODE GEN FOR ASSIGNMENT STATEMENTS
 
 void assignment_codeGen(FILE* f, struct TreeNode* root);
 
-// code generation for read
-// LHS contains the variable character
-// memory address to be read into = 4095 + (int)(character)
-// perform read operation using read system call
-
+// CODE GEN FOR READ STATEMENT
 
 void read_codeGen(FILE* f,struct TreeNode* root);
 
-
-// code generation for write
-// LHS contains an expression, so call expression_codeGen on Left Subtree first
-// result is stored in a register
-// simple write the contents of that register
+// CODE GEN FOR WRITE STATEMENT
 
 void write_codeGen(FILE* f,struct TreeNode* root);
 
@@ -120,19 +118,19 @@ void pushArgs(FILE* f,struct TreeNode* head);
 void popArgs(FILE* f,struct TreeNode* head);
 
 
-// codeGen for entire statement lists
+// MAIN CODE GEN FUNCTION
 
 void codeGen(FILE* f,struct TreeNode* root,int bl,int cl);
 
-// codeGen for initialize statement
+// CODE GEN FOR INITIALIZE STATEMENT
 
 int initialize_codeGen(FILE* f);
 
-// codeGen for alloc statement
+// CODE GEN FOR ALLOC STATEMENT
 
 int alloc_codeGen(FILE* f);
 
-// codeGen for free statement
+// CODE GEN FOR FREE STATEMENT
 
 void free_codeGen(FILE* f,struct TreeNode* root);
 
@@ -155,5 +153,9 @@ int invoke_method_codeGen(FILE* f,struct TreeNode* root);
 // codeGen for defining methods
 
 void define_method_codeGen(FILE* f,struct classtable* c,char* name,struct TreeNode* body);
+
+// CODE GEN FOR DELETE STATEMENT
+
+void delete_codeGen(FILE* f,struct TreeNode* root);
 
 #endif

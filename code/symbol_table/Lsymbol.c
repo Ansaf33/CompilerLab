@@ -45,7 +45,7 @@ struct Lsymbol* addLSymbol(char* name,struct typetable* type){
 
   struct Lsymbol* temp = createLNode(name,type);
 
-  // ADDING TO END OF LINKED LIST
+  // add to end of ll
     if( Lhead == NULL ){
       Lhead = temp;
     }
@@ -57,7 +57,6 @@ struct Lsymbol* addLSymbol(char* name,struct typetable* type){
       end->next = temp;
     }
   
-
   return Lhead;
 
 }
@@ -157,7 +156,7 @@ void addSelfToLSymbolTable(struct classtable* c,int n){
   temp->binding = -(n+4);
   temp->next = NULL;
 
-  // ADD TO END OF LL
+  // add to end of ll
   if( Lhead == NULL ){
     Lhead = temp;
   }

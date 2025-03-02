@@ -48,7 +48,7 @@ void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int r
     exit(1);
   }
 
-  // AN OBJECT OF TYPE CLASS REQUIRES 2 WORDS
+  // 2 words for classtype
   if( Ctype != NULL ){
     colSize++;
   }
@@ -58,7 +58,7 @@ void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int r
 
     struct Gsymbol* temp = createGNode(name,type,Ctype,rowSize,colSize,param,isFunction);
 
-    // ADDING TO END OF LINKED LIST
+    // add to end of ll
     if( Ghead == NULL ){
       Ghead = temp;
     }
@@ -86,7 +86,6 @@ void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int r
 // ------------------------ RETURN A POINTER TO THE Gsymbol ENTRY IN THE TABLE BASED ON THE NAME
 
 struct Gsymbol* lookGUp(char* name){
-
   struct Gsymbol* current = Ghead;
   while(current != NULL){
     if( strcmp(current->name,name) == 0 ){

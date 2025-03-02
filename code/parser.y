@@ -16,6 +16,7 @@
 
 #include "udt/fieldlist.h"
 #include "typetable/typetable.h"
+#include "typesatisfy/typesatisfy.h"
 
 #include "class/classtable.h"
 #include "class/classmember.h"
@@ -48,8 +49,6 @@ void endxsm(FILE* f);
   struct Lsymbol* Lsymbol;
   struct typetable* typetable;
   struct fieldlist* fieldlist;
-
-
 }
 
 %type<fieldlist> FieldDeclList
@@ -416,7 +415,15 @@ S :
     $<node>$ = createFreeNode($3);
   }
   |
+  FREE '(' FIELD ')' ';' {
+    $<node>$ = createFreeNode($3);
+  }
+  |
   DELETE '(' IDENTIFIER ')' ';' {
+    $<node>$ = createDeleteNode($3);
+  }
+  |
+  DELETE '(' FIELD ')' ';' {
     $<node>$ = createDeleteNode($3);
   }
   ;
@@ -465,6 +472,11 @@ ASSG :
   |
   IDENTIFIER EQUALS ALLOCATE {
   $3->type = $1->type;
+  $$ = createOpNode(NULL,4,$1,$3);
+  }
+  |
+  FIELD EQUALS ALLOCATE {
+  $3->type = lookTTUp(getName($1));
   $$ = createOpNode(NULL,4,$1,$3);
   }
   |
@@ -683,18 +695,14 @@ void yyerror(char* s){
 
 void initxsm(FILE* f){
   fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
+  fprintf(xsm,"BRKP\n");
   fprintf(xsm,"MOV SP, 4500\n");
   fprintf(xsm,"MOV BP, SP\n");
   fprintf(xsm,"JMP F0\n"); 
 }
 
 void endxsm(FILE* f){
-          fprintf(xsm,"JMP L51\n");
-
-          // FIX ISSUE
-          fprintf(xsm,"L53:\n");
-          getInput(xsm,"cmcant");
-          fprintf(xsm,"INT 10\n");
+          fprintf(xsm,"JMP L51\n"); 
 
           // NO MEMORY ALLOCATED
           fprintf(xsm,"L52:\n");

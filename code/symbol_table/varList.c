@@ -29,7 +29,7 @@ struct list* addVariable(struct list* head,char* name){
   struct list* temp = createVarNode(name,1,1);
   temp->isFunction = 0;
    
-  // ADDING TO END OF LINKED LIST
+  // add to end of ll
   if( head == NULL ){
     head = temp;
   }
@@ -51,7 +51,7 @@ struct list* addArray(struct list* head,char* name,int rowSize,int colSize){
   struct list* temp = createVarNode(name,rowSize,colSize);
   temp->isFunction = 0;
 
-  // ADDING TO END OF LINKED LIST
+  // add to end of ll
   if( head == NULL ){
     head = temp;
   }
@@ -74,7 +74,7 @@ struct list* addFunction(struct list* head,char* name,struct paramlist* param){
   temp->isFunction = 1;
   temp->param = param;
 
-  // ADDING TO END OF LINKED LIST
+  // add to end of ll
   if( head == NULL ){
     head = temp;
   }
