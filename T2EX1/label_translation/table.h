@@ -3,9 +3,6 @@
 
 #include <stdio.h>
 
-extern int label[50];
-extern char* address[50];
-
 void add(char* label,int address);
 
 int getAddress(char* label);

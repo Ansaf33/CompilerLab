@@ -813,161 +813,159 @@ case 6:
 YY_RULE_SETUP
 #line 35 "lexical.l"
 {
-
   return IF;
 }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 40 "lexical.l"
+#line 39 "lexical.l"
 {
   return THEN;
 }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 44 "lexical.l"
+#line 43 "lexical.l"
 {
   return ELSE;
 }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 48 "lexical.l"
+#line 47 "lexical.l"
 {
-
   return ENDIF;
 }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 53 "lexical.l"
+#line 51 "lexical.l"
 {
   return WHILE;
 }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 57 "lexical.l"
+#line 55 "lexical.l"
 {
   return DO;
 }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 61 "lexical.l"
+#line 59 "lexical.l"
 {
   return ENDWHILE;
 }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 65 "lexical.l"
+#line 63 "lexical.l"
 {
   return BREAK;
 }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 69 "lexical.l"
+#line 67 "lexical.l"
 {
   return CONTINUE;
 }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 73 "lexical.l"
+#line 71 "lexical.l"
 {
   return REPEAT;
 }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 77 "lexical.l"
+#line 75 "lexical.l"
 {
   return UNTIL;
 }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 81 "lexical.l"
+#line 79 "lexical.l"
 {
   return PLUS;
 }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 85 "lexical.l"
+#line 83 "lexical.l"
 {
   return MINUS;
 }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 89 "lexical.l"
+#line 87 "lexical.l"
 {
   return MUL;
 }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 93 "lexical.l"
+#line 91 "lexical.l"
 {
   return DIV;
 }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 97 "lexical.l"
+#line 95 "lexical.l"
 {
   return EQUALS;
 }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 101 "lexical.l"
+#line 99 "lexical.l"
 {
   return LT;
 }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 105 "lexical.l"
+#line 103 "lexical.l"
 {
   return LTE;
 }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 109 "lexical.l"
+#line 107 "lexical.l"
 {
   return GT;
 }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 113 "lexical.l"
+#line 111 "lexical.l"
 {
   return GTE;
 }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 117 "lexical.l"
+#line 115 "lexical.l"
 {
   return EQ;
 }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 121 "lexical.l"
+#line 119 "lexical.l"
 {
   return NEQ;
 }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 125 "lexical.l"
+#line 123 "lexical.l"
 {
   yylval.node = createTree(-1,-1,0,yytext,NULL,NULL);
   return ID;
@@ -975,43 +973,43 @@ YY_RULE_SETUP
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 130 "lexical.l"
+#line 128 "lexical.l"
 ;
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 133 "lexical.l"
+#line 131 "lexical.l"
 {
   return '(';
 }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 136 "lexical.l"
+#line 134 "lexical.l"
 {
   return ')';
 }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 139 "lexical.l"
+#line 137 "lexical.l"
 {
   return ';';
 }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 142 "lexical.l"
+#line 140 "lexical.l"
 {
   return yytext[0];
 }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 147 "lexical.l"
+#line 145 "lexical.l"
 ECHO;
 	YY_BREAK
-#line 1015 "lex.yy.c"
+#line 1013 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2016,7 +2014,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 147 "lexical.l"
+#line 145 "lexical.l"
 
 
 

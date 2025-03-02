@@ -39,3 +39,7 @@ root->right = statement list
 root->left = true statement list ( if evaluates to true )
 root->middle = boolean expression
 root->right = false statement list ( if evaluates to false )
+
+// -------------- STRUCTURE OF WHILE/DOWHILE/REPEAT STATEMENTS
+root->left = boolean expression
+root->type = body of the loop (Statement List)

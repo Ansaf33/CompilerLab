@@ -740,6 +740,10 @@ YY_RULE_SETUP
 #line 18 "labels.l"
 {
 
+  // THIS IS THE LINE WE WANT TO REPLACE WITH THE JMP STATEMENT (EASY TO IMPLEMENT)
+
+  // Get the label
+
   char* label = (char*)malloc(sizeof(char)*3);
   int i = 0;
   while( yytext[i] != ':' ){
@@ -747,20 +751,30 @@ YY_RULE_SETUP
     i++;
   }
 
+  // Calculate address of the next line 
+
   int address = 2056 + 2*(in-8);
   add(label,address);
+
+  // since newline, instruction number increases
   in++;
+
+  // in the second run, replace the line by this one.
   if( run == 1 ){
       fprintf(f,"JMP %d\n",address);
   }
+
 }
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 35 "labels.l"
+#line 46 "labels.l"
 {
 
+  // THIS IS THE LINE TYPICALLY FOUND WITH "JNZ R1 L0" TYPE STATEMENTS
+
+  // get the label
 
   char* label = (char*)malloc(sizeof(char)*3);
   int i = 0;
@@ -769,10 +783,12 @@ YY_RULE_SETUP
     i++;
   }
 
-  // PRINTING
+  // in the second run, replace the line by this one
   if(run == 1 ){
      fprintf(f,"%d\n",getAddress(label));
   }
+
+  // since newline, instruction number increases
 
   in++;
 
@@ -781,7 +797,7 @@ YY_RULE_SETUP
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 55 "labels.l"
+#line 71 "labels.l"
 {
   in++;
   if( run == 1 ){
@@ -791,7 +807,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 63 "labels.l"
+#line 79 "labels.l"
 {
   if( run == 1 ){
       fprintf(f,"%s",yytext);
@@ -801,10 +817,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 70 "labels.l"
+#line 86 "labels.l"
 ECHO;
 	YY_BREAK
-#line 808 "lex.yy.c"
+#line 824 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1809,7 +1825,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 70 "labels.l"
+#line 86 "labels.l"
 
 
 int yywrap(){
@@ -1817,11 +1833,15 @@ int yywrap(){
 }
 
 int main(int argc,char* argv[]){
+
+  // first run, fill the array with labels and corresponding addresses
   in = 1;
   run = 0;
   yyin = fopen(argv[1],"r");
   yylex();
   printTable();
+
+  // second run, replace the labels with addresses
 
   in = 1;
   f = fopen(argv[2],"w");

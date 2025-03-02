@@ -26,7 +26,6 @@ void evaluate(struct TreeNode* root){
       int idx = (int)root->left->varname-97;
       variables[idx] = arithmetic_expressionEvaluator(root->right);
       break;
-      break;
 
     // READ OP
 
@@ -47,7 +46,7 @@ void evaluate(struct TreeNode* root){
     case 13:
       evaluate(root->left);
       if( !breakFlag && !continueFlag ){
-      evaluate(root->right);
+        evaluate(root->right);
       }
       break;
 
@@ -72,10 +71,12 @@ void evaluate(struct TreeNode* root){
           breakFlag = false;
           break;
         }
+        // if continue is activated
         if( continueFlag ){
           continueFlag = false;
           continue;
         }
+
         evaluate(root->right);
       }
       break;
@@ -96,14 +97,15 @@ void evaluate(struct TreeNode* root){
 
     case 18:
       do {
-
+        // activate brake
         if( breakFlag ){
           breakFlag = false;
           break;
         }
+        // activate continue
         if( continueFlag ){
           continueFlag = false;
-          break;
+          continue;
         }
         evaluate(root->right);
 
@@ -122,7 +124,7 @@ void evaluate(struct TreeNode* root){
         }
         if( continueFlag ){
           continueFlag = false;
-          break;
+          continue;
         }
         evaluate(root->right);
 
@@ -145,6 +147,7 @@ int arithmetic_expressionEvaluator(struct TreeNode* root){
     if( root->val == -1 ){
       return variables[(int)root->varname - 97];
     }
+    // IF IT IS A CONSTANT
     else{
       return root->val;
     }
@@ -198,6 +201,7 @@ bool boolean_expressionEvaluator(struct TreeNode* root){
 }
 
 
+// -------------------- PRINTING VARIABLE ARRAY
 
 
 

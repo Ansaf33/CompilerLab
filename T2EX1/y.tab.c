@@ -1736,7 +1736,7 @@ int main(int argc, char* argv[]){
   FILE* f = fopen(argv[1],"r");
   yyin = f;
   yyparse();
-  printf("\n");
+  //printf("\n");
 
 // --------------------------------- ASSEMBLY CODE
 

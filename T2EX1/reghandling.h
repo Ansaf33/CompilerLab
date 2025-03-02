@@ -52,26 +52,12 @@ void read_codeGen(FILE* f,struct TreeNode* root);
 
 void write_codeGen(FILE* f,struct TreeNode* root);
 
-/*
-CODE FOR BOOLEAN EXPRESSION
-JZ L1
-CODE FOR IF STATEMENT
-L1:
-CODE FOR ELSE STATEMENT
-L2:
-
-*/
+// CODE GEN FOR IF STATEMENT
 
 void if_codeGen(FILE* f,struct TreeNode* root,int bl,int cl);
 
-/*
-CODE FOR BOOLEAN EXPRESSION
-JZ L1
-L0:
-CODE FOR STATEMENTS
-JMP L0
-L1:
-*/
+// CODE GEN FOR WHILE STATEMENT
+
 void while_codeGen(FILE* f,struct TreeNode* root);
 
 // CODE GEN FOR BREAK STATEMENT
@@ -81,6 +67,14 @@ void break_codeGen(FILE* f,struct TreeNode* root,int label);
 // CODE GEN FOR CONTINUE STATEMENT
 
 void continue_codeGen(FILE* f,struct TreeNode* root,int label);
+
+// CODE GEN FOR REPEAT STATEMENT
+
+void repeat_codeGen(FILE* f,struct TreeNode* root);
+
+// CODE GEN FOR DO WHILE STATEMENTS
+
+void dowhile_codeGen(FILE* f,struct TreeNode* root);
 
 // codeGen for entire statement lists
 
@@ -102,6 +96,14 @@ bool isBooleanExpression(struct TreeNode* root);
 bool isIf(struct TreeNode* root);
 
 bool isWhile(struct TreeNode* root);
+
+bool isBreak(struct TreeNode* root);
+
+bool isContinue(struct TreeNode* root);
+
+bool isRepeat(struct TreeNode* root);
+
+bool isDoWhile(struct TreeNode* root);
 
 
 #endif

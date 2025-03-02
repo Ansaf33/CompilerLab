@@ -33,7 +33,6 @@
 }
 
 "if" {
-
   return IF;
 }
 
@@ -46,7 +45,6 @@
 }
 
 "endif" {
-
   return ENDIF;
 }
 

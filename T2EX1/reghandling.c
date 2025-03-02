@@ -4,10 +4,12 @@
 #include <stdbool.h>
 #include "AST.h"
 
+// define the maximum limit of registers R0 to R19
 #define NOR 20
 
 // INITIALLY, NO REGISTERS ARE USED
 static int highestUsedReg = -1;
+// INITIALLY, NO LABELS ARE USED
 static int highestUsedLabel = -1;
 
 // --------------------------------------------------------- GET LABEL FUNCTION
@@ -97,12 +99,15 @@ void getInput(FILE* f,char* s){
 // --------------------------------------------------------- CODE GENERATION FOR ARITHMETIC EXPRESSIONS ( E )
 
 int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
+
+  // IF AT LEAF NODE, THEN ONLY NUMBER OR CONSTANT
   if(root->left == NULL && root->right == NULL){
     int regIdx = getReg();
-    // IF CONSTANT, USE ROOT->VAL
+    // IF CONSTANT, MOVE THE NUMBER TO REGISTER
     if(root->val != -1 ){
       fprintf(f,"MOV R%d, %d\n",regIdx,root->val);
     }
+    // IF VARIABLE, MOVE FROM MEMORY LOCATION TO REGISTER
     else{
       int memlocation = 4095 + ( (int)root->varname -96 );
       fprintf(f, "MOV R%d, [%d]\n",regIdx,memlocation);
@@ -132,6 +137,7 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
   // freeing the right register
   freeReg();
 
+  // ONE REGISTER IS USED, MUST BE FREED IN STATEMENTS THAT CALL THIS FUNCTION
   return lReg;
 
 }
@@ -139,6 +145,8 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
 // -------------------------------------------------------------------- CODE GENERATION FOR BOOLEAN EXPRESSIONS ( E < E )
 
 int boolean_expression_codeGen(FILE* f,struct TreeNode* root){
+
+  // BOOLEAN EXPRESSIONS ARE OF THE FORM E < E SO EVALUATE BOTH OF THEM FIRST
   int lReg = arithmetic_expression_codeGen(f,root->left);
   int rReg = arithmetic_expression_codeGen(f,root->right);
 
@@ -164,6 +172,7 @@ int boolean_expression_codeGen(FILE* f,struct TreeNode* root){
 
   }
 
+  // free rReg
   freeReg();
 
   // lReg contains either 0 (if false) or 1 (if true)
@@ -172,18 +181,25 @@ int boolean_expression_codeGen(FILE* f,struct TreeNode* root){
 }
 
 
-// -------------------------------------------------------------------- CODE GENERATION FOR ASSIGNMENTS
+// -------------------------------------------------------------------- CODE GENERATION FOR ASSIGNMENTS ( a = 3*4+7 )
 
 void assignment_codeGen(FILE* f,struct TreeNode* root){
-  // NOW GET THE CHARACTER VALUE
+
+  // GET THE CHARACTER VALUE
   int variable = (int)root->left->varname - 96;
   int memAddress = 4095 + variable;
 
   // store the register contents in the memory location 'storeIn'
   int r1 = getReg();
+  
+  // move the memory location to a register
   fprintf(f,"MOV R%d, %d\n",r1,memAddress);
+
   int fReg = arithmetic_expression_codeGen(f,root->right);
+
+  // move the contents of fReg to memory location specified by r1
   fprintf(f,"MOV [R%d], R%d\n",r1, fReg);
+
   // freeing expression register
   freeReg();
   // freeing r1
@@ -205,7 +221,6 @@ void read_codeGen(FILE* f,struct TreeNode* root){
 
   // STACK POINTER
   fprintf(f,"MOV SP, %d\n",4500);
-  
 
   // pushing "read"
   int r1 = getReg();
@@ -307,15 +322,19 @@ void write_codeGen(FILE* f,struct TreeNode* root){
 // ------------------------------------------------------------- CODE GENERATION FOR IF STATEMENTS
 
 void if_codeGen(FILE* f,struct TreeNode* root,int bl,int cl){
+
   int boolReg = boolean_expression_codeGen(f,root->middle);
   int l0 = getLabel();
   int l1 = getLabel();
 
+  // if the boolean expression is false, go to else condition
   fprintf(f,"JZ R%d, L%d\n",boolReg,l0);
   // no need for the register storing the result of the boolean expression anymore
   freeReg();
+
   // code if 'if' statement is true
   codeGen(f,root->left,bl,cl);
+
   // jump to the end
   fprintf(f,"JMP L%d\n",l1);
 
@@ -330,6 +349,7 @@ void if_codeGen(FILE* f,struct TreeNode* root,int bl,int cl){
 // ------------------------------------------------------------- CODE GENERATION FOR WHILE LOOPS
 
 void while_codeGen(FILE* f,struct TreeNode* root){
+
   int l0 = getLabel();
   int l1 = getLabel();
 
@@ -337,29 +357,29 @@ void while_codeGen(FILE* f,struct TreeNode* root){
   int breakLabel = l1;
   int continueLabel = l0;
 
-  // for going through while loop again
+  // code for going through while loop again
   fprintf(f,"L%d:\n",l0);
   int boolReg = boolean_expression_codeGen(f,root->left);
+
+  // if false, go out of the loop of l1
   fprintf(f,"JZ R%d, L%d\n",boolReg,l1);
   freeReg();
 
   // generate code for body of while loop
   codeGen(f,root->right,breakLabel,continueLabel);
 
-  // go to while loop again -> this will come in use for continue statements
+  // go to while loop again 
   fprintf(f,"JMP L%d\n",l0);
-  // exit while loop -> this will come in use for break statements
+
+  // exit while loop 
   fprintf(f,"L%d:\n",l1);
 
   
-  
-    
 }
 
 // ------------------------------------------------------------- CODE GENERATION FOR BREAK STATEMENT
 
 void break_codeGen(FILE* f,struct TreeNode* root,int label){
-
   if(label!=-1){
    fprintf(f,"JMP L%d\n",label);
   }
@@ -369,7 +389,6 @@ void break_codeGen(FILE* f,struct TreeNode* root,int label){
 // ------------------------------------------------------------- CODE GENERATION FOR CONTINUE STATEMENT
 
 void continue_codeGen(FILE* f,struct TreeNode* root,int label){
-
   if(label!=-1){
     fprintf(f,"JMP L%d\n",label);
   }
@@ -379,6 +398,8 @@ void continue_codeGen(FILE* f,struct TreeNode* root,int label){
 // ------------------------------------------------------------- CODE GENERATION FOR REPEAT STATEMENT
 
 void repeat_codeGen(FILE* f,struct TreeNode* root){
+
+
   int l0 = getLabel();
   int l1 = getLabel();
   int bl = l1;
@@ -405,6 +426,7 @@ void repeat_codeGen(FILE* f,struct TreeNode* root){
 // ------------------------------------------------------------- CODE GENERATION FOR DO-WHILE STATEMENT
 
 void dowhile_codeGen(FILE* f,struct TreeNode* root){
+
   int l0 = getLabel();
   int l1 = getLabel();
   int bl = l1;
@@ -419,11 +441,11 @@ void dowhile_codeGen(FILE* f,struct TreeNode* root){
   // CONDITION
   int boolReg = boolean_expression_codeGen(f,root->left);
 
-  // IF IT IS TRUE, GO BACK TO L0
+  // IF IT IS TRUE, GO BACK TO L0, EXECUTE WHILE LOOP AGAIN
   fprintf(f,"JNZ R%d, L%d\n",boolReg,l0);
   freeReg();
 
-  // IF IT IS FALSE, GO OUTSIDE
+  // IF IT IS FALSE, EXIT THE WHILE LOOP
   fprintf(f,"L%d:\n",l1);
   
 
@@ -452,7 +474,18 @@ bool isIf(struct TreeNode* root){
 bool isWhile(struct TreeNode* root){
     return root->op == 15;
 }
-
+bool isBreak(struct TreeNode* root){
+    return root->op == 16;
+}
+bool isContinue(struct TreeNode* root){
+    return root->op == 17;
+}
+bool isRepeat(struct TreeNode* root){
+    return root->op == 18;
+}
+bool isDoWhile(struct TreeNode* root){
+    return root->op == 19;
+}
 
 
 // ------------------------------------------------------------------- MAIN CODEGEN FUNCTION
@@ -462,34 +495,44 @@ void codeGen(FILE* f,struct TreeNode* root,int bl,int cl){
       return;
     }
     switch(root->op){
+    // ASSIGNMENT STATEMENT
     case 4:
           assignment_codeGen(f,root);
           break;
+    // READ STATEMENT
     case 11:
           read_codeGen(f,root);
           break;
+    // WRITE STATEMENT
     case 12:
           write_codeGen(f,root);
           break;
+    // STATEMENT S
     case 13:
           codeGen(f,root->left,bl,cl);
           codeGen(f,root->right,bl,cl);
           break;
+    // IF STATEMENT
     case 14:
           if_codeGen(f,root,bl,cl);
           break;
+    // WHILE STATEMENT
     case 15: 
           while_codeGen(f,root);
           break;
+    // BREAK STATEMENT
     case 16:
           break_codeGen(f,root,bl);
           break;
+    // CONTINUE STATEMENT
     case 17:
           continue_codeGen(f,root,cl);
           break;
+    // REPEAT UNTIL STATEMENT
     case 18:
           repeat_codeGen(f,root);
           break;
+    // DO WHILE STATEMENT
     case 19:
           dowhile_codeGen(f,root);
           break;

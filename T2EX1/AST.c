@@ -6,31 +6,37 @@
 #include "operators/optrans.h"
 
 
-/*
-
-for ID = (-1,-1,0,yytext,NULL,NULL)
-for NUM = (num,-1,-1,NULL,NULL,NULL)
-for OPS = (-1,'=',-1,NULL,$1,$3)
-
-
-*/
 
 // ------------- CHECK IF TYPE IS SAME
 
 bool typeSatisfied(struct TreeNode* root){
+    
+    // if arithmetic operator, left and right should be integers
     if(root->op >=0 && root->op <= 3){
       return root->left->type == 0 && root->right->type == 0;
     }
+    // if assigns, left should be an identifier (integer) and right should be integer
     else if( root->op == 4 ){
       return root->left->type == 0 && root->right->type == 0;
     }
+    // if logical operators, left and right type should be the type for expressions (integer)
     else if( root->op >= 5 && root->op <= 10 ){
           return root->left->type == 0 && root->right->type == 0;
    }
+    // if IF statement, condition type should be boolean
     else if( root->op == 14 ){
         return root->middle->type == 1;
     }
+    // if WHILE statement, condition type should be boolean
     else if( root->op == 15 ){
+        return root->left->type == 1;
+    }
+    // if REPEAT statement, condition type should be boolean
+    else if( root->op == 18 ){
+        return root->left->type == 1;
+    }
+    // if DOWHILE statement, condition type should be boolean
+    else if( root->op == 19 ){
         return root->left->type == 1;
     }
 
@@ -52,15 +58,17 @@ struct TreeNode* createTree(int val,int op,int type,char* varname,struct TreeNod
   temp->op = op;
   // TYPE OF NODE. IF IT IS A CONSTANT, IT IS AN INTEGER. IF IT IS AN ID, IT IS AN INTEGER.
   temp->type = type;
-  // DEPENDING ON VARTYPE
+
   temp->varname = *(varname);
+
    // LEFT AND RIGHT SUBTREES
   temp->left = left;
   temp->right = right;
+
   // no need for third child in while statements
   temp->middle = NULL;
 
-  
+  // CHECK IF ROOT SATISFIES ITS LEFT AND RIGHT CHILDREN
   if( left && right ){ 
     if(!typeSatisfied(temp)){
       printf("Operation '%s' : Type not matching.\n",map(temp->op));
@@ -85,6 +93,8 @@ struct TreeNode* createIfTree(int op,struct TreeNode* middle,struct TreeNode* le
   temp->left = left;
   temp->middle = middle;
   temp->right = right;
+
+  // CHECK IF SATISFIABLE
 
   if( middle ){ 
     if(!typeSatisfied(temp)){
@@ -111,6 +121,8 @@ struct TreeNode* createWhileTree(int op,struct TreeNode* left,struct TreeNode* r
   // no need for third child in while statements
   temp->middle = NULL;
 
+  // CHECK IF SATISFIABLE
+
   if( left && right ){ 
     if(!typeSatisfied(temp)){
       printf("While Condition : Type not matching.\n");
@@ -119,8 +131,6 @@ struct TreeNode* createWhileTree(int op,struct TreeNode* left,struct TreeNode* r
         
   }
   
-
-
 
   return temp;
 
