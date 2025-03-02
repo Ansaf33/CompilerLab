@@ -5,6 +5,7 @@
 #include "typesatisfy.h"
 #include "../AST.h"
 #include "../operators/optrans.h"
+#include "../class/classtable.h"
 
 
 // ------------------------------------------------------------------------------------------------------------------ GET TYPENAME
@@ -15,6 +16,16 @@ char* getName(struct TreeNode* root){
   }
   return cur == NULL ? "NULL" : ( cur->type == NULL ? cur->Ctype->name : cur->type->name );
  }
+
+// ------------------------------------------------------------------------------------------------------------------ GET TYPE
+struct classtable* getCType(struct TreeNode* root){
+  struct TreeNode* cur = root;
+  while(cur->middle != NULL ){
+    cur = cur->middle;
+  }
+  return cur->Ctype;
+ }
+
 
 
 // ------------------------------------------------------------------------------------------------------------------ CONDITION FOR ARITHMETIC OPERATORS
@@ -50,11 +61,17 @@ bool assignment_typeSatisfied(struct TreeNode* root){
   }
 
   //for new statement
-  if( root->right->op == 25 && lookClassUp(getName(root->left)) != root->right->Ctype ){
-    printf("NEW assignment does not match types\n");
-    exit(1); 
-  }
+  if( root->right->op == 25 ){
+    bool cra = canReachAncestor(getCType(root->right),getCType(root->left));
+    if(!cra){
+      printf("NEW assignment does not match types\n");
+      exit(1); 
+    }
+    else{
+      return true;
+    }
 
+  }
 
   // true condition, both should be of the same type ( right can be null )
   bool nullCondition = same(getName(root->right),"null");
@@ -62,8 +79,8 @@ bool assignment_typeSatisfied(struct TreeNode* root){
   bool notBoolCondition = !same(getName(root->left),"bool") && !same(getName(root->right),"bool");
 
 
-  if ( nullCondition || bothsameCondition && notBoolCondition ){
 
+  if ( nullCondition || bothsameCondition && notBoolCondition ){
     return true;
   }
 
@@ -206,4 +223,18 @@ bool delete_typeSatisfied(struct TreeNode* root){
 }
 
 
+// --------------------------------------------------------------------------------------------------------------------- GET THE RHS'S ANCESTOR
 
+bool canReachAncestor(struct classtable* child,struct classtable* parent){
+  if( !child && !parent ){
+    return false;
+  }
+  struct classtable* c = child;
+  while( c ){
+    if( c == parent ){
+      return true;
+    }
+    c = c->parentPtr;
+  }
+  return false;
+}

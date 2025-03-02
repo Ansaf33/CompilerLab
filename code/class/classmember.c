@@ -8,6 +8,7 @@
 
 static int memberIndex = 0;
 
+// CREATING A MEMBER NODE
 struct classmember* createMemberNode(struct typetable* type,struct classtable* Ctype,char* name){
   struct classmember* temp = (struct classmember*)malloc(sizeof(struct classmember));
   temp->type = type;
@@ -25,6 +26,7 @@ struct classmember* createMemberNode(struct typetable* type,struct classtable* C
   return temp;
 }
 
+// ADDING MEMBER NODE
 struct classmember* addMemberNode(struct classmember* head,struct typetable* type,struct classtable* Ctype,char* name){
 
   // check if member with same name already exists
@@ -42,8 +44,6 @@ struct classmember* addMemberNode(struct classmember* head,struct typetable* typ
     memberIndex = 0;
   }
 
-
-
   struct classmember* temp = createMemberNode(type,Ctype,name);
   
   if( head == NULL ){
@@ -60,6 +60,7 @@ struct classmember* addMemberNode(struct classmember* head,struct typetable* typ
   return head;
 }
 
+// LOOKING MEMBER UP
 struct classmember* lookMemberUp(struct classmember* head,char* name){
   struct classmember* cur = head;
   while(cur!=NULL){
@@ -71,6 +72,7 @@ struct classmember* lookMemberUp(struct classmember* head,char* name){
   return NULL;
 }
 
+// PRINT CLASS MEMBERS
 void printClassMembers(struct classmember* head){
   struct classmember* cur = head;
   while(cur!=NULL){
@@ -83,4 +85,6 @@ void printClassMembers(struct classmember* head){
     cur = cur->next;
   }
 }
+
+
 

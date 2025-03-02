@@ -1,84 +1,70 @@
-type
-
-List{
-  int data;
-  List next;
-}
-
-endtype
 
 
 class
-
-
-Teacher{
-  decl
-  str name;
-  str language;
-  int createTeacher(str name,str language);
-  int printDetails();
-  enddecl
-
-  int createTeacher(str name,str language){
-    decl
-    enddecl
-    begin
-    self.name = name;
-    self.language = language;
-    return 1;
-    end;
-  }
-
-  int printDetails(){
-    decl
-    enddecl
-    begin
-    write(self.name);
-    write(self.language);
-    return 1;
-    end;
-  }
-
-}
 
 Person{
   decl
   str name;
   int age;
-  Teacher teacher;
-  List l;
   int createPerson(str name,int age);
-  int printDetails();
+  int printPersonDetails();
   enddecl
+
 
   int createPerson(str name,int age){
     decl
-    int a;
     enddecl
-
     begin
     self.name = name;
     self.age = age;
-    self.teacher = new(Teacher);
-    self.l = alloc();
-    a = self.teacher.createTeacher("hanan","chemistry");
+
     return 1;
     end;
-
   }
 
-  int printDetails(){
+  int printPersonDetails(){
     decl
-    int a;
     enddecl
-
     begin
     write(self.name);
     write(self.age);
-    a = self.teacher.printDetails();
+
     return 1;
     end;
+  }
 
+}
+
+Student extends Person{
+
+  decl
+
+  str regNo;
+  int createStudent(str name,int age,str regNo);
+  int printPersonDetails();
+
+  enddecl
+
+  int createStudent(str name,int age,str regNo){
+    decl
+    enddecl
+    begin
+    self.name = name;
+    self.age = age;
+    self.regNo = regNo;
+    return 1;
+    end;
+  }
+
+  int printPersonDetails(){
+    decl
+    enddecl
+    begin
+    write(self.name);
+    write(self.age);
+    write(self.regNo);
+    return 1;
+    end;
   }
 
 }
@@ -87,25 +73,28 @@ Person{
 endclass
 
 decl
-Person p,q;
-Teacher t;
-List l;
+Student s;
+Person p;
 enddecl
 
 int main(){
   decl
-  int x,a;
+  int a;
+  int x;
   enddecl
   begin
   x = initialize();
+
   p = new(Person);
-  a = p.createPerson("Ansaf",21);
-  a = p.printDetails();
-
-  delete(p);
-  a = p.teacher.printDetails();
   a = p.createPerson("Ansaf",22);
+  a = p.printPersonDetails();
 
+  s = new(Student);
+  a = s.createStudent("Ansaf",21,"B220172CS");
+  a = s.printPersonDetails();
 
   end;
 }
+
+
+

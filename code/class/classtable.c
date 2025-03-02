@@ -10,12 +10,13 @@ static int classIndex = 0;
 struct classtable* Chead = NULL;
 
 
-struct classtable* createCNode(char* name){
+struct classtable* createCNode(char* name,struct classtable* parentPtr){
   struct classtable* temp = (struct classtable*)malloc(sizeof(struct classtable));
 
   temp->name = (char*)malloc(sizeof(char)*100);
   strcpy(temp->name,name);
 
+  temp->parentPtr = parentPtr;
   temp->classIndex = classIndex++;
   temp->fieldCount = 0;
   temp->methodCount = 0;
@@ -23,7 +24,7 @@ struct classtable* createCNode(char* name){
   return temp;
 }
 
-struct classtable* addClassNode(char* name){
+struct classtable* addClassNode(char* name,struct classtable* parentPtr){
 
   // check if class already present
   if( lookClassUp(name) != NULL ){
@@ -37,7 +38,8 @@ struct classtable* addClassNode(char* name){
     exit(1);
   }
 
-  struct classtable* temp = createCNode(name);
+
+  struct classtable* temp = createCNode(name,parentPtr);
 
 
   if( Chead == NULL ){
@@ -60,8 +62,18 @@ struct classmember* addMemberToClass(struct classtable* c,struct typetable* type
 }
 
 struct classmethod* addMethodToClass(struct classtable* c,struct typetable* type,char* name,struct paramlist* param){
-  c->classmethod = addMethodNode(c->classmethod,type,name,param);
-  c->methodCount++;
+
+  struct classmethod* inParent = lookMethodInClassUp(c->parentPtr,name);
+
+  if( inParent ){
+    struct classmethod* inChild = lookMethodInClassUp(c,name);
+    inChild->mLabel = incrementmLabel();
+  }
+  else{
+    c->classmethod = addMethodNode(c->classmethod,type,name,param);
+    c->methodCount++;
+  }
+
 }
 
 
@@ -78,16 +90,23 @@ struct classtable* lookClassUp(char* name){
 }
 
 struct classmember* lookMemberInClassUp(struct classtable* c,char* name){
-  return lookMemberUp(c->classmember,name);
+  if( c ){
+    return lookMemberUp(c->classmember,name);
+  }
+  return NULL;
 }
 
 struct classmethod* lookMethodInClassUp(struct classtable* c,char* name){
-  return lookMethodUp(c->classmethod,name);
+  if( c ){
+    return lookMethodUp(c->classmethod,name);
+  }
+  return NULL;
 }
 
 void printClass(struct classtable* c){
-  printf(" | N A M E : %s | C L A S S I N D E X : %d | M E M B E R C O U N T : %d | M E T H O D C O U N T : %d\n",
+  printf(" | N A M E : %s | P A R E N T : %s | C L A S S I N D E X : %d | M E M B E R C O U N T : %d | M E T H O D C O U N T : %d\n",
          c->name,
+         c->parentPtr?c->parentPtr->name:"NULL",
          c->classIndex,
          c->fieldCount,
          c->methodCount

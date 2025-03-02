@@ -27,4 +27,8 @@ void printClassMethods(struct classmethod* head);
 
 int argCount(struct classmethod* head);
 
+int decrementmLabel(void);
+
+int incrementmLabel(void);
+
 #endif

@@ -19,9 +19,9 @@ struct classtable{
   struct classtable* next;
 };
 
-struct classtable* createCNode(char* name);
+struct classtable* createCNode(char* name,struct classtable* parentPtr);
 
-struct classtable* addClassNode(char* name);
+struct classtable* addClassNode(char* name,struct classtable* parentPtr);
 
 struct classmember* addMemberToClass(struct classtable* c,struct typetable* type,struct classtable* Ctype,char* name);
 

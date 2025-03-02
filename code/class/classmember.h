@@ -27,7 +27,6 @@ struct classmember* lookMemberUp(struct classmember* head,char* name);
 void printClassMembers(struct classmember* head);
 
 
-
 #endif
 
 

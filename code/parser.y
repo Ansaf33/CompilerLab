@@ -22,6 +22,8 @@
 #include "class/classmember.h"
 #include "class/classmethod.h"
 
+#include "inheritance/copier.h"
+
 
 
 struct TreeNode* root;
@@ -140,10 +142,14 @@ ClassDef :
 
 Cname :
       ID {
-      C = addClassNode($<string>1);
+      C = addClassNode($<string>1,NULL);
       }
       |
-      ID EXTENDS ID
+      ID EXTENDS ID {
+      C = addClassNode($<string>1,lookClassUp($<string>3));
+      copyMembers(lookClassUp($<string>1),lookClassUp($<string>3));
+      copyMethods(lookClassUp($<string>1),lookClassUp($<string>3));
+      }
       ;
 
 MemberDeclList :

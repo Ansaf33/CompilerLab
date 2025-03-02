@@ -19,7 +19,7 @@ struct classmethod* createMethodNode(struct typetable* type,char* name,struct pa
   temp->type = type;
   temp->param = param;
   temp->methodPos = methodPos++;
-  temp->mLabel = mLabel++;
+  temp->mLabel = incrementmLabel();
 
   return temp;
 }
@@ -30,6 +30,7 @@ struct classmethod* addMethodNode(struct classmethod* head,struct typetable* typ
 
   // check if method already exists
   if( lookMethodUp(head,name) != NULL ){
+    // check the parent class
     printf("Method named | %s | already exists.\n",name);
     exit(1);
   }
@@ -98,3 +99,14 @@ int argCount(struct classmethod* head){
   }
   return c;
 }
+
+// DECREMENT M LABEL
+int decrementmLabel(){
+  return mLabel--;
+}
+
+// INCREMENT M LABEL
+int incrementmLabel(){
+  return mLabel++;
+}
+

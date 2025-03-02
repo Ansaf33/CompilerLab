@@ -2,7 +2,7 @@ lex lexical.l
 
 yacc -d parser.y
 
-gcc AST.c typesatisfy/typesatisfy.c reghandling.c symbol_table/Gsymbol.c symbol_table/Lsymbol.c symbol_table/varList.c symbol_table/paramlist.c operators/optrans.c functions/checker.c typetable/typetable.c udt/fieldlist.c class/classtable.c class/classmember.c class/classmethod.c y.tab.c lex.yy.c -o program
+gcc AST.c typesatisfy/typesatisfy.c reghandling.c symbol_table/Gsymbol.c symbol_table/Lsymbol.c symbol_table/varList.c symbol_table/paramlist.c operators/optrans.c functions/checker.c typetable/typetable.c udt/fieldlist.c class/classtable.c class/classmember.c class/classmethod.c inheritance/copier.c y.tab.c lex.yy.c -o program
 
 ./program input.txt assembly_code.xsm
 

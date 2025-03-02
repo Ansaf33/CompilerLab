@@ -91,7 +91,7 @@ void fieldMemberAddress(FILE* f,int adReg,struct TreeNode* root){
 
         // add offset to starting address
         struct fieldlist* curField = lookFLUp(fieldlist,cur->fieldName);
-        int offset = 1 + curField->fieldIndex;
+        int offset = curField->fieldIndex;
         fprintf(f,"ADD R%d, %d\n",dynamic_start,offset);
 
         // jumping address condition
@@ -126,7 +126,7 @@ void classMemberAddress(FILE* f,int adReg,struct TreeNode* root){
 
     // add offset to starting address
     struct classmember* nextMember = lookMemberInClassUp(cur->Ctype,cur->middle->fieldName);
-    int offset = 1 + nextMember->memberIndex;
+    int offset = nextMember->memberIndex;
     fprintf(f,"ADD R%d, %d\n",dynamic_start,offset);
 
     cur = cur->middle;
@@ -937,10 +937,15 @@ void free_codeGen(FILE* f,struct TreeNode* root){
   // pop used registers
   popRegisters(f);
 
-  // deallocate the address
+  // deallocate the address (if classtype, then vftp as well)
   ptrReg = getSymbolAddress(f,root->middle);
   fprintf(f,"MOV [R%d], 0\n",ptrReg);
+  if( root->middle->Ctype ){
+    fprintf(f,"ADD R%d, %d\n",ptrReg,1);
+    fprintf(f,"MOV [R%d], 0\n",ptrReg);
+  }
   freeReg();
+
 
   freeReg();
 
@@ -1152,6 +1157,15 @@ void delete_codeGen(FILE* f,struct TreeNode* root){
 
       // free return value register
       freeReg();
+
+      // change the address to 0 to indicate it has been freed
+      dynamic_reg = getSymbolAddress(f,root->middle);
+      fprintf(f,"MOV R%d, [R%d]\n",dynamic_reg,dynamic_reg);
+      fprintf(f,"ADD R%d, %d\n",dynamic_reg,memberlist->memberIndex);
+      fprintf(f,"MOV [R%d], 0\n",dynamic_reg);
+      freeReg();
+
+
 
     }
     memberlist = memberlist->next;
