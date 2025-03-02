@@ -705,6 +705,7 @@ void initxsm(FILE* f){
   fprintf(xsm,"MOV SP, 4500\n");
   fprintf(xsm,"MOV BP, SP\n");
   fprintf(xsm,"JMP F0\n"); 
+  fprintf(xsm,"BRKP\n");
 }
 
 void endxsm(FILE* f){

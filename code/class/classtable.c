@@ -18,7 +18,7 @@ struct classtable* createCNode(char* name,struct classtable* parentPtr){
 
   temp->parentPtr = parentPtr;
   temp->classIndex = classIndex++;
-  temp->fieldCount = 0;
+  temp->memberCount = 0;
   temp->methodCount = 0;
 
   return temp;
@@ -58,7 +58,7 @@ struct classtable* addClassNode(char* name,struct classtable* parentPtr){
 
 struct classmember* addMemberToClass(struct classtable* c,struct typetable* type,struct classtable* Ctype,char* name){
   c->classmember = addMemberNode(c->classmember,type,Ctype,name);
-  c->fieldCount++;
+  c->memberCount++;
 }
 
 struct classmethod* addMethodToClass(struct classtable* c,struct typetable* type,char* name,struct paramlist* param){
@@ -104,11 +104,12 @@ struct classmethod* lookMethodInClassUp(struct classtable* c,char* name){
 }
 
 void printClass(struct classtable* c){
-  printf(" | N A M E : %s | P A R E N T : %s | C L A S S I N D E X : %d | M E M B E R C O U N T : %d | M E T H O D C O U N T : %d\n",
+  printf(" -------------------------------- C L A S S -----------------------\n\n");
+  printf("N A M E : %s\nP A R E N T : %s\nC L A S S I N D E X : %d\nM E M B E R C O U N T : %d\nM E T H O D C O U N T : %d\n",
          c->name,
          c->parentPtr?c->parentPtr->name:"NULL",
          c->classIndex,
-         c->fieldCount,
+         c->memberCount,
          c->methodCount
          );
   printf("M E M B E R S : \n");

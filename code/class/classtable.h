@@ -14,7 +14,7 @@ struct classtable{
   struct classmethod* classmethod;
   struct classtable* parentPtr;
   int classIndex;
-  int fieldCount;
+  int memberCount;
   int methodCount;
   struct classtable* next;
 };

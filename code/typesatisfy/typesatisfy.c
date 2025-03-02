@@ -61,8 +61,9 @@ bool assignment_typeSatisfied(struct TreeNode* root){
   }
 
   //for new statement
+  bool cra = canReachAncestor(getCType(root->right),getCType(root->left));
+  
   if( root->right->op == 25 ){
-    bool cra = canReachAncestor(getCType(root->right),getCType(root->left));
     if(!cra){
       printf("NEW assignment does not match types\n");
       exit(1); 
@@ -80,7 +81,7 @@ bool assignment_typeSatisfied(struct TreeNode* root){
 
 
 
-  if ( nullCondition || bothsameCondition && notBoolCondition ){
+  if ( cra || nullCondition || bothsameCondition && notBoolCondition ){
     return true;
   }
 

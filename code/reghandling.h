@@ -57,6 +57,10 @@ int boolean_expression_codeGen(FILE* f,struct TreeNode* root);
 
 void assignment_codeGen(FILE* f, struct TreeNode* root);
 
+// CODE GEN FOR CLASS ASSIGNMENT STATEMENTS
+
+void class_assignment_codeGen(FILE* f,struct TreeNode* root);
+
 // CODE GEN FOR READ STATEMENT
 
 void read_codeGen(FILE* f,struct TreeNode* root);

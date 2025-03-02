@@ -43,6 +43,9 @@ void copyMethods(struct classtable* child,struct classtable* parent){
     parent_method = parent_method->next;
   }
 
+  // add them to the methodcount
+  child->methodCount = parent->methodCount;
+
 }
 
 // COPY MEMBERS FROM PARENT CLASS TO CHILD CLASS
@@ -80,6 +83,9 @@ void copyMembers(struct classtable* child,struct classtable* parent){
     parent_member = parent_member->next;
  
   }
+
+  // add them to membercount
+  child->memberCount = parent->memberCount;
 
 }
 

@@ -212,7 +212,7 @@ int getSymbolAddress(FILE* f,struct TreeNode* root){
       fieldMemberAddress(f,adReg,root);
     }
     // class member
-    else{
+    else if( root->middle->methodName == NULL ){
       classMemberAddress(f,adReg,root);
     }
   }
@@ -347,6 +347,7 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
 
           // if it is of type class
           else if( root->Ctype != NULL ){
+            
 
             checkLastMember(root); // check last member ( exit condition )
 
@@ -482,6 +483,42 @@ void assignment_codeGen(FILE* f,struct TreeNode* root){
   freeReg();
 
   checkLeak();
+}
+
+// ---------------------------------------------------------------------------------------- CODE GENERATION FOR CLASS ASSIGNMENTS ( arbitrary = first )
+
+void class_assignment_codeGen(FILE* f,struct TreeNode* root){
+
+  // get address that contains starting address of heap of RHS
+  int Radr = getReg();
+  int memAddressReg = getSymbolAddress(f,root->right);
+  fprintf(f,"MOV R%d, R%d\n",Radr,memAddressReg);
+  freeReg();
+
+  // get address of LHS
+  int Ladr = getReg();
+  memAddressReg = getSymbolAddress(f,root->left);
+  fprintf(f,"MOV R%d, R%d\n",Ladr,memAddressReg);
+  freeReg();
+
+  // move heap start of RHS to LHS
+  int dynamic_start = getReg();
+  fprintf(f,"MOV R%d, [R%d]\n",dynamic_start,Radr);
+  fprintf(f,"MOV [R%d], R%d\n",Ladr,dynamic_start);
+  freeReg();
+
+  fprintf(f,"ADD R%d, %d\n",Ladr,1);
+  fprintf(f,"ADD R%d, %d\n",Radr,1);
+  
+  // move VFTP of RHS to LHS
+  int vftp = getReg();
+  fprintf(f,"MOV R%d, [R%d]\n",vftp,Radr);
+  fprintf(f,"MOV [R%d], R%d\n",Ladr,vftp);
+  freeReg();
+
+  freeReg(); // freeing Ladr
+  freeReg(); // freeing Radr
+
 }
 
 // --------------------------------------------------------------------------------------------------------------- CODE GENERATION FOR READ OPERATIONS
@@ -859,6 +896,8 @@ void popArgs(FILE* f,struct TreeNode* head){
 
 int initialize_codeGen(FILE* f){
 
+
+
   // pushing used registers
   pushRegisters(f);
 
@@ -969,7 +1008,10 @@ void checkIfAllocated(FILE* f,int ptrReg){
 
 void new_codeGen(FILE* f,struct TreeNode* root){
 
+
+
   // get the virtual function table's starting address
+  
   int classIndex = lookClassUp(root->right->middle->varname)->classIndex;
   int vft = 4096 + classIndex*8;
 
@@ -1029,21 +1071,25 @@ int invoke_method_codeGen(FILE* f,struct TreeNode* root){
   }
 
   struct classmethod* method = lookMethodInClassUp(c,root->middle->methodName);
-  int methodAddress = 4096 + (c->classIndex)*8 + method->methodPos;
-
 
   // pushing member field pointer
   int adReg = getSymbolAddress(f,head);
+  fprintf(f,"MOV R%d, [R%d]\n",adReg,adReg);
   fprintf(f,"PUSH R%d\n",adReg);
   freeReg();
 
+  fprintf(f,"BRKP\n");
 
   // pushing virtual function table pointer
-  int vft = 4096 + (c->classIndex)*8;
+  adReg = getSymbolAddress(f,head);
+  fprintf(f,"ADD R%d, %d\n",adReg,1);
   int vftReg = getReg();
-  fprintf(f,"MOV R%d, %d\n",vftReg,vft);
+  fprintf(f,"MOV R%d, [R%d]\n",vftReg,adReg);
   fprintf(f,"PUSH R%d\n",vftReg);
-  freeReg();
+
+  freeReg(); // free vftReg
+  freeReg(); // free adReg
+
 
   // push arguments
   pushArgs(f,root->middle->argList);
@@ -1052,10 +1098,19 @@ int invoke_method_codeGen(FILE* f,struct TreeNode* root){
   fprintf(f,"PUSH R0\n");
 
   // call address
+  adReg = getSymbolAddress(f,head);
+  fprintf(f,"ADD R%d, %d\n",adReg,1);
+  vftReg = getReg();
+  fprintf(f,"MOV R%d, [R%d]\n",vftReg,adReg);
+  fprintf(f,"ADD R%d, %d\n",vftReg,method->methodPos);
   int labelReg = getReg();
-  fprintf(f,"MOV R%d, [%d]\n",labelReg,methodAddress);
+  fprintf(f,"MOV R%d, [R%d]\n",labelReg,vftReg);
   fprintf(f,"CALL R%d\n",labelReg);
-  freeReg();
+
+  freeReg(); // free labelReg
+  freeReg(); // free vftReg
+  freeReg(); // free adReg
+
 
   // store return value
   int returnReg = getReg();
@@ -1188,6 +1243,9 @@ void codeGen(FILE* f,struct TreeNode* root,int bl,int cl){
     case 4:
           if( root->right->op == 25 ){
             new_codeGen(f,root);
+          }
+          else if( root->left->Ctype && root->right->Ctype ){
+            class_assignment_codeGen(f,root);
           }
           else{
             assignment_codeGen(f,root);
