@@ -1,131 +1,93 @@
-type
-
-bst{
-  int a;
-  bst left;
-  bst right;
-}
-
-endtype
-
 class
 
-bstclass {
+
+Teacher{
   decl
-  bst root;
-  int init();
-  bst getroot();
-  int setroot(bst n1);
-  bst getnode(int key);
-  bst insert(bst h,int key);
-  int inOrder_fun(bst h);
+  str name;
+  str language;
+  int createTeacher(str name,str language);
+  int printDetails();
   enddecl
 
-  int init(){
+  int createTeacher(str name,str language){
     decl
     enddecl
     begin
-    self.root = null;
+    self.name = name;
+    self.language = language;
     return 1;
     end;
   }
 
-  bst getroot(){
+  int printDetails(){
     decl
     enddecl
     begin
-    return self.root;
-    end;
-
-  }
-
-  int setroot(bst n1){
-    decl
-    enddecl
-    begin
-    self.root = n1;
-    return 1;
-    end;
-  }
-
-  bst getnode(int key){
-    decl
-    bst temp;
-    enddecl
-    begin
-    temp = alloc();
-    temp.a = key;
-    temp.left = null;
-    temp.right = null;
-    return temp;
-    end;
-  }
-
-  bst insert(bst h,int key){
-    decl
-    enddecl
-    begin
-    if( h == null ) then
-      h = self.getnode(key);
-    else
-      if( key < h.a ) then
-        h.left = self.insert(h.left,key);
-      else
-        if( key > h.a ) then
-          h.right = self.insert(h.right,key);
-        endif;
-      endif;
-    endif;
-    return h;
-    end;
-  }
-
-  int inOrder_fun(bst h){
-    decl
-    int in;
-    enddecl
-    begin
-    if( h != null ) then
-      in = self.inOrder_fun(h.left);
-      write(h.a);
-      in = self.inOrder_fun(h.right);
-    endif;
+    write(self.name);
+    write(self.language);
     return 1;
     end;
   }
 
 }
+
+Person{
+  decl
+  str name;
+  int age;
+  Teacher teacher;
+  int createPerson(str name,int age);
+  int printDetails();
+  enddecl
+
+  int createPerson(str name,int age){
+    decl
+    int a;
+    enddecl
+
+    begin
+    self.name = name;
+    self.age = age;
+    self.teacher = new(Teacher);
+    a = self.teacher.createTeacher("sumita","malayalam");
+    return 1;
+    end;
+
+  }
+
+  int printDetails(){
+    decl
+    int a;
+    enddecl
+
+    begin
+    write(self.name);
+    write(self.age);
+    a = self.teacher.printDetails();
+    return 1;
+    end;
+
+  }
+
+}
+
 
 endclass
 
 decl
-bstclass obj;
+Person p,q;
+Teacher t;
 enddecl
 
 int main(){
-
   decl
-  bst root;
-  int x,in,val;
+  int x,a;
   enddecl
-
   begin
-
   x = initialize();
-  obj = new(bstclass);
-  x = obj.init();
-  read(val);
-  root = obj.getroot();
-
-  while(val!=0) do
-    root = obj.insert(root,val);
-    read(val);
-
-  endwhile;
-
-  x = obj.setroot(root);
-  in = obj.inOrder_fun(obj.getroot());
+  p = new(Person);
+  a = p.createPerson("Ansaf",21);
+  a = p.printDetails();
 
   end;
-
 }
