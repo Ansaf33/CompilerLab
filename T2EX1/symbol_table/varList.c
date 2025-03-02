@@ -5,26 +5,30 @@
 #include "symbol.h"
 
 
-struct list* createVarNode(char* name,int size){
+struct list* createVarNode(char* name,int rowSize,int colSize){
+
   struct list* temp = (struct list*)malloc(sizeof(struct list));
   temp->name = (char*)malloc(sizeof(char)*100);
   strcpy(temp->name,name);
-  temp->size = size;
+
+  temp->rowSize = rowSize;
+  temp->colSize = colSize;
+
   temp->next = NULL;
 
   return temp;
 }
 
 struct list* addVariable(struct list* head,char* name){
-  struct list* temp = createVarNode(name,1);
+  struct list* temp = createVarNode(name,1,1);
   temp->next = head;
   head = temp;
 
   return head;
 }
 
-struct list* addArray(struct list* head,char* name,int size){
-  struct list* temp = createVarNode(name,size);
+struct list* addArray(struct list* head,char* name,int rowSize,int colSize){
+  struct list* temp = createVarNode(name,rowSize,colSize);
   temp->next = head;
   head = temp;
 
@@ -42,7 +46,7 @@ void printDetails(struct list* head){
 void addAllSymbols(struct list* head, int type){
   struct list* cur = head;
   while(cur != NULL){
-    addSymbol(cur->name,type,cur->size);
+    addSymbol(cur->name,type,cur->rowSize,cur->colSize);
     cur = cur->next;
   }
 }

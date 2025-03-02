@@ -15,6 +15,9 @@ struct TreeNode{
   int type;
   char* varname;
 
+  struct TreeNode* row;
+  struct TreeNode* column;
+
 
   struct TreeNode* left;
   struct TreeNode* middle;
@@ -33,7 +36,7 @@ struct TreeNode* createOpNode(int type,int op,struct TreeNode* left,struct TreeN
 
 struct TreeNode* createStringNode(char* string);
 
-struct TreeNode* createIdNode(char* varname,struct TreeNode* middle);
+struct TreeNode* createIdNode(char* varname,struct TreeNode* row,struct TreeNode* column);
 
 struct TreeNode* createIfNode(struct TreeNode* middle, struct TreeNode* left,struct TreeNode* right);
 

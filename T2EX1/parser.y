@@ -87,12 +87,24 @@ VARLIST :
           $$ = addVariable($1,$<string>3);
         }
         |
+        VARLIST ',' ID '[' NUM ']' {
+          $$ = addArray($1,$<string>3,1,atoi($<string>5));
+        }
+        |
+        VARLIST ',' ID '[' NUM ']' '[' NUM ']' {
+          $$ = addArray($1,$<string>1,atoi($<string>5),atoi($<string>8));
+        }
+        |
         ID {
           $$ = addVariable(NULL,$<string>1);
         }
         |
         ID '[' NUM ']' {
-          $$ = addArray(NULL,$<string>1,atoi($<string>3));
+          $$ = addArray(NULL,$<string>1,1,atoi($<string>3));
+        }
+        |
+        ID '[' NUM ']' '[' NUM ']' {
+          $$ = addArray(NULL,$<string>1,atoi($<string>3),atoi($<string>6));
         }
         ;
 
@@ -229,12 +241,20 @@ E :
 
 IDENTIFIER : 
            ID { 
-            $$ = createIdNode($<string>1,NULL);
+            $$ = createIdNode($<string>1,NULL,NULL);
            }
            |
            ID '[' E ']' {
-            $$ = createIdNode($<string>1,$3);
+            $$ = createIdNode($<string>1,NULL,$3);
             }
+            |
+           ID '[' E ']' '[' E ']' {
+            $$ = createIdNode($<string>1,$3,$6);
+            }
+
+
+
+
           ;
 
 

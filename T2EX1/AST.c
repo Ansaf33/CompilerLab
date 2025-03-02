@@ -92,7 +92,7 @@ struct TreeNode* createOpNode(int type,int op,struct TreeNode* left,struct TreeN
 
   if( left ){ 
     if(!typeSatisfied(temp)){
-      printf("Operator Condition : Type not matching.\n");
+      printf("Operator | %s | Condition : Type not matching.\n",map(temp->op));
       exit(1);
     }
   }
@@ -126,7 +126,7 @@ struct TreeNode* createStringNode(char* string){
 
 // -------------- CREATE NODE FOR IDs
 
-struct TreeNode* createIdNode(char* varname,struct TreeNode* middle){
+struct TreeNode* createIdNode(char* varname,struct TreeNode* row,struct TreeNode* column){
 
 
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
@@ -139,13 +139,18 @@ struct TreeNode* createIdNode(char* varname,struct TreeNode* middle){
  
   temp->val = -1;
   temp->string = NULL;
+
   temp->op = -1;
   temp->type = temp->symbol->type;
   temp->varname = (char*)malloc(sizeof(char)*100);
   strcpy(temp->varname,varname);
+
+  temp->row = row;
+  temp->column = column;
+
   temp->left = NULL;
   temp->right = NULL;
-  temp->middle = middle;
+  temp->middle = NULL;
 
 
   return temp;

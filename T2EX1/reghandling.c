@@ -17,31 +17,65 @@ static int highestUsedLabel = -1;
 
 int getSymbolAddress(FILE* f,struct TreeNode* root){
 
-  // SIMPLY A VARIABLE, MOVE THE ADDRESS TO A REGISTER AND RETURN THE REGISTER
-  
+
+  // CONTAINS ADDRESS
+
   int adReg = getReg();
   fprintf(f,"MOV R%d, %d\n",adReg,root->symbol->address);
 
-  // IF VARIABLE, EVALUATE THE LEFT EXPRESSION AND ADD IT
+  // CONTAINS COPIED ADDRESS VALUE TO CHECK OVERFLOW CONDITION
+
   
-  if( root->middle ){
-    int resReg = arithmetic_expression_codeGen(f,root->middle);
-    fprintf(f,"ADD R%d, R%d\n",adReg,resReg);
-    freeReg();
 
-    int adReg2 = getReg();
-    fprintf(f,"MOV R%d, R%d\n",adReg2,adReg);
-    int limit_Reg = getReg();
-    fprintf(f,"MOV R%d, %d\n",limit_Reg,root->symbol->address);
-    fprintf(f,"ADD R%d, %d\n",limit_Reg,root->symbol->size);
+  // IF 1D ARRAY , EVALUATE THE COLUMN EXPRESSION AND ADD IT ( root->symbol->address + 0*size + c )
+  
+  if( root->column ){
+
+    // IF 2D ARRAY, EVALUATE ROW EXPRESSION AND ADD IT TO ADDRESS ( root->symbol->address + r*colSize + c )
     
-    // R [ ADREG2 ] < R [ LIMIT_REG ]
-    fprintf(f,"GE R%d, R%d\n",adReg2,limit_Reg);
-    fprintf(f,"JNZ R%d, L50\n",adReg2);
+    int b = getReg();
+    fprintf(f,"MOV R%d, %d\n",b,0);
+
+
+    if( root->row ){
+      int exprReg = arithmetic_expression_codeGen(f,root->row);
+
+      // ------------------------ ROW OVERFLOW HERE ITSELF -----------------------
+      int rReg = getReg();
+      fprintf(f,"MOV R%d, %d\n",rReg,root->symbol->rowSize);
+      fprintf(f,"LE R%d, R%d\n",rReg,exprReg);
+      fprintf(f,"JNZ R%d, L50\n",rReg);
+      freeReg();
+      // ------------------------ END OVERFLOW CHECK -----------------------------
+
+
+      fprintf(f,"ADD R%d, R%d\n",b,exprReg);
+      freeReg();
+    }
+
+    fprintf(f,"MUL R%d, %d\n",b,root->symbol->colSize);
+    fprintf(f,"ADD R%d, R%d\n",adReg,b);
+    freeReg();
+
+    int resReg = arithmetic_expression_codeGen(f,root->column);
+
+    // ---------------------- COLUMN OVERFLOW HERE ITSELF --------------------------
+    int cReg = getReg();
+    fprintf(f,"MOV R%d, %d\n",cReg,root->symbol->colSize);
+    fprintf(f,"LE R%d, R%d\n",cReg,resReg);
+    fprintf(f,"JNZ R%d, L50\n",cReg);
+    freeReg();
+    // ----------------------- END OVERFLOW CHECK ----------------------------------
+
+
+
+    fprintf(f,"ADD R%d, R%d\n",adReg,resReg);
 
     freeReg();
-    freeReg();
 
+    
+
+          
   }
 
 

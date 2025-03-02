@@ -9,7 +9,8 @@
 struct symbol{
   char* name;
   int type;
-  int size;
+  int rowSize;
+  int colSize;
   int address;
   struct symbol* next;
 
@@ -18,11 +19,11 @@ struct symbol{
 
 // CREATING A NODE
 
-struct symbol* createNode(char* name,int type,int size);
+struct symbol* createNode(char* name,int type,int rowSize,int colSize);
 
 // ADDING IT TO LL
 
-void addSymbol(char* name,int type,int size);
+void addSymbol(char* name,int type,int rowSize,int colSize);
 
 
 // LOOKUP DETAILS BASED ON NAME

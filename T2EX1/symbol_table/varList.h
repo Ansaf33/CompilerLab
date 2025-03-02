@@ -7,15 +7,17 @@
 
 struct list{
   char* name;
-  int size;
+  int rowSize;
+  int colSize;
+
   struct list* next;
 };
 
-struct list* createVarNode(char* name,int size);
+struct list* createVarNode(char* name,int rowSize,int colSize);
 
 struct list* addVariable(struct list* head,char* name);
 
-struct list* addArray(struct list* head,char* name,int size);
+struct list* addArray(struct list* head,char* name,int rowSize,int colSize);
 
 void printDetails(struct list* head);
 
