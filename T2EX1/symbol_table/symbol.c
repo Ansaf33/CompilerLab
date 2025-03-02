@@ -29,7 +29,7 @@ void addSymbol(char* name,int type,int size){
 
   }
   else{
-    printf("Variable already declared.\n");
+    printf("Variable %s already declared.\n",name);
     exit(1);
   }
   

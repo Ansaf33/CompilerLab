@@ -96,7 +96,7 @@ int main(int argc,char* argv[]){
   run = 0;
   yyin = fopen(argv[1],"r");
   yylex();
-  printTable();
+  //printTable();
 
   // second run, replace the labels with addresses
 

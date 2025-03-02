@@ -228,7 +228,7 @@ void assignment_codeGen(FILE* f,struct TreeNode* root){
 
 void read_codeGen(FILE* f,struct TreeNode* root){
 
-  int memAddress = getSymbolAddress(root->left);;
+  int memAddress = getSymbolAddress(root->left);
 
   //char s[50];
   //snprintf(s,sizeof(s),"Enter %s : ", root->left->varname);
@@ -276,6 +276,7 @@ void read_codeGen(FILE* f,struct TreeNode* root){
   fprintf(f,"POP R%d\n",r1);
   fprintf(f,"POP R%d\n",r1);
   freeReg();
+
 
 
 }

@@ -6,6 +6,8 @@
 #include "AST.h"
 #include "reghandling.h"
 #include "evaluator.h"
+#include "symbol_table/symbol.h"
+#include "symbol_table/varList.h"
 
 
 struct TreeNode* root;
@@ -17,17 +19,19 @@ int yylex(void);
 void yyerror(char* s);
 
 
+
 %}
 
 %union{
   struct TreeNode* node;
   char* string;
   int integer;
+  struct list* list;
 
 
 
 }
-
+%type<list> VARLIST;
 %type<integer> TYPE
 %type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST REPEATST DOWHILEST IDENTIFIER CONSTANT
 %token STRING ID NUM PLUS MINUS MUL DIV EQUALS 
@@ -63,13 +67,8 @@ DL :
         ;
 
 D :
-     TYPE VARLIST ',' ID ';' {
-        addSymbol($<string>4,$1,1);
-        addSymbol($<string>2,$1,1);
-     }
-     |
-     TYPE ID ';' {
-        addSymbol($<string>2,$1,1);
+     TYPE VARLIST ';' {
+        addAllSymbols($2,$1,1);
      }
      ;
 
@@ -84,9 +83,13 @@ TYPE :
      ;
 
 VARLIST :
-        VARLIST ',' ID 
+        VARLIST ',' ID {
+          $$ = addVariable($1,$<string>3);
+        }
         |
-        ID 
+        ID {
+          $$ = addVariable(NULL,$<string>1);
+        }
         ;
 
 P :
@@ -263,6 +266,7 @@ OUTPUT :
 
 int main(int argc, char* argv[]){
 
+
 // --------------------------------- PARSING INPUT 
   FILE* f = fopen(argv[1],"r");
   yyin = f;
@@ -298,3 +302,4 @@ int main(int argc, char* argv[]){
 void yyerror(char* s){
   printf("ERROR:%s\n",s);
 }
+

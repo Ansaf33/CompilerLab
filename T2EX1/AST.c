@@ -19,12 +19,19 @@ bool typeSatisfied(struct TreeNode* root){
     }
     // if assigns, left should be an identifier (integer) and right should be integer
     else if( root->op == 4 ){
-
        return root->left->type == 0 && root->right->type == 0 || root->left->type == 2 && root->right->type == 2;
     }
     // if logical operators, left and right type should be the type for expressions (integer)
     else if( root->op >= 5 && root->op <= 10 ){
           return root->left->type == 0 && root->right->type == 0;
+   }
+    // if READ statement, left type should be integer/string
+    else if( root->op == 11 ){
+        return root->left->type == 0 || root->left->type == 2;
+   }
+   // if WRITE statement, left type should be integer/string
+    else if( root->op == 12 ){
+        return root->left->type == 0 || root->left->type == 2;
    }
     // if IF statement, condition type should be boolean
     else if( root->op == 14 ){
@@ -80,7 +87,7 @@ struct TreeNode* createOpNode(int type,int op,struct TreeNode* left,struct TreeN
   temp->symbol = NULL;
 
 
-  if( left && right ){ 
+  if( left  ){ 
     if(!typeSatisfied(temp)){
       printf("Operator Condition : Type not matching.\n");
       exit(1);
