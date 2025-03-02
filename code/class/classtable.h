@@ -37,4 +37,6 @@ void printClass(struct classtable* head);
 
 void checkDeclDef(struct classtable* c,struct typetable* type,char* name,struct paramlist* param);
 
+int getNoOfClasses(void);
+
 #endif

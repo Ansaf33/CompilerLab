@@ -105,6 +105,7 @@ struct TreeNode* createIdNode(char* varname,struct TreeNode* row,struct TreeNode
   temp->Gsymbol = lookGUp(varname);
   temp->Lsymbol = lookLUp(varname);
 
+
   // ------------------------- DECIDING LOCAL / GLOBAL / NOT DECLARED --------------
   
   if( temp->Lsymbol  ){ 
@@ -138,6 +139,7 @@ struct TreeNode* createIdNode(char* varname,struct TreeNode* row,struct TreeNode
   temp->left = NULL;
   temp->right = NULL;
   temp->middle = NULL;
+
 
 
   return temp;
@@ -292,6 +294,7 @@ struct TreeNode* createReturnNode(struct TreeNode* middle){
 struct TreeNode* addFieldToEnd(struct TreeNode* head,char* fieldName){
 
   // CANNOT ADD FIELDS TO OBJECT BECAUSE ENCAPSULATION
+  
   if( head->Ctype != NULL ){
     printf("Object | %s | cannot access members | %s | outside class.\n",head->varname,fieldName);
     exit(1);
@@ -303,6 +306,12 @@ struct TreeNode* addFieldToEnd(struct TreeNode* head,char* fieldName){
   while(cur->middle!=NULL){
     cur = cur->middle;
   }
+
+  // check if addMemberToEnd or addFieldToEnd
+  if( cur->Ctype ){
+    return addMemberToEnd(head,fieldName);
+  }
+
 
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
   temp->val = -1;
@@ -332,6 +341,40 @@ struct TreeNode* addFieldToEnd(struct TreeNode* head,char* fieldName){
 
 }
 
+// ---------------------------------------------------------------------------------------------------------------------- ADD MEMBER TO END
+
+struct TreeNode* addMemberToEnd(struct TreeNode* head,char* memberName){
+  struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+  temp->val = -1;
+  temp->string = NULL;
+  temp->op = -1;
+  temp->varname = NULL;
+
+  temp->fieldName = (char*)malloc(sizeof(char)*100);
+  strcpy(temp->fieldName,memberName);
+
+  // GO DOWN
+  struct TreeNode* cur = head;
+  while(cur->middle!=NULL){
+    cur = cur->middle;
+  }
+
+  // CHECK CUR's CTYPE
+  struct classtable* Ctype = cur->Ctype;
+  // CHECK MEMBERLIST AND FIND memberName
+  struct classmember* memberInList = lookMemberInClassUp(Ctype,memberName);
+
+  if( memberInList == NULL ){
+    printf("Member | %s | is not present in class of type | %s |\n",memberName,Ctype->name);
+    exit(1);
+  }
+
+  cur->middle = temp;
+  temp->Ctype = memberInList->Ctype;
+
+  return head;
+}
+
 // -------------------------------------------------------------------------------------------------------------------------- ADD METHOD TO END 
 
 struct TreeNode* addMethodToEnd(struct TreeNode* head,char* name,struct TreeNode* argList){
@@ -354,8 +397,9 @@ struct TreeNode* addMethodToEnd(struct TreeNode* head,char* name,struct TreeNode
   struct paramlist* c = cm->param;
   struct TreeNode* a = argList;
   while(c && a){
-    if(c->type!=a->type){
-      printf("Argument type | %s | does not match with declared type | %s | for function | %s |\n",a->type->name,c->type->name,name);
+    
+    if( !same(c->type->name,getName(a) ) ){
+      printf("Argument type | %s | does not match with declared type | %s | for function | %s |\n",getName(a),c->type->name,name);
       exit(1);
     }
     c = c->next;
@@ -367,7 +411,6 @@ struct TreeNode* addMethodToEnd(struct TreeNode* head,char* name,struct TreeNode
   }
   // ------------------------- CHECKING DONE -------------------------------------------
 
-
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
   temp->val = -1;
   temp->op = -1;
@@ -378,6 +421,7 @@ struct TreeNode* addMethodToEnd(struct TreeNode* head,char* name,struct TreeNode
   temp->argList = argList;
 
   cur->middle = temp;
+
 
 
   return head;
@@ -470,9 +514,6 @@ struct TreeNode* createSelfNode(struct classtable* c,char* name,struct TreeNode*
   middle->val = -1;
   middle->op = -1;
 
-  middle->fieldName = (char*)malloc(sizeof(char)*100);
-  strcpy(middle->fieldName,name);
-
   struct classmember* member = lookMemberInClassUp(c,name);
   struct classmethod* method = lookMethodInClassUp(c,name);
 
@@ -483,16 +524,22 @@ struct TreeNode* createSelfNode(struct classtable* c,char* name,struct TreeNode*
   }
 
   if( method != NULL ){
+    middle->methodName = (char*)malloc(sizeof(char)*100);
+    strcpy(middle->methodName,name);
     middle->argList = argList;
     middle->type = method->type;
   }
 
   else if( member != NULL ){
+    middle->fieldName = (char*)malloc(sizeof(char)*100);
+    strcpy(middle->fieldName,name);
     middle->type = member->type;
     middle->Ctype = member->Ctype;
   }
 
   temp->middle = middle;
+
+
 
   return temp;
 }

@@ -15,7 +15,7 @@ int in;
 %%
 
 
-[LF][0-9]+":""\n" {
+[MLF][0-9]+":""\n" {
 
   // THIS IS THE LINE WE WANT TO REPLACE WITH THE JMP STATEMENT (EASY TO IMPLEMENT)
 
@@ -43,7 +43,7 @@ int in;
 
 }
 
-[LF][0-9]+"\n" {
+[MLF][0-9]+"\n" {
 
   // THIS IS THE LINE TYPICALLY FOUND WITH "JNZ R1 L0" TYPE STATEMENTS
 

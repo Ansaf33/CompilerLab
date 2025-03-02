@@ -28,5 +28,8 @@ bool paramPresent(struct paramlist* head,char* name);
 
 void printParameters(struct paramlist* head);
 
+// GETTING SIZE OF PARAMLIST
+
+int getParamSize(struct paramlist* head);
 
 #endif

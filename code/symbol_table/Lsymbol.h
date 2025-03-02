@@ -5,12 +5,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include "paramlist.h"
+#include "../class/classtable.h"
 
 struct Lsymbol{
   char* name;
   struct typetable* type;
   int binding;
   struct Lsymbol* next;
+
+  // only for self
+  struct classtable* Ctype;
 };
 
 // CREATING NODE
@@ -40,5 +44,9 @@ struct Lsymbol* getLHead(void);
 // DELETING LOCALSYMBOL TABLE
 
 void deleteLSymbolTable(void);
+
+// ADDING SELF
+
+void addSelfToLSymbolTable(struct classtable* c,int n);
 
 #endif

@@ -123,7 +123,7 @@ FieldDeclList :
 
 
 ClassDefBlock :
-              BEGINCLASS ClassDefList ENDCLASS
+              BEGINCLASS ClassDefList ENDCLASS 
               |
               ;
 
@@ -179,11 +179,19 @@ MethodDefList :
 
 MethodDef :
           TYPE ID '(' ParamList ')' '{' LdeclBlock Body '}' {
+
           checkDeclDef(C,lookTTUp($1),$<string>2,$4);
 
+          int size = getParamSize($4);
+          addSelfToLSymbolTable(C,size);
+
+          getLSymbolTable();
+
+          define_method_codeGen(xsm,C,$<string>2,$8);
 
           deleteLSymbolTable();
           }
+          ;
 
 
 GdeclBlock :
@@ -203,6 +211,9 @@ GdeclList :
 
 Gdecl :
      TYPE GidList ';' {
+          if( !lookGUp("main") ){
+              addGSymbol("main",lookTTUp("int"),NULL,1,1,NULL,1); 
+          }
           addAllGSymbols($2,lookTTUp($1),lookClassUp($1));
      }
      ;
@@ -236,6 +247,7 @@ GidList :
         |
         GidList ',' ID '(' ParamList ')' {
           $$ = addFunction($1,$<string>3,$5);
+          deleteLSymbolTable();
         }
         |
         ID {
@@ -278,7 +290,6 @@ Fdef :
      // CHECK IF RETURN TYPES OF DECLARED AND DEFINED FUNCTIONS ARE VALID
      checkValidRetType(lookTTUp($1),$<string>2);
      // ---------------------------------------- CHECKING DONE --------------------------------------------------------------
-
  
      define_function_codeGen(xsm,$<string>2,$8);
 
@@ -301,7 +312,6 @@ ParamList :
            {
            $$ = NULL;
           }
-
           ;
 
 LdeclBlock :
@@ -350,9 +360,7 @@ MainBlock :
           // DELETING LOCAL SYMBOL TABLE OF MAINN
           deleteLSymbolTable();
 
-
           }
-
 
 Body :
   BEG SL END ';' {
@@ -408,7 +416,7 @@ S :
     $<node>$ = createFreeNode($3);
   }
   |
-  DELETE '(' FIELD ')' ';' {
+  DELETE '(' IDENTIFIER ')' ';' {
     $<node>$ = createDeleteNode($3);
   }
   ;
@@ -566,7 +574,6 @@ FIELD :
 FIELDFUNCTION :
               SELF '.' ID '(' ArgList ')' {
               $$ = createSelfNode(C,$<string>3,$5);
-              $$ = addMethodToEnd($$,$<string>3,$5);
               }
               |
               ID '.' ID '(' ArgList ')' {
@@ -575,12 +582,11 @@ FIELDFUNCTION :
               }
               |
               FIELD '.' ID '(' ArgList ')' {
-                $$ = addMethodToEnd($1,$<string>3,$5);
+              $$ = addMethodToEnd($1,$<string>3,$5);
               }
               |
               SELF '.' ID '(' ')' {
               $$ = createSelfNode(C,$<string>3,NULL);
-              $$ = addMethodToEnd($$,$<string>3,NULL);
               }
               |
               ID '.' ID '(' ')' {
@@ -656,7 +662,7 @@ int main(int argc, char* argv[]){
 
   //SOME INITIAL STUFF
   createPrimitive();
-  addGSymbol("main",lookTTUp("int"),NULL,1,1,NULL,1);
+
 
   FILE* f = fopen(argv[1],"r");
   yyin = f;
@@ -677,7 +683,6 @@ void yyerror(char* s){
 
 void initxsm(FILE* f){
   fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
-  fprintf(xsm,"BRKP\n");
   fprintf(xsm,"MOV SP, 4500\n");
   fprintf(xsm,"MOV BP, SP\n");
   fprintf(xsm,"JMP F0\n"); 
@@ -685,6 +690,11 @@ void initxsm(FILE* f){
 
 void endxsm(FILE* f){
           fprintf(xsm,"JMP L51\n");
+
+          // FIX ISSUE
+          fprintf(xsm,"L53:\n");
+          getInput(xsm,"cmcant");
+          fprintf(xsm,"INT 10\n");
 
           // NO MEMORY ALLOCATED
           fprintf(xsm,"L52:\n");

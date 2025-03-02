@@ -42,7 +42,6 @@ struct classmethod* addMethodNode(struct classmethod* head,struct typetable* typ
 
   if( head == NULL ){
     methodPos = 0;
-    mLabel = 0;
   }
  
   struct classmethod* temp = createMethodNode(type,name,param);
@@ -77,7 +76,7 @@ struct classmethod* lookMethodUp(struct classmethod* head,char* name){
 void printClassMethods(struct classmethod* head){
   struct classmethod* cur = head;
   while(cur!=NULL){
-    printf(" | name : %s | type : %s | hasParams : %d | methodPos : %d | mLabel : %d | \n",
+    printf(" | name : %s | type : %s | hasParams : %d | methodPos : %d | mLabel : %d |",
            cur->name,
            cur->type->name,
            cur->param?1:0,
@@ -89,4 +88,13 @@ void printClassMethods(struct classmethod* head){
   }
 }
 
-
+// NUMBER OF ARGUMENTS
+int argCount(struct classmethod* head){
+  struct classmethod* temp = head;
+  int c = 0;
+  while(temp){
+    temp = temp->next;
+    c++;
+  }
+  return c;
+}

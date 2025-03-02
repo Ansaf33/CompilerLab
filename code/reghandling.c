@@ -2,10 +2,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
 #include "AST.h"
+
 #include "symbol_table/Gsymbol.h"
 #include "symbol_table/Lsymbol.h"
+
 #include "udt/fieldlist.h"
+
+#include "class/classtable.h"
+#include "class/classmember.h"
 
 // DEFINTIONS
 #define NOR 20
@@ -17,44 +23,167 @@
 
 
 
+// GLOBAL VARIABLE TO CHECK WHICH CLASS WE ARE IN
+struct classtable* class = NULL;
 // INITIALLY, NO REGISTERS ARE USED
 static int highestUsedReg = -1;
 // INITIALLY, NO LABELS ARE USED
 static int highestUsedLabel = -1;
 
-// --------------------------------------------------------- GET SYMBOL ADDRESS
+// --------------------------------------------------------------------------------------------- CHECK IF LAST MIDDLE IS A MEMBER
 
-int getSymbolAddress(FILE* f,struct TreeNode* root){
-
-  // CONTAINS ADDRESS
-
-  int adReg = getReg();
-  if( root->Lsymbol ){
-    fprintf(f,"MOV R%d, %d\n",adReg,root->Lsymbol->binding);
-    fprintf(f,"ADD R%d, BP\n",adReg);
+void checkLastMember(struct TreeNode* root){
+  struct TreeNode* cur = root;
+  int c = 1;
+  while(cur->middle){
+    cur = cur->middle;
+    c++;
   }
-  else{
-    fprintf(f,"MOV R%d, %d\n",adReg,root->Gsymbol->binding);
+  if( cur->methodName == NULL && c > 2 ){
+    printf("Cannot access members of a class\n");
+    exit(1);
   }
-
-  // ----- FOR VARIABLES AND ARRAYS ----
-
-  if( root->column ){
-    
-    int b = getReg();
-    fprintf(f,"MOV R%d, %d\n",b,0);
+}
 
 
-    if( root->row ){
-      int exprReg = arithmetic_expression_codeGen(f,root->row);
+// --------------------------------------------------------------------------------------------- ROW OVERFLOW CHECK
 
-      // ------------------------ ROW OVERFLOW HERE ITSELF -----------------------
+void rowOverflowCheck(FILE* f,int exprReg,struct TreeNode* root){
       int rReg = getReg();
       fprintf(f,"MOV R%d, %d\n",rReg,root->Gsymbol->rowSize);
       fprintf(f,"LE R%d, R%d\n",rReg,exprReg);
       fprintf(f,"JNZ R%d, L50\n",rReg);
       freeReg();
-      // ------------------------ END OVERFLOW CHECK -----------------------------
+}
+
+// ---------------------------------------------------------------------------------------------- COLUMN OVERFLOW CHECK
+
+void columnOverflowCheck(FILE* f,int resReg,struct TreeNode* root){
+    int cReg = getReg();
+    fprintf(f,"MOV R%d, %d\n",cReg,root->Gsymbol->colSize);
+    fprintf(f,"LE R%d, R%d\n",cReg,resReg);
+    fprintf(f,"JNZ R%d, L50\n",cReg);
+    freeReg();
+}
+
+// ----------------------------------------------------------------------------------------------- GET ADDRESS OF FIELD MEMBER
+
+void fieldMemberAddress(FILE* f,int adReg,struct TreeNode* root){
+      int dynamic_start = getReg();
+      fprintf(f,"MOV R%d, [R%d]\n",dynamic_start,adReg);
+
+      // -------- CHECK IF IT IS 0, IF IT IS, THEN ERR ------------
+      int zReg = getReg();
+      fprintf(f,"MOV R%d, %d\n",zReg,0);
+      fprintf(f,"EQ R%d, R%d\n",zReg,dynamic_start);
+      fprintf(f,"JNZ R%d, L52\n",zReg);
+      freeReg();
+      // ----------- CHECKING DONE -------------------------------
+      struct TreeNode* cur = root;
+
+      // IF FIELD MEMBERS EXIST THAT ARE NOT PRIMITIVE
+      while( cur->middle && !same(cur->type->name,"int") && !same(cur->type->name,"str") ){
+        struct fieldlist* fieldlist = cur->type->fieldlist;
+        cur = cur->middle;
+
+        // CALCULATE OFFSET AND ADD IT TO STARTING ADDRESS
+        struct fieldlist* curField = lookFLUp(fieldlist,cur->fieldName);
+        int offset = 1 + curField->fieldIndex;
+        fprintf(f,"ADD R%d, %d\n",dynamic_start,offset);
+
+        // JUMPNG CONDITION
+        if( cur->middle ){
+          fprintf(f,"MOV R%d, [R%d]\n",dynamic_start,dynamic_start);
+        }
+
+      }
+      fprintf(f,"MOV R%d, R%d\n",adReg,dynamic_start);
+
+      // FREE DYNAMIC START REGISTER
+      freeReg();
+}
+
+// ---------------------------------------------------------------------------------------- GET ADDRESS OF CLASS MEMBER
+
+void classMemberAddress(FILE* f,int adReg,struct TreeNode* root){
+
+  int dynamic_start = getReg();
+  fprintf(f,"MOV R%d, [R%d]\n",dynamic_start,adReg);
+
+  // -------- CHECK IF IT IS 0, IF IT IS, THEN ERR ------------
+  int zReg = getReg();
+  fprintf(f,"MOV R%d, %d\n",zReg,0);
+  fprintf(f,"EQ R%d, R%d\n",zReg,dynamic_start);
+  fprintf(f,"JNZ R%d, L53\n",zReg);
+  freeReg();
+  // ----------- CHECKING DONE -------------------------------
+
+  struct TreeNode* cur = root;
+
+  // IF CLASS MEMBERS EXIST THAT ARE OF CLASS TYPE
+  while( cur->middle && cur->Ctype != NULL && cur->middle->methodName == NULL ){
+
+    cur = cur->middle;
+
+    // CALCULATE OFFSET AND ADD IT TO STARTING ADDRESS
+    struct classmember* nextMember = lookMemberInClassUp(class,cur->fieldName);
+    int offset = 1 + nextMember->memberIndex;
+    fprintf(f,"ADD R%d, %d\n",dynamic_start,offset);
+
+    // JUMPING CONDITION
+    if( cur->middle ){
+      fprintf(f,"MOV R%d, [R%d]\n",dynamic_start,dynamic_start);
+    }
+
+  }
+
+  fprintf(f,"MOV R%d, R%d\n",adReg,dynamic_start);
+  freeReg();
+
+}
+
+
+// ------------------------------------------------------------------------------------------------------------------ GET SYMBOL ADDRESS FOR SELF
+
+void getSelfAddress(FILE* f,int adReg,struct TreeNode* root){
+
+  struct Lsymbol* local = lookLUp("self");
+  fprintf(f,"MOV R%d, %d\n",adReg,local->binding);
+  fprintf(f,"ADD R%d, BP\n",adReg);
+
+}
+
+
+// ------------------------------------------------------------------------------------------------------------------- GET SYMBOL ADDRESS (MAIN FUNC)
+
+int getSymbolAddress(FILE* f,struct TreeNode* root){
+
+  int adReg = getReg();
+
+  // IF SELF, CALL ANOTHER FUNCTION
+  if( root->varname && strcmp(root->varname,"self") == 0 ){
+    getSelfAddress(f,adReg,root);
+  }
+
+  if( root->Lsymbol ){
+      // if other local variables
+      fprintf(f,"MOV R%d, %d\n",adReg,root->Lsymbol->binding);
+      fprintf(f,"ADD R%d, BP\n",adReg);
+  }
+  else if( root->Gsymbol ){
+      fprintf(f,"MOV R%d, %d\n",adReg,root->Gsymbol->binding);
+  } 
+
+  // ---------------------------- FOR VARIABLES AND ARRAYS --------------------------
+  if( root->column ){
+
+    int b = getReg();
+    fprintf(f,"MOV R%d, %d\n",b,0);
+
+    if( root->row ){
+      int exprReg = arithmetic_expression_codeGen(f,root->row);
+
+      rowOverflowCheck(f,exprReg,root);
 
       fprintf(f,"ADD R%d, R%d\n",b,exprReg);
       freeReg();
@@ -66,69 +195,32 @@ int getSymbolAddress(FILE* f,struct TreeNode* root){
 
     int resReg = arithmetic_expression_codeGen(f,root->column);
 
-    // ---------------------- COLUMN OVERFLOW HERE ITSELF --------------------------
-    int cReg = getReg();
-    fprintf(f,"MOV R%d, %d\n",cReg,root->Gsymbol->colSize);
-    fprintf(f,"LE R%d, R%d\n",cReg,resReg);
-    fprintf(f,"JNZ R%d, L50\n",cReg);
-    freeReg();
-    // ----------------------- END OVERFLOW CHECK ----------------------------------
+    columnOverflowCheck(f,resReg,root);
+
     fprintf(f,"ADD R%d, R%d\n",adReg,resReg);
     freeReg();   
   }
 
-  // --- FOR FIELD MEMBERS ----  
+  // ------------------------------------ FOR FIELD MEMBERS / CLASS MEMBERS  --------------------------
+  
 
-  else if( root->middle != NULL ){
-    int dynamic_start = getReg();
-    fprintf(f,"MOV R%d, [R%d]\n",dynamic_start,adReg);
-
-    // -------- CHECK IF IT IS 0, IF IT IS, THEN ERR ------------
-    int zReg = getReg();
-    fprintf(f,"MOV R%d, %d\n",zReg,0);
-    fprintf(f,"EQ R%d, R%d\n",zReg,dynamic_start);
-    fprintf(f,"JNZ R%d, L52\n",zReg);
-    freeReg();
-    // ----------- CHECKING DONE -------------------------------
-
-
-    struct TreeNode* cur = root;
-
-    // IF FIELD MEMBERS EXIST THAT ARE NOT PRIMITIVE
-    while( cur->middle && !same(cur->type->name,"int") && !same(cur->type->name,"str") ){
-
-
-      struct fieldlist* fieldlist = cur->type->fieldlist;
-        
-    
-      // CALCULATE OFFSET AND ADD IT TO STARTING ADDRESS
-      cur = cur->middle;
-      struct fieldlist* curField = lookFLUp(fieldlist,cur->fieldName);
-      int offset = 1 + curField->fieldIndex;
-      fprintf(f,"ADD R%d, %d\n",dynamic_start,offset);  
-
-      // JUMPNG CONDITION
-      if( cur->middle ){
-        fprintf(f,"MOV R%d, [R%d]\n",dynamic_start,dynamic_start);
-      }
-      
+  if( root->middle != NULL ){
+    // user defined field member access
+    if( root->Ctype == NULL ){
+      fieldMemberAddress(f,adReg,root);
     }
-
-    fprintf(f,"MOV R%d, R%d\n",adReg,dynamic_start);
-
-    // FREE DYNAMIC START REGISTER
-    freeReg();
+    // class type field member
+    else{
+      classMemberAddress(f,adReg,root);
+    }
 
   }
 
-
-
   return adReg;
  
-
 }
 
-// --------------------------------------------------------- GET LABEL FUNCTION
+// ------------------------------------------------------------------------------------------------------------------------ GET LABEL FUNCTION
 
 int getLabel(void){
   ++highestUsedLabel;
@@ -136,7 +228,7 @@ int getLabel(void){
 }
 
 
-// ---------------------------------------------------------- GET REG FUNCTION
+// --------------------------------------------------------------------------------------------------------------------------- GET REG FUNCTION
 
 int getReg(void){
   // FIRST CHECK IF ANY REGISTER IS FREE
@@ -155,7 +247,7 @@ bool checkLeak(){
   }
 }
 
-// ----------------------------------------------------------- FREE REG FUNCTION
+// -------------------------------------------------------------------------------------------------------------------------- FREE REG FUNCTION
 
 void freeReg(){
   // CHECK IF ALL REGISTERS ARE FREE
@@ -169,7 +261,7 @@ void freeReg(){
 
 }
 
-// ----------------------------------------------------------- PRINTING SOMETHING IN CONSOLE 
+// ------------------------------------------------------------------------------------------------------------- PRINTING SOMETHING IN CONSOLE 
 
 void getInput(FILE* f,char* s){
 
@@ -216,7 +308,7 @@ void getInput(FILE* f,char* s){
 }
 
 
-// --------------------------------------------------------- CODE GENERATION FOR ARITHMETIC EXPRESSIONS ( E )
+// ---------------------------------------------------------------------------------------------- CODE GENERATION FOR ARITHMETIC EXPRESSIONS ( E )
 
 int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
 
@@ -240,23 +332,53 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
         struct Gsymbol* global = lookGUp(root->varname);
         struct Lsymbol* local = lookLUp(root->varname);
 
-
         // IF IT IS NULL
         if( strcmp(root->varname,"null") == 0 ){
           fprintf(f,"MOV R%d, %d\n",regIdx,0);
         }
 
-
         // IF VARIABLE, MOVE IT FROM MEMORY TO REGISTER
       
         else if( local || global->flabel == -1 ){
-          int memlocationReg = getSymbolAddress(f,root);
-          fprintf(f, "MOV R%d, [R%d]\n",regIdx,memlocationReg);
-          freeReg();
+          // local variable
+          if( root->type != NULL ){
+            int memlocationReg = getSymbolAddress(f,root);
+            fprintf(f, "MOV R%d, [R%d]\n",regIdx,memlocationReg);
+            freeReg();
+          }
+
+          // class type
+          else if( root->Ctype != NULL ){
+
+            checkLastMember(root);
+
+            // check if it leads to a method
+            struct TreeNode* parent = root;
+            struct TreeNode* child = root->middle;
+            while(child->middle){
+              parent = child;
+              child = child->middle;
+            }
+
+            // IF IT LEADS TO A METHOD
+            if( child->methodName ){
+              int retReg = invoke_method_codeGen(f,root);
+              fprintf(f,"MOV R%d, R%d\n",regIdx,retReg);
+              freeReg();
+            }
+            
+            // IF IT LEADS TO A MEMBER
+            else{
+              int memlocationReg = getSymbolAddress(f,root);
+              fprintf(f,"MOV R%d, [R%d]\n",regIdx,memlocationReg);
+              freeReg();
+            }
+          
+          }
+
         }
 
         // IF FUNCTION, WRITE CODEGEN FOR THE FUNCTION AND STORE IT IN REGISTER
-
         else if( global->flabel >= 0 ){
           int retReg = invoke_function_codeGen(f,root);
           fprintf(f,"MOV R%d, R%d\n",regIdx,retReg);
@@ -278,7 +400,7 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
         fprintf(f,"MOV R%d, R%d\n",regIdx,retReg);
         freeReg();
       }
-
+ 
       return regIdx;
     }
 
@@ -308,7 +430,7 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
 
 }
 
-// -------------------------------------------------------------------- CODE GENERATION FOR BOOLEAN EXPRESSIONS ( E < E )
+// ---------------------------------------------------------------------------------------------- CODE GENERATION FOR BOOLEAN EXPRESSIONS ( E < E )
 
 int boolean_expression_codeGen(FILE* f,struct TreeNode* root){
 
@@ -347,7 +469,7 @@ int boolean_expression_codeGen(FILE* f,struct TreeNode* root){
 }
 
 
-// -------------------------------------------------------------------- CODE GENERATION FOR ASSIGNMENTS ( a = 3*4+7 )
+// ------------------------------------------------------------------------------------------------------ CODE GENERATION FOR ASSIGNMENTS ( a = 3*4+7 )
 
 void assignment_codeGen(FILE* f,struct TreeNode* root){
 
@@ -361,12 +483,9 @@ void assignment_codeGen(FILE* f,struct TreeNode* root){
   fprintf(f,"MOV R%d, R%d\n",r1,memAddressReg);
   freeReg();
 
-
   int fReg = arithmetic_expression_codeGen(f,root->right);
-
   // move the contents of fReg to memory location specified by r1
   fprintf(f,"MOV [R%d], R%d\n",r1, fReg);
-
   // freeing expression register
   freeReg();
   // freeing r1
@@ -375,7 +494,7 @@ void assignment_codeGen(FILE* f,struct TreeNode* root){
   checkLeak();
 }
 
-// ----------------------------------------------------------------------CODE GENERATION FOR READ OPERATIONS
+// --------------------------------------------------------------------------------------------------------------- CODE GENERATION FOR READ OPERATIONS
 
 void read_codeGen(FILE* f,struct TreeNode* root){
 
@@ -428,7 +547,7 @@ void read_codeGen(FILE* f,struct TreeNode* root){
 
 }
 
-// --------------------------------------------------------- CODE GENERATION FOR WRITE ASSIGNMENTS
+// ----------------------------------------------------------------------------------------------------------- CODE GENERATION FOR WRITE ASSIGNMENTS
 
 void write_codeGen(FILE* f,struct TreeNode* root){
 
@@ -449,6 +568,7 @@ void write_codeGen(FILE* f,struct TreeNode* root){
   // pushing R -> argument 2 (data)
 
   int R = arithmetic_expression_codeGen(f,root->left);
+
   fprintf(f,"PUSH R%d\n",R);
   // freeing the register storing the result of the expression
   freeReg();
@@ -478,7 +598,7 @@ void write_codeGen(FILE* f,struct TreeNode* root){
 
 }
 
-// ------------------------------------------------------------- CODE GENERATION FOR IF STATEMENTS
+// -------------------------------------------------------------------------------------------------------------- CODE GENERATION FOR IF STATEMENTS
 
 void if_codeGen(FILE* f,struct TreeNode* root,int bl,int cl){
 
@@ -505,7 +625,7 @@ void if_codeGen(FILE* f,struct TreeNode* root,int bl,int cl){
 
 }
 
-// ------------------------------------------------------------- CODE GENERATION FOR WHILE LOOPS
+// ----------------------------------------------------------------------------------------------------------------- CODE GENERATION FOR WHILE LOOPS
 
 void while_codeGen(FILE* f,struct TreeNode* root){
 
@@ -536,7 +656,7 @@ void while_codeGen(FILE* f,struct TreeNode* root){
   
 }
 
-// ------------------------------------------------------------- CODE GENERATION FOR BREAK STATEMENT
+// -------------------------------------------------------------------------------------------------------------- CODE GENERATION FOR BREAK STATEMENT
 
 void break_codeGen(FILE* f,struct TreeNode* root,int label){
   if(label!=-1){
@@ -545,7 +665,7 @@ void break_codeGen(FILE* f,struct TreeNode* root,int label){
 
 }
 
-// ------------------------------------------------------------- CODE GENERATION FOR CONTINUE STATEMENT
+// ----------------------------------------------------------------------------------------------------------- CODE GENERATION FOR CONTINUE STATEMENT
 
 void continue_codeGen(FILE* f,struct TreeNode* root,int label){
   if(label!=-1){
@@ -554,7 +674,7 @@ void continue_codeGen(FILE* f,struct TreeNode* root,int label){
 
 }
 
-// ------------------------------------------------------------- CODE GENERATION FOR REPEAT STATEMENT
+// -------------------------------------------------------------------------------------------------------------- CODE GENERATION FOR REPEAT STATEMENT
 
 void repeat_codeGen(FILE* f,struct TreeNode* root){
 
@@ -582,7 +702,7 @@ void repeat_codeGen(FILE* f,struct TreeNode* root){
 
 }
 
-// ------------------------------------------------------------- CODE GENERATION FOR DO-WHILE STATEMENT
+// ----------------------------------------------------------------------------------------------------------- CODE GENERATION FOR DO-WHILE STATEMENT
 
 void dowhile_codeGen(FILE* f,struct TreeNode* root){
 
@@ -610,9 +730,11 @@ void dowhile_codeGen(FILE* f,struct TreeNode* root){
 }
 
 
-// ------------------------------------------------------------- CODE GEN WHEN FUNCTION IS INVOKED
+// ---------------------------------------------------------------------------------------------------------------- CODE GEN WHEN FUNCTION IS INVOKED
 
 int invoke_function_codeGen(FILE* f,struct TreeNode* root){
+
+
 
   // PUSH USED REGISTERS
   pushRegisters(f);
@@ -643,7 +765,7 @@ int invoke_function_codeGen(FILE* f,struct TreeNode* root){
 
 }
 
-// ------------------------------------------------------------- CODE GEN WHEN FUNCTION IS DEFINED
+// ---------------------------------------------------------------------------------------------------------------- CODE GEN WHEN FUNCTION IS DEFINED
 
 void define_function_codeGen(FILE* f,char* name,struct TreeNode* root){
 
@@ -676,7 +798,7 @@ void define_function_codeGen(FILE* f,char* name,struct TreeNode* root){
 
 }
 
-// ------------------------------------------------------------- CODE GEN WHEN RETURN IS ENCOUNTERED
+// -------------------------------------------------------------------------------------------------------------- CODE GEN WHEN RETURN IS ENCOUNTERED
 
 void return_codeGen(FILE* f,struct TreeNode* root){
 
@@ -732,7 +854,7 @@ void return_codeGen(FILE* f,struct TreeNode* root){
 }
 
 
-// ------------------------------------------------------------- PUSH ALL REGISTERS
+// --------------------------------------------------------------------------------------------------------------------------- PUSH ALL REGISTERS
 
 void pushRegisters(FILE* f){
   for(int i=0;i<=highestUsedReg;i++){
@@ -740,7 +862,7 @@ void pushRegisters(FILE* f){
   }
 }
 
-// ------------------------------------------------------------- POP ALL REGISTERS (in reverse order since we pushed inside stack)
+// --------------------------------------------------------------------------------- POP ALL REGISTERS (in reverse order since we pushed inside stack)
 
 void popRegisters(FILE* f){
   for(int i=highestUsedReg-1;i>=0;i--){
@@ -749,7 +871,7 @@ void popRegisters(FILE* f){
 
 }
 
-// ----------------------------------------------------------- PUSH ARGUMENTS TO STACK
+// ----------------------------------------------------------------------------------------------------------------------- PUSH ARGUMENTS TO STACK
 
 void pushArgs(FILE* f,struct TreeNode* head){
   if( head == NULL ){
@@ -763,7 +885,7 @@ void pushArgs(FILE* f,struct TreeNode* head){
   
 }
 
-// ----------------------------------------------------------- POP ARGUMENTS FROM STACK
+// ------------------------------------------------------------------------------------------------------------------------- POP ARGUMENTS FROM STACK
 
 void popArgs(FILE* f,struct TreeNode* head){
   struct TreeNode* cur = head;
@@ -779,7 +901,7 @@ void popArgs(FILE* f,struct TreeNode* head){
 
 }
 
-// ------------------------------------------------------------ INITIALIZE CODEGEN ( IMPLEMENTED IN LIBRARY )
+// ----------------------------------------------------------------------------------------------------- INITIALIZE CODEGEN ( IMPLEMENTED IN LIBRARY )
 
 int initialize_codeGen(FILE* f){
   fprintf(f,"BRKP\n");
@@ -800,15 +922,18 @@ int initialize_codeGen(FILE* f){
 
   popRegisters(f);
 
+  fprintf(f,"BRKP\n");
+
   return returnReg;
 }
 
-// ------------------------------------------------------------ CODE GEN FOR ALLOC() FUNCTION
+// ------------------------------------------------------------------------------------------ CODE GEN FOR ALLOC() FUNCTION ( IMPLEMENTED IN LIBRARY )
 
 int alloc_codeGen(FILE* f){
 
   // PUSH USED REGISTERS TO STACK
   fprintf(f,"BRKP\n");
+
   pushRegisters(f);
 
   // PUSH EMPTY REGISTER FOR RETURN VALUE ( ADDRESS )
@@ -824,10 +949,12 @@ int alloc_codeGen(FILE* f){
   // POP USED REGISTERS FROM STACK
   popRegisters(f);
 
+  fprintf(f,"BRKP\n");
+
   return returnReg;
 }
 
-// ------------------------------------------------------------- CODE GEN FOR FREE ( ID ) FUNCTION
+// ------------------------------------------------------------------------------------------------------------------ CODE GEN FOR FREE ( ID ) FUNCTION
 
 
 void free_codeGen(FILE* f,struct TreeNode* root){
@@ -867,11 +994,13 @@ void free_codeGen(FILE* f,struct TreeNode* root){
 
 
   // FREE THE RETURN VALUE REGISTER
+  //
+  fprintf(f,"BRKP\n");
   freeReg();
 
 }
 
-// ------------------------------------------------------------------- CHECK IF HEAP MEMORY WAS ALLOCATED FOR THE ID
+// --------------------------------------------------------------------------------------------------- CHECK IF HEAP MEMORY WAS ALLOCATED FOR THE ID
 
 void checkIfAllocated(FILE* f,int ptrReg){
   int addReg = getReg();
@@ -885,7 +1014,157 @@ void checkIfAllocated(FILE* f,int ptrReg){
   
 }
 
-// ------------------------------------------------------------------- MAIN CODEGEN FUNCTION
+// ----------------------------------------------------------------------------------------------------------------------- NEW CODEGEN
+
+void new_codeGen(FILE* f,struct TreeNode* root){
+
+  fprintf(f,"BRKP\n");
+  // get the virtual function table's starting address
+  int classIndex = lookClassUp(root->right->middle->varname)->classIndex;
+  int vft = 4096 + classIndex*8;
+
+  // call VFT codeGen
+  vft_codeGen(f,root,vft);
+
+  // get the symbol address of the object
+  int adReg = getSymbolAddress(f,root->left);
+
+  // get the allocated heap address for member field
+  int allocReg = alloc_codeGen(f);
+
+  fprintf(f,"MOV [R%d], R%d\n",adReg,allocReg);
+  fprintf(f,"ADD R%d, %d\n",adReg,1);
+  fprintf(f,"MOV [R%d], %d\n",adReg,vft);
+
+  // free allocReg
+  freeReg();
+  // free adReg
+  freeReg();
+
+  fprintf(f,"BRKP\n");
+
+}
+
+// ------------------------------------------------------------------------------------------------------------------------ FILL VFT CODEGEN
+
+void vft_codeGen(FILE* f,struct TreeNode* root,int vft_start){
+
+  // get access to classmethods of the class
+  struct classmethod* methodlist = lookClassUp(root->right->middle->varname)->classmethod;
+  int adr = vft_start;
+
+  // filling the virtual function table with labels of the methods
+  struct classmethod* cur = methodlist;
+  while(cur!=NULL){
+    //printf("MOV [%d], M%d\n",adr,cur->mLabel);
+    fprintf(f,"MOV [%d], M%d\n",adr,cur->mLabel);
+    adr++;
+    cur = cur->next;
+  }
+
+}
+
+// -------------------------------------------------------------------------------------------------------------------------- INVOKE METHOD CODEGEN
+
+int invoke_method_codeGen(FILE* f,struct TreeNode* root){
+
+  // push used registers
+  pushRegisters(f);
+
+  // get the address of the method in VFT
+  struct classtable* c = root->Ctype;
+
+  struct TreeNode* head = root;
+
+  while(root->middle->methodName == NULL ){
+    root = root->middle;
+    c = root->Ctype;
+  }
+
+  struct classmethod* method = lookMethodInClassUp(c,root->middle->methodName);
+  int methodAddress = 4096 + (c->classIndex)*8 + method->methodPos;
+
+
+  // pushing member field pointer
+  int adReg = getSymbolAddress(f,head);
+  //int dynamicReg = getReg();
+  //fprintf(f,"MOV R%d, [R%d]\n",dynamicReg,adReg);
+  fprintf(f,"PUSH R%d\n",adReg);
+  //freeReg();
+  freeReg();
+
+
+  // pushing virtual function table pointer
+  int vft = 4096 + (c->classIndex)*8;
+  int vftReg = getReg();
+  fprintf(f,"MOV R%d, %d\n",vftReg,vft);
+  fprintf(f,"PUSH R%d\n",vftReg);
+  freeReg();
+
+  // push arguments
+  pushArgs(f,root->middle->argList);
+
+  // push register for return value
+  fprintf(f,"PUSH R0\n");
+
+  // move the contents of the VFT (label) to a register
+  int labelReg = getReg();
+  fprintf(f,"MOV R%d, [%d]\n",labelReg,methodAddress);
+  fprintf(f,"CALL R%d\n",labelReg);
+  freeReg();
+
+  // TOP CONTAINS RETURN VALUE, STORE IT
+
+  int returnReg = getReg();
+  fprintf(f,"POP R%d\n",returnReg);
+
+  // POP OUT ARGUMENTS FROM THE STACK
+  popArgs(f,root->middle->argList);
+
+
+  // POP MEMBERFIELD AND VFT
+  int r = getReg();
+  fprintf(f,"POP R%d\n",r);
+  fprintf(f,"POP R%d\n",r);
+  freeReg();
+
+  // POP OUT USED REGISTERS FROM THE STACK
+  popRegisters(f);
+
+  return returnReg;
+
+}
+
+// -------------------------------------------------------------------------------------------------------------------------- DEFINE METHOD CODEGEN
+
+void define_method_codeGen(FILE* f,struct classtable* c,char* name,struct TreeNode* body){
+
+  class = c;
+  // get the label
+  struct classmethod* method = lookMethodInClassUp(c,name);
+  fprintf(f,"M%d:\n",method->mLabel);
+
+  // push base pointer
+  fprintf(f,"PUSH BP\n");
+  fprintf(f,"MOV BP, SP\n");
+
+  // push local variables
+  struct Lsymbol* cur = getLHead();
+  while(cur!=NULL){
+    int r = getReg();
+    fprintf(f,"PUSH R%d\n",r);
+    freeReg();
+    cur = cur->next;
+  }
+
+
+  // execute body of the method
+  codeGen(f,body,-1,-1);
+
+}
+
+
+// -------------------------------------------------------------------------------------------------------------------------- MAIN CODEGEN FUNCTION
 
 void codeGen(FILE* f,struct TreeNode* root,int bl,int cl){
     if(root == NULL){
@@ -894,7 +1173,12 @@ void codeGen(FILE* f,struct TreeNode* root,int bl,int cl){
     switch(root->op){
     // ASSIGNMENT STATEMENT
     case 4:
-          assignment_codeGen(f,root);
+          if( root->right->op == 25 ){
+            new_codeGen(f,root);
+          }
+          else{
+            assignment_codeGen(f,root);
+          }
           break;
     // READ STATEMENT
     case 11:
@@ -941,7 +1225,8 @@ void codeGen(FILE* f,struct TreeNode* root,int bl,int cl){
     case 23:
           free_codeGen(f,root);
           break;
-    }
+  }
+
   
 }
 

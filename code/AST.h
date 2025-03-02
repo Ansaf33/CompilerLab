@@ -84,6 +84,8 @@ struct TreeNode* createReturnNode(struct TreeNode* middle);
 
 struct TreeNode* addFieldToEnd(struct TreeNode* head,char* fieldName);
 
+struct TreeNode* addMemberToEnd(struct TreeNode* head,char* memberName);
+
 struct TreeNode* addMethodToEnd(struct TreeNode* head,char* name,struct TreeNode* argList);
 
 struct TreeNode* addArgToList(struct TreeNode* listHead,struct TreeNode* argHead);

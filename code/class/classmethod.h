@@ -25,4 +25,6 @@ struct classmethod* lookMethodUp(struct classmethod* head,char* name);
 
 void printClassMethods(struct classmethod* head);
 
+int argCount(struct classmethod* head);
+
 #endif

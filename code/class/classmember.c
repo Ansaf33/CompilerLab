@@ -4,6 +4,7 @@
 #include "classmember.h"
 #include "classtable.h"
 #include "../typetable/typetable.h"
+#include "../AST.h"
 
 static int memberIndex = 0;
 
@@ -14,6 +15,12 @@ struct classmember* createMemberNode(struct typetable* type,struct classtable* C
   temp->name = (char*)malloc(sizeof(char)*100);
   strcpy(temp->name,name);
   temp->memberIndex = memberIndex++;
+
+
+  if( temp->Ctype ){
+    memberIndex++;
+  }
+
 
   return temp;
 }
@@ -76,3 +83,4 @@ void printClassMembers(struct classmember* head){
     cur = cur->next;
   }
 }
+

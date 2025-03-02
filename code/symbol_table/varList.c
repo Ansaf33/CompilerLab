@@ -25,6 +25,7 @@ struct list* createVarNode(char* name,int rowSize,int colSize){
 // ----------- CODE TO ADD VARIABLE TO LIST
 
 struct list* addVariable(struct list* head,char* name){
+
   struct list* temp = createVarNode(name,1,1);
   temp->isFunction = 0;
    

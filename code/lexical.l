@@ -197,7 +197,7 @@
   return NEQ;
 }
 
-[a-zA-Z][a-zA-Z0-9]* {
+[a-zA-Z][a-zA-Z0-9_]* {
 
   yylval.string = (char*)malloc(sizeof(char)*100);
   strcpy(yylval.string,yytext);

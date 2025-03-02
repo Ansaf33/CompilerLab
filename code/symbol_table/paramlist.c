@@ -66,9 +66,10 @@ bool paramPresent(struct paramlist* head,char* name){
 // -------------------- PRINTING PARAMETERS
 
 void printParameters(struct paramlist* head){
-  if( head ){
-  }
   struct paramlist* cur = head;
+  if(cur){
+    printf("\n");
+  }
   while(cur!=NULL){
     printf("----------------------->| name : %s | type : %s |\n",cur->name,cur->type->name);
     cur = cur->next;
@@ -76,3 +77,14 @@ void printParameters(struct paramlist* head){
   printf("\n");
 }
 
+// -------------------- Size of parameters
+
+int getParamSize(struct paramlist* head){
+  struct paramlist* cur = head;
+  int sz = 0;
+  while(cur){
+    cur = cur->next;
+    sz++;
+  }
+  return sz;
+}

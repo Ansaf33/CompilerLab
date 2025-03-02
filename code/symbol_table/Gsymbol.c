@@ -7,8 +7,9 @@
 #include "../class/classtable.h"
 
 struct Gsymbol* Ghead = NULL;
-static int address = 4096;
-static int label = 0;
+int address = 4096;
+int label = 0;
+int number_of_classes = 0;
 
 
 // ------------ CREATE A Gsymbol Node
@@ -28,7 +29,7 @@ struct Gsymbol* createGNode(char* name, struct typetable* type,struct classtable
   temp->param = param;
   temp->flabel = isFunction?label++:-1;
 
-  temp->binding = address;
+  temp->binding = address + 8*number_of_classes;
   address = address + rowSize*colSize;
 
   return temp;
@@ -39,13 +40,22 @@ struct Gsymbol* createGNode(char* name, struct typetable* type,struct classtable
 
 void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction){
 
+  number_of_classes = getNoOfClasses();
+
+
   if( type == NULL && Ctype == NULL ){
     printf("Invalid type for global variable | %s |\n",name);
     exit(1);
   }
 
+  // AN OBJECT OF TYPE CLASS REQUIRES 2 WORDS
+  if( Ctype != NULL ){
+    colSize++;
+  }
+
 
   if( !lookGUp(name) ){
+
     struct Gsymbol* temp = createGNode(name,type,Ctype,rowSize,colSize,param,isFunction);
 
     // ADDING TO END OF LINKED LIST

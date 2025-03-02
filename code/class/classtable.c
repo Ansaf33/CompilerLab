@@ -149,3 +149,14 @@ void checkDeclDef(struct classtable* c,struct typetable* type,char* name,struct 
 
 }
 
+// GET NUMBER OF CLASSES
+int getNoOfClasses(){
+  struct classtable* cur = Chead;
+  int sz = 0;
+  while(cur){
+    cur = cur->next;
+    sz++;
+  }
+  return sz;
+}
+

@@ -1,44 +1,95 @@
+type
+
+bst{
+  int a;
+  bst left;
+  bst right;
+}
+
+endtype
 
 class
 
-Person{
-
+bstclass {
   decl
-  Person wife;
-  str name;
-  int age;
-  int printDetails();
-  str findName();
-  int createPerson(str name,int age);
+  bst root;
+  int init();
+  bst getroot();
+  int setroot(bst n1);
+  bst getnode(int key);
+  bst insert(bst h,int key);
+  int inOrder_fun(bst h);
   enddecl
 
-  int printDetails(){
-
+  int init(){
     decl
     enddecl
-
     begin
-    write(self.name);
-    write(self.age);
+    self.root = null;
     return 1;
     end;
-
   }
 
-  str findName(){
+  bst getroot(){
     decl
     enddecl
     begin
-    return self.name;
+    return self.root;
+    end;
+
+  }
+
+  int setroot(bst n1){
+    decl
+    enddecl
+    begin
+    self.root = n1;
+    return 1;
     end;
   }
 
-  int createPerson(str name,int age){
+  bst getnode(int key){
+    decl
+    bst temp;
+    enddecl
+    begin
+    temp = alloc();
+    temp.a = key;
+    temp.left = null;
+    temp.right = null;
+    return temp;
+    end;
+  }
+
+  bst insert(bst h,int key){
     decl
     enddecl
     begin
-    self.name = name;
-    self.age = age;
+    if( h == null ) then
+      h = self.getnode(key);
+    else
+      if( key < h.a ) then
+        h.left = self.insert(h.left,key);
+      else
+        if( key > h.a ) then
+          h.right = self.insert(h.right,key);
+        endif;
+      endif;
+    endif;
+    return h;
+    end;
+  }
+
+  int inOrder_fun(bst h){
+    decl
+    int in;
+    enddecl
+    begin
+    if( h != null ) then
+      in = self.inOrder_fun(h.left);
+      write(h.a);
+      in = self.inOrder_fun(h.right);
+    endif;
     return 1;
     end;
   }
@@ -48,28 +99,33 @@ Person{
 endclass
 
 decl
-Person p;
-Person q;
-int temp;
-int x;
+bstclass obj;
 enddecl
 
 int main(){
+
   decl
-  str pName,qName;
+  bst root;
+  int x,in,val;
   enddecl
 
   begin
-  x = initialize();
-  p = new(Person);
-  temp = p.createPerson("Rogers",37);
-  q = new(Person);
-  temp = q.createPerson("Quora",33);
 
-  pName = p.findName();
-  qName = q.findName();
+  x = initialize();
+  obj = new(bstclass);
+  x = obj.init();
+  read(val);
+  root = obj.getroot();
+
+  while(val!=0) do
+    root = obj.insert(root,val);
+    read(val);
+
+  endwhile;
+
+  x = obj.setroot(root);
+  in = obj.inOrder_fun(obj.getroot());
+
   end;
- 
 
 }
-

@@ -29,7 +29,7 @@ bool arithmetic_typeSatisfied(struct TreeNode* root){
     return true;
   }
   printf("Arithmetic type | %s | not satisfied", map(root->op) );
-  printf("[L R] = [%s %s]\n",root->left->type->name,root->right->type->name);
+  printf("[L R] = [%s %s]\n",getName(root->left),getName(root->right));
   exit(1);
 
 
@@ -38,12 +38,15 @@ bool arithmetic_typeSatisfied(struct TreeNode* root){
 // ------------------------------------------------------------------------------------------------------------------ CONDITION FOR ASSIGNMENT STATEMENTS
 bool assignment_typeSatisfied(struct TreeNode* root){
 
+
+
   if( root == NULL ){
     printf("Nothing passed\n");
     exit(1);
   }
 
   // CONDITION FOR ALLOC STATEMENT
+
 
   if( root->right->op == 22 && ( same(getName(root->left),"str") || same(getName(root->left),"int")  ) ){
     printf("Cannot dynamically allocate space for primitive datatype | %s |\n",getName(root->left));
@@ -57,6 +60,7 @@ bool assignment_typeSatisfied(struct TreeNode* root){
     exit(1); 
   }
 
+
   // true condition, both should be of the same type ( right can be null )
   bool nullCondition = same(getName(root->right),"null");
   bool bothsameCondition = same(getName(root->left),getName(root->right));
@@ -64,8 +68,8 @@ bool assignment_typeSatisfied(struct TreeNode* root){
 
 
   if ( nullCondition || bothsameCondition && notBoolCondition ){
-    return true;
 
+    return true;
   }
 
   printf("Assignment type | %s | not satisfied\n", map(root->op) );
@@ -78,6 +82,7 @@ bool assignment_typeSatisfied(struct TreeNode* root){
 // ------------------------------------------------------------------------------------------------------------------ CONDITION FOR LOGICAL OPERATORS
 
 bool logical_typeSatisfied(struct TreeNode* root){
+
   if( root == NULL ){
     printf("Nothing passed\n");
     exit(1);
@@ -87,6 +92,7 @@ bool logical_typeSatisfied(struct TreeNode* root){
   bool bothIntCondition = same(getName(root->left),"int") && same(getName(root->right),"int");
 
   if( isNullCondition || bothIntCondition ){
+
     return true;
   }
 
@@ -110,7 +116,7 @@ bool read_typeSatisfied(struct TreeNode* root){
   exit(1);
 }
 
-// CONDITION FOR WRITE STATEMENT
+// ------------------------------------------------------------------------------------------------------------------- CONDITION FOR WRITE STATEMENT
 bool write_typeSatisfied(struct TreeNode* root){
   if( root == NULL ){
     printf("Nothing passed\n");
@@ -187,11 +193,12 @@ bool free_typeSatisfied(struct TreeNode* root){
 
 // ------------------------------------------------------------------------------------------------------------------ CONDITION FOR DELETE STATEMENT
 bool delete_typeSatisfied(struct TreeNode* root){
+
   if( root == NULL ){
     printf("Nothing passed\n");
     exit(1);
   }
-  
+
   struct classtable* Ctype = lookClassUp(getName(root));
 
   if( Ctype == NULL ){

@@ -15,11 +15,14 @@ struct Lsymbol* Lhead = NULL;
 
 struct Lsymbol* createLNode(char* name,struct typetable* type){
   struct Lsymbol* temp = (struct Lsymbol*)malloc(sizeof(struct Lsymbol));
+
   temp->name = (char*)malloc(sizeof(char)*100);
   strcpy(temp->name,name);
+
   temp->type = type;
 
-  if(type == NULL){
+
+  if( type == NULL ){
     printf("Type for Local Symbol | %s | not present.\n",name);
     exit(1);
   }
@@ -104,7 +107,12 @@ struct Lsymbol* getLSymbolTable(){
     printf("--------------- L O C A L S Y M B O L T A B L E ---------------------\n\n");
     struct Lsymbol* cur = Lhead;
     while(cur != NULL){
-      printf("| name : %s | type : %s | binding : %d |\n",cur->name,cur->type->name,cur->binding);
+      printf("| name : %s | type : %s | Ctype : %s | binding : %d |\n",
+             cur->name,
+             cur->type?cur->type->name:"NULL",
+             cur->Ctype?cur->Ctype->name:"NULL",
+             cur->binding
+             );
       cur = cur->next;
     }
     printf("\n");
@@ -138,3 +146,26 @@ void deleteLSymbolTable(){
 
 }
 
+// --------------- ADDING SELF TO LSYMBOL TABLE
+
+void addSelfToLSymbolTable(struct classtable* c,int n){
+  struct Lsymbol* temp = (struct Lsymbol*)malloc(sizeof(struct TreeNode));
+  temp->name = (char*)malloc(sizeof(char)*100);
+  strcpy(temp->name,"self");
+  temp->type = NULL;
+  temp->Ctype = c;
+  temp->binding = -(n+4);
+  temp->next = NULL;
+
+  // ADD TO END OF LL
+  if( Lhead == NULL ){
+    Lhead = temp;
+  }
+  else{
+    struct Lsymbol* end = Lhead;
+    while(end->next!=NULL){
+      end = end->next;
+    }
+    end->next = temp;
+  }
+}
