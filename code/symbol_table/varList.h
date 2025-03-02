@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "paramlist.h"
 #include "Lsymbol.h"
+#include "Gsymbol.h"
 
 struct list{
   char* name;
@@ -31,5 +32,8 @@ void addAllGSymbols(struct list* head,int type);
 
 void addAllLSymbols(struct list* head,int type);
 
+bool checkValidParam(struct paramlist* p,struct Gsymbol* s);
+
+bool checkValidRetType(int a,int b);
 
 #endif

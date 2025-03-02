@@ -134,8 +134,14 @@ FdefBlock :
 
 Fdef :
      TYPE ID '(' ParamList ')' '{' LdeclBlock Body '}' {
+          
+
+      
 
 
+
+
+      
 
 
      }
@@ -161,7 +167,6 @@ LdeclBlock :
            DECL LdeclList ENDDECL {
            printf("All Local Declarations Parsed\n");
            getLSymbolTable();
-
            }
            |
            DECL ENDDECL
@@ -170,9 +175,7 @@ LdeclBlock :
 LdeclList :
           LdeclList Ldecl
           |
-          Ldecl {
-
-          }
+          Ldecl
           ;
 
 Ldecl :
@@ -193,6 +196,7 @@ LidList :
 
 MainBlock :
           INT MAIN '(' ')' '{' LdeclBlock Body '}' {
+
 
 
           }
