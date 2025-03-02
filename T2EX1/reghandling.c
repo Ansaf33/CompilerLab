@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "AST.h"
+#include "symbol_table/symbol.h"
 
 // define the maximum limit of registers R0 to R19
 #define NOR 20
@@ -11,6 +12,12 @@
 static int highestUsedReg = -1;
 // INITIALLY, NO LABELS ARE USED
 static int highestUsedLabel = -1;
+
+// --------------------------------------------------------- GET SYMBOL ADDRESS
+
+int getSymbolAddress(struct TreeNode* root){
+  return root->symbol->address;
+}
 
 // --------------------------------------------------------- GET LABEL FUNCTION
 
@@ -103,15 +110,20 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
   // IF AT LEAF NODE, THEN ONLY NUMBER OR CONSTANT
   if(root->left == NULL && root->right == NULL){
     int regIdx = getReg();
-    // IF CONSTANT, MOVE THE NUMBER TO REGISTER
+    // IF NUMBER, MOVE THE NUMBER TO REGISTER
     if(root->val != -1 ){
       fprintf(f,"MOV R%d, %d\n",regIdx,root->val);
     }
+    // IF STRING, MOVE THE STRING TO REGISTER
+    if(root->string != NULL ){
+      fprintf(f,"MOV R%d, %s\n",regIdx,root->string);
+    }
     // IF VARIABLE, MOVE FROM MEMORY LOCATION TO REGISTER
-    else{
-      int memlocation = 4095 + ( (int)root->varname -96 );
+    else if(root->varname != NULL){
+      int memlocation = getSymbolAddress(root);
       fprintf(f, "MOV R%d, [%d]\n",regIdx,memlocation);
     }
+
 
     return regIdx;
   }
@@ -185,15 +197,17 @@ int boolean_expression_codeGen(FILE* f,struct TreeNode* root){
 
 void assignment_codeGen(FILE* f,struct TreeNode* root){
 
-  // GET THE CHARACTER VALUE
-  int variable = (int)root->left->varname - 96;
-  int memAddress = 4095 + variable;
+
+
+  // Get address from symbol table
+  int memAddress = getSymbolAddress(root->left);
 
   // store the register contents in the memory location 'storeIn'
   int r1 = getReg();
   
   // move the memory location to a register
   fprintf(f,"MOV R%d, %d\n",r1,memAddress);
+
 
   int fReg = arithmetic_expression_codeGen(f,root->right);
 
@@ -204,6 +218,8 @@ void assignment_codeGen(FILE* f,struct TreeNode* root){
   freeReg();
   // freeing r1
   freeReg();
+
+
   
 
 }
@@ -212,11 +228,10 @@ void assignment_codeGen(FILE* f,struct TreeNode* root){
 
 void read_codeGen(FILE* f,struct TreeNode* root){
 
-  int variable = (int)root->left->varname - 96;
-  int memAddress = 4095 + variable;
+  int memAddress = getSymbolAddress(root->left);;
 
-  char s[50];
-  snprintf(s,sizeof(s),"Enter %c : ", root->left->varname);
+  //char s[50];
+  //snprintf(s,sizeof(s),"Enter %s : ", root->left->varname);
   //getInput(f,s);
 
   // STACK POINTER
@@ -268,6 +283,8 @@ void read_codeGen(FILE* f,struct TreeNode* root){
 // --------------------------------------------------------- CODE GENERATION FOR WRITE ASSIGNMENTS
 
 void write_codeGen(FILE* f,struct TreeNode* root){
+
+
 
 
   //getInput(f,"Output : ");

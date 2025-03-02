@@ -8,7 +8,11 @@ static int variables[26];
 
 static bool breakFlag = false;
 static bool continueFlag = false;
+// ---------------------------------- GETTING ADDRESS FROM A NODE
 
+int getSymbolAddress(struct TreeNode* root){
+  return root->symbol->address;
+}
 
 // ---------------------------------- MAIN EVALUATION FUNCTION FOR STATEMENTS
 
@@ -23,15 +27,15 @@ void evaluate(struct TreeNode* root){
     // ASSIGNMENT
 
     case 4:
-      int idx = (int)root->left->varname-97;
+      int idx = getSymbolAddress(root->left) - 4096;
       variables[idx] = arithmetic_expressionEvaluator(root->right);
       break;
 
     // READ OP
 
     case 11:
-      printf("Enter %c : ",root->left->varname);
-      scanf("%d",&variables[(int)root->left->varname-97]);
+      printf("Enter %s : ",root->left->varname);
+      scanf("%d",&variables[getSymbolAddress(root->left)-4096]);
       break;
 
     // WRITE OP
@@ -145,7 +149,7 @@ int arithmetic_expressionEvaluator(struct TreeNode* root){
   if( root->left == NULL && root->right == NULL ){
     // IF IT IS A VARIABLE
     if( root->val == -1 ){
-      return variables[(int)root->varname - 97];
+      return variables[getSymbolAddress(root)-4096];
     }
     // IF IT IS A CONSTANT
     else{
@@ -201,13 +205,12 @@ bool boolean_expressionEvaluator(struct TreeNode* root){
 }
 
 
-// -------------------- PRINTING VARIABLE ARRAY
 
 
 
 int getDetails(){
   for(int i=0;i<26;i++){
-    printf("%c = %d\n",i+97,variables[i]);
+    printf("%d = %d\n",i+4096,variables[i]);
   }
   return 0;
     

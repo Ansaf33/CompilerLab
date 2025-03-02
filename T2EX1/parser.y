@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "AST.h"
 #include "reghandling.h"
 #include "evaluator.h"
@@ -20,11 +21,20 @@ void yyerror(char* s);
 
 %union{
   struct TreeNode* node;
+  char* string;
+  int integer;
+
+
 
 }
 
-%type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST REPEATST DOWHILEST
-%token BEG ID NUM PLUS MINUS MUL DIV EQUALS LT LTE GT GTE EQ NEQ READ WRITE END IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE REPEAT UNTIL
+%type<integer> TYPE
+%type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST REPEATST DOWHILEST IDENTIFIER CONSTANT
+%token STRING ID NUM PLUS MINUS MUL DIV EQUALS 
+%token LT LTE GT GTE EQ NEQ 
+%token READ WRITE END BEG 
+%token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE REPEAT UNTIL
+%token DECL ENDDECL INT STR
 %left EQ NEQ
 %left LT LTE GT GTE
 %left PLUS MINUS
@@ -33,6 +43,51 @@ void yyerror(char* s);
 
 
 %%
+
+PROGRAM :
+        DECLARATIONS P
+
+DECLARATIONS :
+             DECL DL ENDDECL{
+                printf("All declarations parsed.\n");
+                getAll();
+              }
+             |
+             DECL ENDDECL
+             ;
+
+DL :
+        DL D
+        |
+        D
+        ;
+
+D :
+     TYPE VARLIST ',' ID ';' {
+        addSymbol($<string>4,$1,1);
+        addSymbol($<string>2,$1,1);
+     }
+     |
+     TYPE ID ';' {
+        addSymbol($<string>2,$1,1);
+     }
+     ;
+
+TYPE :
+     INT {
+     $$ = $<integer>1;
+     }
+     |
+     STR {
+     $$ = $<integer>1;
+     }
+     ;
+
+VARLIST :
+        VARLIST ',' ID 
+        |
+        ID 
+        ;
 
 P :
   BEG SL END ';' {
@@ -48,7 +103,7 @@ P :
 
 SL :
    SL S  {
-   $$ = createTree(-1,13,-1,"\0",$1,$2);
+   $$ = createOpNode(-1,13,$1,$2);
   }
   |
    S  {
@@ -72,112 +127,124 @@ S :
   DOWHILEST ';'
   |
   BREAK ';' {
-    $<node>$ = createTree(-1,16,-1,"\0",NULL,NULL);
+    $<node>$ = createOpNode(-1,16,NULL,NULL);
   }
   |
   CONTINUE ';' {
-    $<node>$ = createTree(-1,17,-1,"\0",NULL,NULL);
+    $<node>$ = createOpNode(-1,17,NULL,NULL);
   }
   ;
 
 IFST :
      IF '(' E ')' THEN SL ELSE SL ENDIF {
-      $$ = createIfTree(14,$3,$6,$8);
+      $$ = createIfNode($3,$6,$8);
     }
     |
     IF '(' E ')' THEN SL ENDIF {
-      $$ = createIfTree(14,$3,$6,NULL);
+      $$ = createIfNode($3,$6,NULL);
     }
      ;
 
 WHILEST :
         WHILE '(' E ')' DO SL ENDWHILE {
-        $$ = createWhileTree(15,$3,$6);
+        $$ = createWhileNode(15,$3,$6);
         }
         ;
 
 REPEATST :
-         REPEAT SL UNTIL E {
-         $$ = createWhileTree(18,$4,$2);
+         REPEAT SL UNTIL '(' E ')' {
+         $$ = createWhileNode(18,$5,$2);
         }
         ;
 
 DOWHILEST :
           DO SL WHILE '(' E ')' { 
-          $$ = createWhileTree(19,$5,$2);
+          $$ = createWhileNode(19,$5,$2);
           }
           ;
 
 
 ASSG :
-  ID EQUALS E {
-  $$ = createTree(-1,4,-1,"\0",$<node>1,$3);
+  IDENTIFIER EQUALS E {
+  $$ = createOpNode(-1,4,$<node>1,$3);
   }
   ;
 
 E :
   E PLUS E {
-  $$ = createTree(-1,0,0,"\0",$1,$3);
+  $$ = createOpNode(0,0,$1,$3);
   }
   |
   E MINUS E {
-  $$ = createTree(-1,1,0,"\0",$1,$3);
+  $$ = createOpNode(0,1,$1,$3);
   }
   |
   E MUL E {
-  $$ = createTree(-1,2,0,"\0",$1,$3);
+  $$ = createOpNode(0,2,$1,$3);
   }
   |
   E DIV E {
-  $$ = createTree(-1,3,0,"\0",$1,$3);
+  $$ = createOpNode(0,3,$1,$3);
   }
   |
   E LT E {
-  $$ = createTree(-1,5,1,"\0",$1,$3);
+  $$ = createOpNode(1,5,$1,$3);
   }
   |
   E LTE E {
-  $$ = createTree(-1,6,1,"\0",$1,$3);
+  $$ = createOpNode(1,6,$1,$3);
   }
   |
   E GT E {
-  $$ = createTree(-1,7,1,"\0",$1,$3);
+  $$ = createOpNode(1,7,$1,$3);
   }
   |
   E GTE E {
-  $$ = createTree(-1,8,1,"\0",$1,$3);
+  $$ = createOpNode(1,8,$1,$3);
   }
   |
   E NEQ E {
-  $$ = createTree(-1,9,1,"\0",$1,$3);
+  $$ = createOpNode(1,9,$1,$3);
   }
   |
   E EQ E {
-  $$ = createTree(-1,10,1,"\0",$1,$3);
+  $$ = createOpNode(1,10,$1,$3);
   }
   |
   '(' E ')' {
   $$ = $2;
   }
   |
-  NUM {
-  $$ = $<node>1;
-  }
+  CONSTANT
   |
-  ID {
-  $$ = $<node>1;
-  }
+  IDENTIFIER
   ;
 
+IDENTIFIER : 
+           ID { 
+            $$ = createIdNode($<string>1);
+          }
+
+CONSTANT :
+         NUM {
+          $$ = createNumNode(atoi($<string>1));
+          }
+          |
+         STRING {
+          $$ = createStringNode($<string>1);
+          }
+          ;
+        
+
 INPUT :
-       READ '(' ID ')' {
-       $$ = createTree(-1,11,-1,"\0",$<node>3,NULL);
+       READ '(' IDENTIFIER ')' {
+       $$ = createOpNode(-1,11,$<node>3,NULL);
       }
        ;
 
 OUTPUT :
        WRITE '(' E ')' {
-        $$ = createTree(-1,12,-1,"\0",$3,NULL);
+        $$ = createOpNode(-1,12,$3,NULL);
       }
        ;
 
@@ -200,7 +267,8 @@ int main(int argc, char* argv[]){
   FILE* f = fopen(argv[1],"r");
   yyin = f;
   yyparse();
-  printf("\n");
+
+
 
 // --------------------------------- ASSEMBLY CODE
 
@@ -211,6 +279,7 @@ int main(int argc, char* argv[]){
   //fprintf(xsm,"BRKP\n");
   codeGen(xsm,root,-1,-1);
   fprintf(xsm,"INT 10\n");
+
 
 
 // --------------------------------- EXERCISE 1

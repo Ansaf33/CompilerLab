@@ -2,8 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "AST.h"
 #include "operators/optrans.h"
+#include "symbol_table/symbol.h"
 
 
 
@@ -17,7 +19,8 @@ bool typeSatisfied(struct TreeNode* root){
     }
     // if assigns, left should be an identifier (integer) and right should be integer
     else if( root->op == 4 ){
-      return root->left->type == 0 && root->right->type == 0;
+
+       return root->left->type == 0 && root->right->type == 0 || root->left->type == 2 && root->right->type == 2;
     }
     // if logical operators, left and right type should be the type for expressions (integer)
     else if( root->op >= 5 && root->op <= 10 ){
@@ -44,38 +47,95 @@ bool typeSatisfied(struct TreeNode* root){
 
 }
 
-// ------------- CREATE NODE FOR CONSTANTS, EXPRESSIONS, STATEMENTS
+// -------------- CREATE NODE FOR NUMBERS
 
-struct TreeNode* createTree(int val,int op,int type,char* varname,struct TreeNode* left,struct TreeNode* right){
-
-
-
+struct TreeNode* createNumNode(int val){
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
-
-  // IF IT IS A NUMBER, OTHERWISE PASS AS -1
   temp->val = val;
-  // IF IT IS AN OPERATOR, OTHERWISE PASS AS -1
+  temp->string = NULL;
+  temp->op = -1;
+  temp->type = 0;
+  temp->varname = NULL;
+  temp->left = NULL;
+  temp->right = NULL;
+  temp->middle = NULL;
+  temp->symbol = NULL;
+
+  return temp;
+}
+
+// -------------- CREATE NODE FOR OPERATORS
+
+
+struct TreeNode* createOpNode(int type,int op,struct TreeNode* left,struct TreeNode* right){
+  struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+  temp->val = -1;
+  temp->string = NULL;
   temp->op = op;
-  // TYPE OF NODE. IF IT IS A CONSTANT, IT IS AN INTEGER. IF IT IS AN ID, IT IS AN INTEGER.
   temp->type = type;
-
-  temp->varname = *(varname);
-
-   // LEFT AND RIGHT SUBTREES
+  temp->varname = "\0";
   temp->left = left;
   temp->right = right;
-
-  // no need for third child in while statements
   temp->middle = NULL;
+  temp->symbol = NULL;
 
-  // CHECK IF ROOT SATISFIES ITS LEFT AND RIGHT CHILDREN
+
   if( left && right ){ 
     if(!typeSatisfied(temp)){
-      printf("Operation '%s' : Type not matching.\n",map(temp->op));
+      printf("Operator Condition : Type not matching.\n");
       exit(1);
     }
-        
   }
+
+  
+
+
+  return temp;
+}
+
+// --------------- CREATE NODE FOR STRINGS
+
+
+struct TreeNode* createStringNode(char* string){
+  struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+  temp->val = -1;
+  temp->string = (char*)malloc(sizeof(char)*100);
+  strcpy(temp->string,string);
+  temp->op = -1;
+  temp->type = 2;
+  temp->varname = NULL;
+  temp->left = NULL;
+  temp->right = NULL;
+  temp->middle = NULL;
+  temp->symbol = NULL;
+
+  return temp;
+}
+
+
+
+// -------------- CREATE NODE FOR IDs
+
+struct TreeNode* createIdNode(char* varname){
+
+  struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+  temp->symbol = lookUp(varname);
+
+  if(temp->symbol == NULL){
+    printf("Cannot declare variables outside declaration scope\n");
+    exit(1);
+  }
+ 
+  temp->val = -1;
+  temp->string = NULL;
+  temp->op = -1;
+  temp->type = temp->symbol->type;
+  temp->varname = (char*)malloc(sizeof(char)*100);
+  strcpy(temp->varname,varname);
+  temp->left = NULL;
+  temp->right = NULL;
+  temp->middle = NULL;
+
 
   return temp;
 
@@ -83,16 +143,18 @@ struct TreeNode* createTree(int val,int op,int type,char* varname,struct TreeNod
 
 // -------------- CREATE NODE FOR IF STATEMENTS
 
-struct TreeNode* createIfTree(int op,struct TreeNode* middle,struct TreeNode* left,struct TreeNode* right){
+struct TreeNode* createIfNode(struct TreeNode* middle,struct TreeNode* left,struct TreeNode* right){
 
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
   temp->val = -1;
-  temp->op = op;
+  temp->string = NULL;
+  temp->op = 14;
   temp->type = -1;
-  temp->varname = '\0';
+  temp->varname = NULL;
   temp->left = left;
   temp->middle = middle;
   temp->right = right;
+  temp->symbol = NULL;
 
   // CHECK IF SATISFIABLE
 
@@ -110,16 +172,17 @@ struct TreeNode* createIfTree(int op,struct TreeNode* middle,struct TreeNode* le
 
 // ---------------- CREATE NODE FOR WHILE STATEMENTS
 
-struct TreeNode* createWhileTree(int op,struct TreeNode* left,struct TreeNode* right){
+struct TreeNode* createWhileNode(int op,struct TreeNode* left,struct TreeNode* right){
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));  
   temp->val = -1;
+  temp->string = NULL;
   temp->op = op;
   temp->type = -1;
-  temp->varname = '\0';
+  temp->varname = NULL;
   temp->left = left;
   temp->right = right;
-  // no need for third child in while statements
   temp->middle = NULL;
+  temp->symbol = NULL;
 
   // CHECK IF SATISFIABLE
 
@@ -128,7 +191,6 @@ struct TreeNode* createWhileTree(int op,struct TreeNode* left,struct TreeNode* r
       printf("While Condition : Type not matching.\n");
       exit(1);
     }
-        
   }
   
 
@@ -143,15 +205,22 @@ void Inorder(struct TreeNode* root){
     return;
   }
   Inorder(root->left);
+  // IT IS A NUMBER
   if(root->val != -1 ){
-    printf("(%d) ",root->val);
+    printf(" ( %d )",root->val);
   }
+  // IT IS A STRING
+  if(root->string != NULL ){
+    printf(" ( %s )",root->string);
+  }
+  // IT IS AN OPERATOR
   else if(root->op != -1 ){
-    printf("(%s) ",map(root->op));
+    printf(" ( %s )",map(root->op));
   }
-  else if(root->varname != 'n' ){
-    printf("(%c) ",root->varname);
-  } 
+  // IT IS A VARIABLE
+  else if( root->varname != NULL ){
+    printf(" ( %s )",root->varname);
+  }
 
   Inorder(root->middle);
   Inorder(root->right);

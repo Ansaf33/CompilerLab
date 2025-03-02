@@ -1,10 +1,12 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "y.tab.h"
 #include "AST.h"
-%}
 
+
+%}
 
 
 
@@ -12,8 +14,27 @@
 %%
 
 [0-9]+ {
-  yylval.node = createTree(atoi(yytext),-1,0,"\0",NULL,NULL);
+  yylval.string = (char*)malloc(sizeof(char)*16);
+  strcpy(yylval.string,yytext);
   return NUM;
+}
+
+"decl" {
+  return DECL;
+}
+
+"enddecl" {
+  return ENDDECL;
+}
+
+"int" {
+  yylval.integer = 0;
+  return INT;
+}
+
+"str" {
+  yylval.integer = 2;
+  return STR;
 }
 
 "begin" {
@@ -120,10 +141,20 @@
   return NEQ;
 }
 
-[a-z] {
-  yylval.node = createTree(-1,-1,0,yytext,NULL,NULL);
+[a-zA-Z][a-zA-Z0-9]* {
+  yylval.string = (char*)malloc(sizeof(char)*100);
+  strcpy(yylval.string,yytext);
+  //yylval.node = createIdTree(0,yytext);
   return ID;
 }
+
+["][a-zA-Z0-9_ !@#$%^&*()]*["] {
+  yylval.string = (char*)malloc(sizeof(char)*100);
+  strcpy(yylval.string,yytext);
+
+  return STRING;
+}
+
 
 [ \t] ;
 

@@ -54,7 +54,7 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    BEG = 258,                     /* BEG  */
+    STRING = 258,                  /* STRING  */
     ID = 259,                      /* ID  */
     NUM = 260,                     /* NUM  */
     PLUS = 261,                    /* PLUS  */
@@ -71,17 +71,22 @@ extern int yydebug;
     READ = 272,                    /* READ  */
     WRITE = 273,                   /* WRITE  */
     END = 274,                     /* END  */
-    IF = 275,                      /* IF  */
-    THEN = 276,                    /* THEN  */
-    ELSE = 277,                    /* ELSE  */
-    ENDIF = 278,                   /* ENDIF  */
-    WHILE = 279,                   /* WHILE  */
-    DO = 280,                      /* DO  */
-    ENDWHILE = 281,                /* ENDWHILE  */
-    BREAK = 282,                   /* BREAK  */
-    CONTINUE = 283,                /* CONTINUE  */
-    REPEAT = 284,                  /* REPEAT  */
-    UNTIL = 285                    /* UNTIL  */
+    BEG = 275,                     /* BEG  */
+    IF = 276,                      /* IF  */
+    THEN = 277,                    /* THEN  */
+    ELSE = 278,                    /* ELSE  */
+    ENDIF = 279,                   /* ENDIF  */
+    WHILE = 280,                   /* WHILE  */
+    DO = 281,                      /* DO  */
+    ENDWHILE = 282,                /* ENDWHILE  */
+    BREAK = 283,                   /* BREAK  */
+    CONTINUE = 284,                /* CONTINUE  */
+    REPEAT = 285,                  /* REPEAT  */
+    UNTIL = 286,                   /* UNTIL  */
+    DECL = 287,                    /* DECL  */
+    ENDDECL = 288,                 /* ENDDECL  */
+    INT = 289,                     /* INT  */
+    STR = 290                      /* STR  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -90,7 +95,7 @@ extern int yydebug;
 #define YYEOF 0
 #define YYerror 256
 #define YYUNDEF 257
-#define BEG 258
+#define STRING 258
 #define ID 259
 #define NUM 260
 #define PLUS 261
@@ -107,28 +112,37 @@ extern int yydebug;
 #define READ 272
 #define WRITE 273
 #define END 274
-#define IF 275
-#define THEN 276
-#define ELSE 277
-#define ENDIF 278
-#define WHILE 279
-#define DO 280
-#define ENDWHILE 281
-#define BREAK 282
-#define CONTINUE 283
-#define REPEAT 284
-#define UNTIL 285
+#define BEG 275
+#define IF 276
+#define THEN 277
+#define ELSE 278
+#define ENDIF 279
+#define WHILE 280
+#define DO 281
+#define ENDWHILE 282
+#define BREAK 283
+#define CONTINUE 284
+#define REPEAT 285
+#define UNTIL 286
+#define DECL 287
+#define ENDDECL 288
+#define INT 289
+#define STR 290
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 21 "parser.y"
+#line 22 "parser.y"
 
   struct TreeNode* node;
+  char* string;
+  int integer;
 
 
-#line 132 "y.tab.h"
+
+
+#line 146 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
