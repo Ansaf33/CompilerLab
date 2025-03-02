@@ -1,7 +1,7 @@
 decl
-int fin;
+int factarr[10];
 int fact(int n);
-int subber(int n);
+
 enddecl
 
 
@@ -9,28 +9,38 @@ int fact(int n){
   decl
   enddecl
   begin
-  if( n == 1 ) then
+  if( n == 0 ) then
+    return 0;
+  else if ( n == 1 ) then
     return 1;
-  else
-    if ( n == 0 ) then
-      return 0;
     endif;
   endif;
   return n*fact(n-1);
+
   end;
 
-}
 
+}
 
 int main(){
-
   decl
-  int a;
+  int i;
   enddecl
-
   begin
-  fin = fact(8);
-  write(fin);
+
+  i = 0;
+  while(i<10) do
+    factarr[i] = fact(i);
+    i = i + 1;
+  endwhile;
+
+  i = 0;
+  while(i<10) do
+    write(factarr[i]);
+    i = i + 1;
+  endwhile;
+
   end;
 
 }
+

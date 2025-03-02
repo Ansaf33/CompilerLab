@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "Lsymbol.h"
 #include "paramlist.h"
+#include "../typetable/typetable.h"
 
 static int binding = 1;
 static int diff = -4;
@@ -12,7 +13,7 @@ struct Lsymbol* Lhead = NULL;
 
 // -------------------- CREATING A NODE FOR LOCAL SYMBOL TABLE
 
-struct Lsymbol* createLNode(char* name,int type){
+struct Lsymbol* createLNode(char* name,struct typetable* type){
   struct Lsymbol* temp = (struct Lsymbol*)malloc(sizeof(struct Lsymbol));
   temp->name = (char*)malloc(sizeof(char)*100);
   strcpy(temp->name,name);
@@ -26,13 +27,12 @@ struct Lsymbol* createLNode(char* name,int type){
 
 // ------------------- ADDING A LOCAL SYMBOL (NAME,TYPE,ADDRESS) TO THE LOCAL SYMBOL TABLE
 
-struct Lsymbol* addLSymbol(char* name,int type){
+struct Lsymbol* addLSymbol(char* name,struct typetable* type){
 
   if( lookLUp(name) ){
     printf("Local variable %s already declared.\n",name);
     exit(1);
   }
-
 
 
   struct Lsymbol* temp = createLNode(name,type);
@@ -99,7 +99,7 @@ struct Lsymbol* getLSymbolTable(){
     printf("--------------- LOCAL SYMBOL TABLE ---------------------\n\n");
     struct Lsymbol* cur = Lhead;
     while(cur != NULL){
-      printf("| name : %s | type : %d | binding : %d |\n",cur->name,cur->type,cur->binding);
+      printf("| name : %s | type : %s | binding : %d |\n",cur->name,cur->type->name,cur->binding);
       cur = cur->next;
     }
     printf("\n");

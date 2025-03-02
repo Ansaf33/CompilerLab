@@ -2,7 +2,15 @@ decl
 int i,n;
 enddecl
 
+
+int main(){
+
+  decl
+  enddecl
+
 begin
+
+
 
 read(n);
 
@@ -28,5 +36,6 @@ endwhile;
 
 end;
 
+}
 
 

@@ -5,6 +5,7 @@
 #include "checker.h"
 #include "../symbol_table/Gsymbol.h"
 #include "../symbol_table/paramlist.h"
+#include "../typetable/typetable.h"
 
 // ---------------------- CHECK IF DECLARED AND DEFINED PARAMETERS ARE THE SAME
 
@@ -18,7 +19,7 @@ bool checkValidParams(struct paramlist* param,char* name){
 
   while( p && s ){
     if( p->type != s->type  ){
-      printf("Declared parameter type | %d | and defined parameter type | %d | of function | %s | don't match.\n",s->type,p->type,name);
+      printf("Declared parameter type | %s | and defined parameter type | %s | of function | %s | don't match.\n",s->type->name,p->type->name,name);
       exit(1);
     }
     if( strcmp(p->name,s->name) != 0 ){
@@ -42,9 +43,9 @@ bool checkValidParams(struct paramlist* param,char* name){
 
 // --------------------- CHECK IF DECLARED AND DEFINED RETURN TYPES ARE THE SAME
 
-bool checkValidRetType(int definedType,char* name){
-  int declaredType = lookGUp(name)->type;
-  if(declaredType!=definedType){
+bool checkValidRetType(struct typetable* definedType,char* name){
+  struct typetable* declaredType = lookGUp(name)->type;
+  if( !same(declaredType->name,definedType->name)  ){
     printf("Return type of declared and defined function do not match.\n");
     exit(1);
   }

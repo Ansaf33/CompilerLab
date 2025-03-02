@@ -4,10 +4,10 @@
 #include <stdbool.h>
 #include <string.h>
 #include "AST.h"
-#include "evaluator.h"
 #include "operators/optrans.h"
 #include "symbol_table/Gsymbol.h"
 #include "symbol_table/Lsymbol.h"
+#include "typetable/typetable.h"
 
 
 
@@ -16,43 +16,52 @@
 
 
 bool typeSatisfied(struct TreeNode* root){
-    
+
+
+
+   
     // if arithmetic operator, left and right should be integers
+
     if(root->op >=0 && root->op <= 3){
-      return root->left->type == 0 && root->right->type == 0;
+
+      return same(root->left->type->name,"int") && same(root->right->type->name,"int");
     }
     // if assigns, left should be an identifier (integer/string) and right should be an expression (integer/string)
     else if( root->op == 4 ){
-       return root->left->type == 0 && root->right->type == 0 || root->left->type == 2 && root->right->type == 2;
+       return same(root->left->type->name,"int") && same(root->right->type->name,"int") || same(root->left->type->name,"str") && same(root->right->type->name,"str");
     }
     // if logical operators, left and right type should be the type for expressions (integer)
     else if( root->op >= 5 && root->op <= 10 ){
-          return root->left->type == 0 && root->right->type == 0;
+          return same(root->left->type->name,"int") && same(root->right->type->name,"int");
    }
     // if READ statement, left type should be integer/string
     else if( root->op == 11 ){
-        return root->left->type == 0 || root->left->type == 2;
+        return same(root->left->type->name,"int") || same(root->left->type->name,"str");
    }
    // if WRITE statement, left type should be integer/string
     else if( root->op == 12 ){
-        return root->left->type == 0 || root->left->type == 2;
+        return same(root->left->type->name,"int") || same(root->left->type->name,"str");
    }
     // if IF statement, condition type should be boolean
     else if( root->op == 14 ){
-        return root->middle->type == 1;
+        return same(root->middle->type->name,"bool");
     }
     // if WHILE statement, condition type should be boolean
     else if( root->op == 15 ){
-        return root->left->type == 1;
+        return same(root->left->type->name,"bool");
     }
     // if REPEAT statement, condition type should be boolean
     else if( root->op == 18 ){
-        return root->left->type == 1;
+        return same(root->left->type->name,"bool");
     }
     // if DOWHILE statement, condition type should be boolean
     else if( root->op == 19 ){
-        return root->left->type == 1;
+        return same(root->left->type->name,"bool");
     }
+    // if RETURN statement, expression must evaluate to integer
+    else if( root->op == 20 ){
+        return same(root->middle->type->name,"int");
+  }
 
    return true;
 
@@ -65,7 +74,7 @@ struct TreeNode* createNumNode(int val){
   temp->val = val;
   temp->string = NULL;
   temp->op = -1;
-  temp->type = 0;
+  temp->type = lookTTUp("int");
   temp->varname = NULL;
   temp->left = NULL;
   temp->right = NULL;
@@ -78,7 +87,7 @@ struct TreeNode* createNumNode(int val){
 // -------------- CREATE NODE FOR OPERATORS
 
 
-struct TreeNode* createOpNode(int type,int op,struct TreeNode* left,struct TreeNode* right){
+struct TreeNode* createOpNode(struct typetable* type,int op,struct TreeNode* left,struct TreeNode* right){
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
   temp->val = -1;
   temp->string = NULL;
@@ -89,12 +98,13 @@ struct TreeNode* createOpNode(int type,int op,struct TreeNode* left,struct TreeN
   temp->right = right;
   temp->middle = NULL;
 
-
   if( left ){ 
+
     if(!typeSatisfied(temp)){
       printf("Operator | %s | Condition : Type not matching.\n",map(temp->op));
       exit(1);
     }
+
   }
 
   
@@ -112,7 +122,7 @@ struct TreeNode* createStringNode(char* string){
   temp->string = (char*)malloc(sizeof(char)*100);
   strcpy(temp->string,string);
   temp->op = -1;
-  temp->type = 2;
+  temp->type = lookTTUp("str");
   temp->varname = NULL;
   temp->left = NULL;
   temp->right = NULL;
@@ -134,7 +144,7 @@ struct TreeNode* createIdNode(char* varname,struct TreeNode* row,struct TreeNode
 
   // ------------------------- DECIDING LOCAL / GLOBAL / NOT DECLARED --------------
   
-  if( temp->Lsymbol  ){
+  if( temp->Lsymbol  ){ 
     temp->Gsymbol = NULL;
   }
   else if( temp->Gsymbol ){
@@ -176,7 +186,7 @@ struct TreeNode* createIfNode(struct TreeNode* middle,struct TreeNode* left,stru
   temp->val = -1;
   temp->string = NULL;
   temp->op = 14;
-  temp->type = -1;
+  temp->type = NULL;
   temp->varname = NULL;
   temp->left = left;
   temp->middle = middle;
@@ -185,10 +195,12 @@ struct TreeNode* createIfNode(struct TreeNode* middle,struct TreeNode* left,stru
   // CHECK IF SATISFIABLE
 
   if( middle ){ 
+
     if(!typeSatisfied(temp)){
       printf("If Condition : Type not matching.\n");
       exit(1);
     }
+
         
   }
 
@@ -203,7 +215,7 @@ struct TreeNode* createWhileNode(int op,struct TreeNode* left,struct TreeNode* r
   temp->val = -1;
   temp->string = NULL;
   temp->op = op;
-  temp->type = -1;
+  temp->type = NULL;
   temp->varname = NULL;
   temp->left = left;
   temp->right = right;
@@ -212,10 +224,12 @@ struct TreeNode* createWhileNode(int op,struct TreeNode* left,struct TreeNode* r
   // CHECK IF SATISFIABLE
 
   if( left ){ 
+
     if(!typeSatisfied(temp)){
       printf("While Condition : Type not matching.\n");
       exit(1);
     }
+
   }
   
 
@@ -227,7 +241,7 @@ struct TreeNode* createWhileNode(int op,struct TreeNode* left,struct TreeNode* r
 //--------------- CREATE NODE FOR FUNCTIONS
 
 struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
-  printf("Creating a function node\n");
+
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
 
 
@@ -265,7 +279,7 @@ struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
     struct paramlist* param = temp->Gsymbol->param;
 
     while( arg && param ){
-      if( arg->type != param->type ){
+      if( !same(arg->type->name,param->type->name) ){
         printf("Argument and parameter does not match types\n");
         exit(1);
       }
@@ -279,7 +293,6 @@ struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
     }
   // ------------ CHECKING DONE ----------------
   
-
   return temp;
 }
 
@@ -315,7 +328,7 @@ struct TreeNode* createReturnNode(struct TreeNode* middle){
   temp->string = NULL;
 
   temp->op = 20;
-  temp->type = -1;
+  temp->type = NULL;
   temp->varname = NULL;
 
   temp->middle = middle;

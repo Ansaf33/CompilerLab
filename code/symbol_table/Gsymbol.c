@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "Gsymbol.h"
+#include "../typetable/typetable.h"
 
 struct Gsymbol* Ghead = NULL;
 static int address = 4096;
@@ -11,7 +12,7 @@ static int label = 0;
 
 // ------------ CREATE A Gsymbol Node
 
-struct Gsymbol* createGNode(char* name, int type,int rowSize,int colSize,struct paramlist* param,int isFunction){
+struct Gsymbol* createGNode(char* name, struct typetable* type,int rowSize,int colSize,struct paramlist* param,int isFunction){
 
   struct Gsymbol* temp = (struct Gsymbol*)malloc(sizeof(struct Gsymbol));
 
@@ -35,7 +36,8 @@ struct Gsymbol* createGNode(char* name, int type,int rowSize,int colSize,struct 
 
 // ------------------------ ADD A Gsymbol to the table
 
-void addGSymbol(char* name,int type,int rowSize,int colSize,struct paramlist* param,int isFunction){
+void addGSymbol(char* name,struct typetable* type,int rowSize,int colSize,struct paramlist* param,int isFunction){
+
 
   if( !lookGUp(name) ){
     struct Gsymbol* temp = createGNode(name,type,rowSize,colSize,param,isFunction);
@@ -94,8 +96,8 @@ struct Gsymbol* lookGUp(char* name){
 void getGSymbolTable(){
   printf("------------------------------ GLOBAL SYMBOL TABLE ------------------------------\n");
   struct Gsymbol* current = Ghead;
-  while( current != NULL ){
-    printf("| name : %s | type : %d | rowSize : %d | colSize : %d  | binding : %d  | flabel : %d | hasParam : %d |\n",current->name,current->type,current->rowSize,current->colSize,current->binding,current->flabel,current->param?1:0);
+  while( current != NULL ){ 
+    printf("| name : %s | type : %s | rowSize : %d | colSize : %d  | binding : %d  | flabel : %d | hasParam : %d |\n",current->name,current->type->name,current->rowSize,current->colSize,current->binding,current->flabel,current->param?1:0);
     current = current->next;
   }
   printf("\n");

@@ -5,6 +5,7 @@
 #include "varList.h"
 #include "Gsymbol.h"
 #include "Lsymbol.h"
+#include "../typetable/typetable.h"
 
 struct list* createVarNode(char* name,int rowSize,int colSize){
 
@@ -99,7 +100,7 @@ void printDetails(struct list* head){
 
 // ---------------- INPUT IS A LIST, ADDED TO GSYMBOL TABLE
 
-void addAllGSymbols(struct list* head, int type){
+void addAllGSymbols(struct list* head,struct typetable* type){
   struct list* cur = head;
   while(cur != NULL){
     addGSymbol(cur->name,type,cur->rowSize,cur->colSize,cur->param,cur->isFunction);
@@ -110,7 +111,7 @@ void addAllGSymbols(struct list* head, int type){
 
 // ----------------- INPUT IS A LIST, ADDED TO LSYMBOL TABLE
 
-void addAllLSymbols(struct list* head,int type){
+void addAllLSymbols(struct list* head,struct typetable* type){
   struct Lsymbol* Lhead = NULL;
   struct list* cur = head;
   while(cur != NULL){

@@ -28,9 +28,9 @@ struct list* addFunction(struct list* head,char* name,struct paramlist* param);
 
 void printDetails(struct list* head);
 
-void addAllGSymbols(struct list* head,int type);
+void addAllGSymbols(struct list* head,struct typetable* type);
 
-void addAllLSymbols(struct list* head,int type);
+void addAllLSymbols(struct list* head,struct typetable* type);
 
 
 

@@ -28,13 +28,13 @@
 }
 
 "int" {
-  yylval.integer = 0;
+  yylval.typetable = lookTTUp("int");
   return INT;
 }
 
 "str" {
-  yylval.integer = 2;
-  return STR;
+  yylval.typetable = lookTTUp("str");
+  return STR; 
 }
 
 "main" {

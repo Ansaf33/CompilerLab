@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../symbol_table/paramlist.h"
+#include "../typetable/typetable.h"
 
 
 
@@ -13,7 +14,7 @@ bool checkValidParams(struct paramlist* head,char* name);
 
 // CHECKING IF DECLARED AND DEFINED RETTYPES ARE SAME
 
-bool checkValidRetType(int a,char* name);
+bool checkValidRetType(struct typetable* a,char* name);
 
 // CHECKING IF FUNCTION WAS ALREADY DEFINED BEFORE IT WAS DECLARED
 

@@ -3,12 +3,13 @@
 #include <string.h>
 #include <stdbool.h>
 #include "paramlist.h"
+#include "../typetable/typetable.h"
 
 
 
 // --------------------- CREATING A NODE FOR PARAMETER
 
-struct paramlist* createParamNode(char* name,int type){
+struct paramlist* createParamNode(char* name,struct typetable* type){
 
   struct paramlist* temp = (struct paramlist*)malloc(sizeof(struct paramlist));
   temp->name = (char*)malloc(sizeof(char)*100);
@@ -21,7 +22,7 @@ struct paramlist* createParamNode(char* name,int type){
 
 // -------------------- ADDING A PARAMETER TO PARAMETER LIST
 
-struct paramlist* addParameter(struct paramlist* head,char* name,int type){
+struct paramlist* addParameter(struct paramlist* head,char* name,struct typetable* type){
 
   if( paramPresent(head,name) ){
     printf("Cannot have parameters with same name.\n");
@@ -68,7 +69,7 @@ void printParameters(struct paramlist* head){
   printf("-------------------- PARAMETER LIST --------------------\n\n");
   struct paramlist* cur = head;
   while(cur!=NULL){
-    printf("| name : %s | type : %d |\n",cur->name,cur->type);
+    printf("| name : %s | type : %s |\n",cur->name,cur->type->name);
     cur = cur->next;
   }
   printf("\n");

@@ -8,18 +8,18 @@
 
 struct Lsymbol{
   char* name;
-  int type;
+  struct typetable* type;
   int binding;
   struct Lsymbol* next;
 };
 
 // CREATING NODE
 
-struct Lsymbol* createLNode(char* name,int type);
+struct Lsymbol* createLNode(char* name,struct typetable* type);
 
 // ADDING LOCAL SYMBOL
 
-struct Lsymbol* addLSymbol(char* name,int type);
+struct Lsymbol* addLSymbol(char* name,struct typetable* type);
 
 // ADD LAST PARAMS TO LOCAL SYMBOL TABLE
 

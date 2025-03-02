@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include "symbol_table/Gsymbol.h"
 #include "symbol_table/Lsymbol.h"
+#include "typetable/typetable.h"
 
 struct TreeNode{
 
@@ -13,7 +14,7 @@ struct TreeNode{
   char* string;
 
   int op;
-  int type;
+  struct typetable* type;
   char* varname;
 
   // USED FOR VARIABLES/ARRAYS
@@ -41,7 +42,7 @@ bool typeSatisfied(struct TreeNode* root);
 
 struct TreeNode* createNumNode(int val);
 
-struct TreeNode* createOpNode(int type,int op,struct TreeNode* left,struct TreeNode* right);
+struct TreeNode* createOpNode(struct typetable* type,int op,struct TreeNode* left,struct TreeNode* right);
 
 struct TreeNode* createStringNode(char* string);
 

@@ -3,14 +3,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+
 #include "AST.h"
 #include "reghandling.h"
-#include "evaluator.h"
+
 #include "symbol_table/Gsymbol.h"
 #include "symbol_table/varList.h"
 #include "symbol_table/paramlist.h"
 #include "symbol_table/Lsymbol.h"
+
 #include "functions/checker.h"
+
+#include "user_defined_type/fieldlist.h"
+#include "typetable/typetable.h"
 
 
 
@@ -33,14 +38,14 @@ FILE* xsm;
   struct list* list;
   struct paramlist* paramlist;
   struct Lsymbol* Lsymbol;
-
+  struct typetable* typetable;
 
 
 }
 
 %type<paramlist>ParamList
 %type<list> GidList LidList
-%type<integer> TYPE
+%type<typetable> TYPE
 %type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST REPEATST DOWHILEST IDENTIFIER CONSTANT ArgList Body
 %token STRING ID NUM PLUS MINUS MUL DIV EQUALS 
 %token LT LTE GT GTE EQ NEQ 
@@ -81,17 +86,17 @@ GdeclList :
 
 Gdecl :
      TYPE GidList ';' {
-        addAllGSymbols($2,$1);
+          addAllGSymbols($2,$1);
      }
      ;
 
 TYPE :
      INT {
-     $$ = $<integer>1;
+     $$ = $<typetable>1;
      }
      |
      STR {
-     $$ = $<integer>1;
+     $$ = $<typetable>1;
      }
      ;
 
@@ -237,7 +242,6 @@ MainBlock :
 
 Body :
   BEG SL END ';' {
-
     $$ = $2;
     root = $2;
     printf("Valid Program.\n");
@@ -251,7 +255,7 @@ Body :
 
 SL :
    SL S  {
-   $$ = createOpNode(-1,13,$1,$2);
+   $$ = createOpNode(NULL,13,$1,$2);
   }
   |
    S  {
@@ -275,11 +279,11 @@ S :
   DOWHILEST ';'
   |
   BREAK ';' {
-    $<node>$ = createOpNode(-1,16,NULL,NULL);
+    $<node>$ = createOpNode(NULL,16,NULL,NULL);
   }
   |
   CONTINUE ';' {
-    $<node>$ = createOpNode(-1,17,NULL,NULL);
+    $<node>$ = createOpNode(NULL,17,NULL,NULL);
   }
   |
   RETURN E ';' {
@@ -318,49 +322,49 @@ DOWHILEST :
 
 ASSG :
   IDENTIFIER EQUALS E {
-  $$ = createOpNode(-1,4,$<node>1,$3);
+  $$ = createOpNode(NULL,4,$<node>1,$3);
   }
   ;
 
 E :
   E PLUS E {
-  $$ = createOpNode(0,0,$1,$3);
+  $$ = createOpNode(lookTTUp("int"),0,$1,$3);
   }
   |
   E MINUS E {
-  $$ = createOpNode(0,1,$1,$3);
+  $$ = createOpNode(lookTTUp("int"),1,$1,$3);
   }
   |
   E MUL E {
-  $$ = createOpNode(0,2,$1,$3);
+  $$ = createOpNode(lookTTUp("int"),2,$1,$3);
   }
   |
   E DIV E {
-  $$ = createOpNode(0,3,$1,$3);
+  $$ = createOpNode(lookTTUp("int"),3,$1,$3);
   }
   |
   E LT E {
-  $$ = createOpNode(1,5,$1,$3);
+  $$ = createOpNode(lookTTUp("bool"),5,$1,$3);
   }
   |
   E LTE E {
-  $$ = createOpNode(1,6,$1,$3);
+  $$ = createOpNode(lookTTUp("bool"),6,$1,$3);
   }
   |
   E GT E {
-  $$ = createOpNode(1,7,$1,$3);
+  $$ = createOpNode(lookTTUp("bool"),7,$1,$3);
   }
   |
   E GTE E {
-  $$ = createOpNode(1,8,$1,$3);
+  $$ = createOpNode(lookTTUp("bool"),8,$1,$3);
   }
   |
   E NEQ E {
-  $$ = createOpNode(1,9,$1,$3);
+  $$ = createOpNode(lookTTUp("bool"),9,$1,$3);
   }
   |
   E EQ E {
-  $$ = createOpNode(1,10,$1,$3);
+  $$ = createOpNode(lookTTUp("bool"),10,$1,$3);
   }
   |
   '(' E ')' {
@@ -418,13 +422,13 @@ CONSTANT :
 
 INPUT :
        READ '(' IDENTIFIER ')' {
-       $$ = createOpNode(-1,11,$<node>3,NULL);
+       $$ = createOpNode(NULL,11,$<node>3,NULL);
       }
        ;
 
 OUTPUT :
        WRITE '(' E ')' {
-        $$ = createOpNode(-1,12,$3,NULL);
+        $$ = createOpNode(NULL,12,$3,NULL);
       }
        ;
 
@@ -435,42 +439,26 @@ OUTPUT :
 
 int main(int argc, char* argv[]){
 
+  //SOME INITIAL STUFF
+  createPrimitive();
+
   FILE* f = fopen(argv[1],"r");
   yyin = f;
 
-  addGSymbol("main",0,0,0,NULL,1);
-  
+  addGSymbol("main",lookTTUp("int"),0,0,NULL,1);
+
+
+  printTT();
 
 
   xsm = fopen("assembly_code.xsm","w");
   fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
   //fprintf(xsm,"BRKP\n");
-
   fprintf(xsm,"MOV SP, 4500\n");
   fprintf(xsm,"MOV BP, SP\n");
-
-  // F0 IS THE MAIN FUNCTION, SO GO THERE
-  fprintf(xsm,"JMP F0\n");
-
-  
-// --------------------------------- PARSING INPUT 
+  fprintf(xsm,"JMP F0\n"); 
   yyparse();
 
-
-
-// --------------------------------- ASSEMBLY CODE
-
-
-
-
-// --------------------------------- EXERCISE 1
-
-
-/*
-  printf("RUNNING EXERCISE1\n");
-  evaluate(root);
-  getDetails();
-*/
 
   return 0;
 }

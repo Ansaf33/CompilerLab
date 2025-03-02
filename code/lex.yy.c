@@ -820,7 +820,7 @@ case 4:
 YY_RULE_SETUP
 #line 30 "lexical.l"
 {
-  yylval.integer = 0;
+  yylval.typetable = lookTTUp("int");
   return INT;
 }
 	YY_BREAK
@@ -828,8 +828,8 @@ case 5:
 YY_RULE_SETUP
 #line 35 "lexical.l"
 {
-  yylval.integer = 2;
-  return STR;
+  yylval.typetable = lookTTUp("str");
+  return STR; 
 }
 	YY_BREAK
 case 6:

@@ -699,7 +699,7 @@ void pushArgs(FILE* f,struct TreeNode* head){
     return;
   }
   pushArgs(f,head->next);
-  // ARGUMENT SHOULD BE AN ARITHMETIC EXPRESSION ( INCLUDES ARITHMETIC EXPRESSIONS, NUMBER, STRING, VARIABLE )
+  // ARGUMENT SHOULD BE AN ARITHMETIC EXPRESSION 
   int resReg = arithmetic_expression_codeGen(f,head);
   fprintf(f,"PUSH R%d\n",resReg);
   freeReg();
