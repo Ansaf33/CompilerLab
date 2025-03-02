@@ -31,15 +31,6 @@
 25 : NEW
 
 
-// -------------- TYPE FIELD IN THE STRUCTURE
-
-if root->type is 0 --- ARITHMETIC TYPE
-if root->type is 1 --- BOOLEAN TYPE
-
-// -------------- STRUCTURE OF WHILE STATEMENTS
-
-root->left = the boolean expression
-root->right = statement list
 
 // -------------- STRUCTURE OF IF STATEMENTS
 
@@ -67,3 +58,7 @@ root->middle = Field to be deleted
 // ----------- STRUCTURE OF NEW STATEMENT
 
 root->middle = Type of class to be created.
+
+// ---------- STRUCTURE OF USER DEFINED TYPE (a.next.data) OR CLASS MEMBERS (person.teacher)
+
+every field member is the successive middle child of its parent.

@@ -386,7 +386,7 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
 
       }
 
-      // if initialize function, it returns 1/0
+      // if initialize function, it returns 1/0 depending on success/failure
       if( root->op == 21 ){
         int retReg = initialize_codeGen(f);
         fprintf(f,"MOV R%d, R%d\n",regIdx,retReg);
@@ -896,8 +896,6 @@ void popArgs(FILE* f,struct TreeNode* head){
 
 int initialize_codeGen(FILE* f){
 
-
-
   // pushing used registers
   pushRegisters(f);
 
@@ -1007,7 +1005,6 @@ void checkIfAllocated(FILE* f,int ptrReg){
 // ----------------------------------------------------------------------------------------------------------------------- NEW CODEGEN
 
 void new_codeGen(FILE* f,struct TreeNode* root){
-
 
 
   // get the virtual function table's starting address
