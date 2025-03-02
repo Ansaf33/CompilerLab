@@ -14,7 +14,7 @@ struct Gsymbol{
   int rowSize;
   int colSize;
 
-  int address;
+  int binding;
 
 
   struct paramlist* param;
@@ -28,11 +28,11 @@ struct Gsymbol{
 
 // CREATING A NODE
 
-struct Gsymbol* createGNode(char* name,int type,int rowSize,int colSize,struct paramlist* param);
+struct Gsymbol* createGNode(char* name,int type,int rowSize,int colSize,struct paramlist* param,int isFunction);
 
 // ADDING IT TO LL
 
-void addGSymbol(char* name,int type,int rowSize,int colSize,struct paramlist* param);
+void addGSymbol(char* name,int type,int rowSize,int colSize,struct paramlist* param,int isFunction);
 
 
 // LOOKUP DETAILS BASED ON NAME

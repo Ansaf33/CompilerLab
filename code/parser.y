@@ -44,8 +44,8 @@ FILE* xsm;
 %type<node> E ASSG INPUT OUTPUT S SL IFST WHILEST REPEATST DOWHILEST IDENTIFIER CONSTANT ArgList Body
 %token STRING ID NUM PLUS MINUS MUL DIV EQUALS 
 %token LT LTE GT GTE EQ NEQ 
-%token READ WRITE END BEG MAIN 
-%token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE REPEAT UNTIL
+%token READ WRITE END BEG 
+%token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE REPEAT UNTIL RETURN MAIN
 %token DECL ENDDECL INT STR
 %left EQ NEQ
 %left LT LTE GT GTE
@@ -124,7 +124,7 @@ GidList :
           $$ = addArray(NULL,$<string>1,atoi($<string>3),atoi($<string>6));
         }
         |
-        ID '(' ParamList ')' {
+        ID '(' ParamList ')' { 
           $$ = addFunction(NULL,$<string>1,$3);
           deleteLSymbolTable();
         }
@@ -140,21 +140,25 @@ Fdef :
      TYPE ID '(' ParamList ')' '{' LdeclBlock Body '}' {
      printf("|| ------------------------- FUNCTION : %s ---------------------- ||\n\n",$<string>2);
 
+     // --------------------------------------- CHECKING FUNCTION REQUIREMENTS ---------------------------------------------
      // PRINT THE PARAMETERS
      printParameters($4);
      // PRINT THE LOCAL SYMBOL TABLE
      getLSymbolTable();
-     // CHECK IF FUNCTION IS DEFINED
+     // CHECK IF FUNCTION IS DECLARED
      checkFunctionDeclared($<string>2);
      // CHECK IF DEFINED PARAMETERS ARE VALID (in paramlist) to DECLARED PARAMETERS (in symboltable->param) (NAME AND TYPE)
      checkValidParams($4,$<string>2);
      // CHECK IF RETURN TYPES OF DECLARED AND DEFINED FUNCTIONS ARE VALID
      checkValidRetType($1,$<string>2);
+     // ---------------------------------------- CHECKING DONE --------------------------------------------------------------
 
-     // GENERATE CODE FOR THE FUNCTION
+     // GENERATE CODE FOR THE FUNCTION ( PASS IN THE NAME OF FUNCTION, AND ROOT OF TREE )
+  
+     define_function_codeGen(xsm,$<string>2,$8);
 
-     // DELETE THE LOCAL SYMBOL TABLE
      deleteLSymbolTable();
+
      }
 
      ;
@@ -208,16 +212,12 @@ LidList :
 MainBlock :
           INT MAIN '(' ')' '{' LdeclBlock Body '}' {
           printf("|| ------------------------- FUNCTION : Main ---------------------- ||\n\n");
-
-          
-
+ 
           // GETTING LOCAL SYMBOL TABLE
           getLSymbolTable();
+    
+          define_function_codeGen(xsm,"main",$7);
 
-
-          // GENERATING CODE FOR THE MAIN FUNCTION
-
-          codeGen(xsm,root,-1,-1);
           fprintf(xsm,"JMP L51\n");
 
           // OVERFLOW CONDITION
@@ -229,14 +229,15 @@ MainBlock :
           fprintf(xsm,"L51:\n");
           fprintf(xsm,"INT 10\n");
 
-          printf("Deleting Local Symbol Table of Main\n");
-
           deleteLSymbolTable();
+
+
           }
 
 
 Body :
   BEG SL END ';' {
+
     $$ = $2;
     root = $2;
     printf("Valid Program.\n");
@@ -279,6 +280,10 @@ S :
   |
   CONTINUE ';' {
     $<node>$ = createOpNode(-1,17,NULL,NULL);
+  }
+  |
+  RETURN E ';' {
+    $<node>$ = createReturnNode($2);
   }
   ;
 
@@ -425,50 +430,36 @@ OUTPUT :
 
 
 
-
 %%
 
 
-
-
-
-
-
-
-
 int main(int argc, char* argv[]){
+
+  FILE* f = fopen(argv[1],"r");
+  yyin = f;
+
+  addGSymbol("main",0,0,0,NULL,1);
+  
 
 
   xsm = fopen("assembly_code.xsm","w");
   fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
   //fprintf(xsm,"BRKP\n");
+
+  fprintf(xsm,"MOV SP, 4500\n");
+  fprintf(xsm,"MOV BP, SP\n");
+
+  // F0 IS THE MAIN FUNCTION, SO GO THERE
+  fprintf(xsm,"JMP F0\n");
+
   
 // --------------------------------- PARSING INPUT 
-  FILE* f = fopen(argv[1],"r");
-  yyin = f;
   yyparse();
 
 
 
 // --------------------------------- ASSEMBLY CODE
 
-
-/*
-  FILE* xsm = fopen(argv[2],"w");
-  fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
-  //fprintf(xsm,"BRKP\n");
-  codeGen(xsm,root,-1,-1);
-  fprintf(xsm,"JMP L51\n");
-
-  // OVERFLOW CONDITION
-  fprintf(xsm,"L50:\n");
-  getInput(xsm,"Overflow");
-  fprintf(xsm,"INT 10\n");
-
-  // END
-  fprintf(xsm,"L51:\n");
-  fprintf(xsm,"INT 10\n");
-*/
 
 
 
@@ -479,7 +470,6 @@ int main(int argc, char* argv[]){
   printf("RUNNING EXERCISE1\n");
   evaluate(root);
   getDetails();
-
 */
 
   return 0;

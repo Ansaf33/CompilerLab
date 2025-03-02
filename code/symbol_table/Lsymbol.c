@@ -4,7 +4,9 @@
 #include "Lsymbol.h"
 #include "paramlist.h"
 
-static int Laddress = 0;
+static int binding = 1;
+static int diff = -4;
+
 struct Lsymbol* Lhead = NULL;
 
 
@@ -15,7 +17,7 @@ struct Lsymbol* createLNode(char* name,int type){
   temp->name = (char*)malloc(sizeof(char)*100);
   strcpy(temp->name,name);
   temp->type = type;
-  temp->address = Laddress++;;
+  temp->binding = binding++;
 
   temp->next = NULL;
 
@@ -62,7 +64,15 @@ void addLastParamToLSymbolTable(struct paramlist* paramhead){
     cur = cur->next;
   }
 
-  addLSymbol(cur->name,cur->type);
+  struct Lsymbol* curr = addLSymbol(cur->name,cur->type);
+
+  while(curr->next != NULL ){
+    curr = curr->next;
+  }
+
+  curr->binding+=diff;
+  binding--;
+  diff-=1;
 
 }
 
@@ -89,7 +99,7 @@ struct Lsymbol* getLSymbolTable(){
     printf("--------------- LOCAL SYMBOL TABLE ---------------------\n\n");
     struct Lsymbol* cur = Lhead;
     while(cur != NULL){
-      printf("| name : %s | type : %d | address : %d |\n",cur->name,cur->type,cur->address);
+      printf("| name : %s | type : %d | binding : %d |\n",cur->name,cur->type,cur->binding);
       cur = cur->next;
     }
     printf("\n");
@@ -98,6 +108,12 @@ struct Lsymbol* getLSymbolTable(){
   return Lhead;
 
 
+}
+
+// ----------------- GETTING HEAD
+
+struct Lsymbol* getLHead(){
+  return Lhead;
 }
 
 // --------------- DELETING LOCAL TABLE
@@ -112,8 +128,8 @@ void deleteLSymbolTable(){
   }
 
   Lhead = NULL;
-  Laddress = 0;
-
+  binding = 1;
+  diff = -4;
 
 }
 

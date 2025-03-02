@@ -11,7 +11,7 @@ static int label = 0;
 
 // ------------ CREATE A Gsymbol Node
 
-struct Gsymbol* createGNode(char* name, int type,int rowSize,int colSize,struct paramlist* param){
+struct Gsymbol* createGNode(char* name, int type,int rowSize,int colSize,struct paramlist* param,int isFunction){
 
   struct Gsymbol* temp = (struct Gsymbol*)malloc(sizeof(struct Gsymbol));
 
@@ -23,9 +23,9 @@ struct Gsymbol* createGNode(char* name, int type,int rowSize,int colSize,struct 
   temp->colSize = colSize;
 
   temp->param = param;
-  temp->flabel = param?label++:-1;
+  temp->flabel = isFunction?label++:-1;
 
-  temp->address = address;
+  temp->binding = address;
   address = address + rowSize*colSize;
 
   return temp;
@@ -35,10 +35,10 @@ struct Gsymbol* createGNode(char* name, int type,int rowSize,int colSize,struct 
 
 // ------------------------ ADD A Gsymbol to the table
 
-void addGSymbol(char* name,int type,int rowSize,int colSize,struct paramlist* param){
+void addGSymbol(char* name,int type,int rowSize,int colSize,struct paramlist* param,int isFunction){
 
   if( !lookGUp(name) ){
-    struct Gsymbol* temp = createGNode(name,type,rowSize,colSize,param);
+    struct Gsymbol* temp = createGNode(name,type,rowSize,colSize,param,isFunction);
 
     // ADDING TO END OF LINKED LIST
     if( Ghead == NULL ){
@@ -95,7 +95,7 @@ void getGSymbolTable(){
   printf("------------------------------ GLOBAL SYMBOL TABLE ------------------------------\n");
   struct Gsymbol* current = Ghead;
   while( current != NULL ){
-    printf("| name : %s | type : %d | rowSize : %d | colSize : %d  | address : %d  | flabel : %d | hasParam : %d |\n",current->name,current->type,current->rowSize,current->colSize,current->address,current->flabel,current->param?1:0);
+    printf("| name : %s | type : %d | rowSize : %d | colSize : %d  | binding : %d  | flabel : %d | hasParam : %d |\n",current->name,current->type,current->rowSize,current->colSize,current->binding,current->flabel,current->param?1:0);
     current = current->next;
   }
   printf("\n");

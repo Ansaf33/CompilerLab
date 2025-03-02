@@ -227,6 +227,7 @@ struct TreeNode* createWhileNode(int op,struct TreeNode* left,struct TreeNode* r
 //--------------- CREATE NODE FOR FUNCTIONS
 
 struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
+  printf("Creating a function node\n");
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
 
 
@@ -237,11 +238,13 @@ struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argList){
     printf("Function | %s | is not declared.\n",varname);
     exit(1);
   }
-  // -------------------- CHECK IF FUNCTION IS DEFINED -------------------
+  // -------------------- CHECK IF FUNCTION IS DEFINED ------------------- ( SMALL SACRIFICE MADE HERE )
+  /*
   if( !temp->Gsymbol->defined ){
     printf("Function | %s | is not defined.\n",varname);
     exit(1);
   }
+  */
 
   // ------------------ CHECKING DONE ------------------------------------
 
@@ -304,6 +307,22 @@ struct TreeNode* addArgToList(struct TreeNode* listHead,struct TreeNode* argHead
 
 
 
+// ----------------- CREATE RETURN NODE 
+
+struct TreeNode* createReturnNode(struct TreeNode* middle){
+  struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+  temp->val = -1;
+  temp->string = NULL;
+
+  temp->op = 20;
+  temp->type = -1;
+  temp->varname = NULL;
+
+  temp->middle = middle;
+
+  return temp;
+}
+
 
 
 
@@ -327,7 +346,7 @@ void Inorder(struct TreeNode* root){
   else if(root->op != -1 ){
     printf(" ( %s )",map(root->op));
   }
-  // IT IS A VARIABLE / A FUNCTION
+  // IT IS A VARIABLE
   else if( root->varname != NULL ){
     printf(" ( %s )",root->varname);
     if(root->argList){

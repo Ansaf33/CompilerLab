@@ -32,13 +32,13 @@
   return INT;
 }
 
-"main" {
-  return MAIN;
-}
-
 "str" {
   yylval.integer = 2;
   return STR;
+}
+
+"main" {
+  return MAIN;
 }
 
 "begin" {
@@ -99,6 +99,10 @@
 
 "until" {
   return UNTIL;
+}
+
+"return" {
+  return RETURN;
 }
 
 [+] {

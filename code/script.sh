@@ -7,4 +7,3 @@ cd label_translation
 cd ../../xsm_expl
 ./xsm -l library.lib -e ../code/proper_assembly_code.xsm --debug
 
-

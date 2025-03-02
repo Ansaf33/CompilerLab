@@ -53,6 +53,8 @@ struct TreeNode* createWhileNode(int op,struct TreeNode* left, struct TreeNode* 
 
 struct TreeNode* createFunctionNode(char* varname,struct TreeNode* argListHead);
 
+struct TreeNode* createReturnNode(struct TreeNode* middle);
+
 struct TreeNode* addArgToList(struct TreeNode* listHead,struct TreeNode* argHead);
 
 void Inorder(struct TreeNode* root);

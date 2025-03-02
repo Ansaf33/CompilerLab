@@ -12,6 +12,7 @@ bool checkValidParams(struct paramlist* param,char* name){
 
   // CHECKING IF PARAMETERS ARE THE SAME
 
+
   struct paramlist* p = param;
   struct paramlist* s = lookGUp(name)->param;
 

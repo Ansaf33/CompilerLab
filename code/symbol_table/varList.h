@@ -11,6 +11,7 @@ struct list{
   char* name;
   int rowSize;
   int colSize;
+  int isFunction;
 
   struct paramlist* param;
 

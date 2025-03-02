@@ -9,7 +9,7 @@
 struct Lsymbol{
   char* name;
   int type;
-  int address;
+  int binding;
   struct Lsymbol* next;
 };
 
@@ -32,6 +32,10 @@ struct Lsymbol* lookLUp(char* name);
 // PRINTING DETAILS OF LOCAL SYMBOL TABLE
 
 struct Lsymbol* getLSymbolTable(void);
+
+// GETTING HEAD OF LOCAL SYMBOL TABLE
+
+struct Lsymbol* getLHead(void);
 
 // DELETING LOCALSYMBOL TABLE
 

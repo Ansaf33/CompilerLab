@@ -8,6 +8,9 @@
 
 // define the maximum limit of registers R0 to R19
 #define NOR 20
+#define SP 4500
+#define BP 4500
+
 
 // INITIALLY, NO REGISTERS ARE USED
 static int highestUsedReg = -1;
@@ -18,25 +21,24 @@ static int highestUsedLabel = -1;
 
 int getSymbolAddress(FILE* f,struct TreeNode* root){
 
-
   // CONTAINS ADDRESS
 
   int adReg = getReg();
   if( root->Lsymbol ){
-    fprintf(f,"MOV R%d, %d\n",adReg,root->Lsymbol->address);
+    //printf("Local symbol | %s |, so trying to get binding\n",root->Lsymbol->name);
+    fprintf(f,"MOV R%d, %d\n",adReg,root->Lsymbol->binding);
+    fprintf(f,"ADD R%d, BP\n",adReg);
+    //printf("Got binding as %d + %d\n",BP,root->Lsymbol->binding);
   }
   else{
-    fprintf(f,"MOV R%d, %d\n",adReg,root->Gsymbol->address);
+   //printf("Global symbol | %s |, so trying to get binding\n",root->Gsymbol->name);
+    fprintf(f,"MOV R%d, %d\n",adReg,root->Gsymbol->binding);
+    //printf("Got binding as %d\n",root->Gsymbol->binding);
   }
 
-  // CONTAINS COPIED ADDRESS VALUE TO CHECK OVERFLOW CONDITION
-
   
-  // IF 1D ARRAY , EVALUATE THE COLUMN EXPRESSION AND ADD IT ( root->symbol->address + 0*size + c )
   
   if( root->column ){
-
-    // IF 2D ARRAY, EVALUATE ROW EXPRESSION AND ADD IT TO ADDRESS ( root->symbol->address + r*colSize + c )
     
     int b = getReg();
     fprintf(f,"MOV R%d, %d\n",b,0);
@@ -77,17 +79,16 @@ int getSymbolAddress(FILE* f,struct TreeNode* root){
     fprintf(f,"ADD R%d, R%d\n",adReg,resReg);
 
     freeReg();
-
-    
-
           
   }
+
 
 
   return adReg;
  
 
 }
+
 
 // --------------------------------------------------------- GET LABEL FUNCTION
 
@@ -126,9 +127,6 @@ void freeReg(){
 // ----------------------------------------------------------- PRINTING SOMETHING IN CONSOLE 
 
 void getInput(FILE* f,char* s){
-
-
-  fprintf(f,"MOV SP, %d\n",4500);
 
   // pushing "write"
   int r1 = getReg();
@@ -180,20 +178,41 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
   // IF AT LEAF NODE, THEN ONLY NUMBER OR CONSTANT
   if( root->left == NULL && root->right == NULL ){
     int regIdx = getReg();
+
     // IF NUMBER, MOVE THE NUMBER TO REGISTER
     if(root->val != -1 ){
       fprintf(f,"MOV R%d, %d\n",regIdx,root->val);
     }
+
     // IF STRING, MOVE THE STRING TO REGISTER
     if(root->string != NULL ){
       fprintf(f,"MOV R%d, %s\n",regIdx,root->string);
     }
-    // IF VARIABLE, MOVE FROM MEMORY LOCATION TO REGISTER
-    else if(root->varname != NULL){
-      int memlocationReg = getSymbolAddress(f,root);
-      fprintf(f, "MOV R%d, [R%d]\n",regIdx,memlocationReg);
-      freeReg();
+
+    else if( root->varname != NULL  ){
+      struct Gsymbol* global = lookGUp(root->varname);
+      struct Lsymbol* local = lookLUp(root->varname);
+
+
+      // IF VARIABLE, MOVE IT FROM MEMORY TO REGISTER
+      
+      if( local || global->flabel == -1 ){
+        int memlocationReg = getSymbolAddress(f,root);
+        fprintf(f, "MOV R%d, [R%d]\n",regIdx,memlocationReg);
+        freeReg();
+      }
+
+      // IF FUNCTION, WRITE CODEGEN FOR THE FUNCTION AND STORE IT IN REGISTER
+
+      else if( global->flabel >= 0 ){
+        int retReg = invoke_function_codeGen(f,root);
+        fprintf(f,"MOV R%d, R%d\n",regIdx,retReg);
+        freeReg();
+      }
+
     }
+    
+
 
 
     return regIdx;
@@ -269,7 +288,6 @@ int boolean_expression_codeGen(FILE* f,struct TreeNode* root){
 void assignment_codeGen(FILE* f,struct TreeNode* root){
 
 
-
   // store the register contents in the memory location 'storeIn'
   int r1 = getReg();
   
@@ -277,6 +295,7 @@ void assignment_codeGen(FILE* f,struct TreeNode* root){
   int memAddressReg = getSymbolAddress(f,root->left);
   fprintf(f,"MOV R%d, R%d\n",r1,memAddressReg);
   freeReg();
+
 
 
   int fReg = arithmetic_expression_codeGen(f,root->right);
@@ -299,12 +318,8 @@ void assignment_codeGen(FILE* f,struct TreeNode* root){
 void read_codeGen(FILE* f,struct TreeNode* root){
 
 
-  //char s[50];
-  //snprintf(s,sizeof(s),"Enter %s : ", root->left->varname);
-  //getInput(f,s);
 
   // STACK POINTER
-  fprintf(f,"MOV SP, %d\n",4500);
 
   // pushing "read"
   int r1 = getReg();
@@ -359,11 +374,6 @@ void read_codeGen(FILE* f,struct TreeNode* root){
 void write_codeGen(FILE* f,struct TreeNode* root){
 
 
-  //getInput(f,"Output : ");
-  
-
-  // stack pointer
-  fprintf(f,"MOV SP, %d\n",4500);
 
   // pushing "write"
   int r1 = getReg();
@@ -496,7 +506,7 @@ void repeat_codeGen(FILE* f,struct TreeNode* root){
   int cl = l0;
 
   // STARTING POINT
-  fprintf(f,"L%d:\n",l0);
+  fprintf(f,"F%d:\n",l0);
 
   // CODE FOR STATEMENT LIST
   codeGen(f,root->right,bl,cl);
@@ -538,8 +548,186 @@ void dowhile_codeGen(FILE* f,struct TreeNode* root){
   // IF IT IS FALSE, EXIT THE WHILE LOOP
   fprintf(f,"L%d:\n",l1);
   
+}
+
+
+// ------------------------------------------------------------- CODE GEN WHEN FUNCTION IS INVOKED
+
+int invoke_function_codeGen(FILE* f,struct TreeNode* root){
+
+
+
+
+  // PUSH USED REGISTERS
+  pushRegisters(f);
+
+  // PUSHED ARGUMENT LIST IN REVERSE ORDER
+  pushArgs(f,root->argList);
+
+  // PUSH EMPTY REGISTER FOR RETURN VALUE
+  fprintf(f,"PUSH R0\n");
+
+
+  // CALL THE FUNCTION
+  fprintf(f,"CALL F%d\n",lookGUp(root->varname)->flabel);
+
+  // TOP CONTAINS RETURN VALUE, STORE IT
+
+  int returnReg = getReg();
+  fprintf(f,"POP R%d\n",returnReg);
+
+  // POP OUT ARGUMENTS FROM THE STACK
+  popArgs(f,root->argList);
+
+  // POP OUT USED REGISTERS FROM THE STACK
+  popRegisters(f);
+
+  return returnReg;
 
 }
+
+// ------------------------------------------------------------- CODE GEN WHEN FUNCTION IS DEFINED
+
+void define_function_codeGen(FILE* f,char* name,struct TreeNode* root){
+
+  int flabel = lookGUp(name)->flabel;
+
+
+  fprintf(f,"F%d:\n",flabel);
+
+
+  // PUSHING BASE POINTER TO TOP OF STACK
+  fprintf(f,"PUSH BP\n");
+
+  // SET NEW BASE POINTER TO TOP OF STACK
+  fprintf(f,"MOV BP, SP\n");
+
+  // SPACE FOR LOCAL SYMBOL TABLE ( ALREADY EXISTING, SO GET THE SIZE )
+  struct Lsymbol* cur = getLHead();
+  while( cur != NULL ){
+    int reg = getReg();
+    fprintf(f,"PUSH R%d\n",reg);
+    freeReg();
+    cur = cur->next;
+  }
+
+
+  // EXECUTE CODEGEN OF THAT FUNCTION
+  codeGen(f,root,-1,-1);
+
+
+
+}
+
+// ------------------------------------------------------------- CODE GEN WHEN RETURN IS ENCOUNTERED
+
+void return_codeGen(FILE* f,struct TreeNode* root){
+
+
+  // GET RETURN VALUE
+
+  int returnReg = arithmetic_expression_codeGen(f,root->middle);
+
+
+  int reg = getReg();
+  fprintf(f,"MOV R%d, BP\n",reg);
+  fprintf(f,"SUB R%d, 2\n",reg);
+  
+  // STORE IT IN BP - 2 -> reg
+  fprintf(f,"MOV [R%d], R%d\n",reg,returnReg);
+
+  freeReg();
+  freeReg();
+
+
+  // POP OUT LOCAL VARIABLES FROM STACK
+
+  struct Lsymbol* cur = getLHead();
+  reg = getReg();
+  int loopReg = getReg();
+  fprintf(f,"MOV R%d, BP\n",reg);
+
+  while( cur != NULL ){
+
+    fprintf(f,"ADD R%d, %d\n",reg,1);
+    fprintf(f,"POP R%d\n",loopReg);
+
+    cur = cur->next;
+
+  }
+
+  freeReg();
+  freeReg();
+  
+
+  // SET BP TO OLD VALUE OF BP
+  
+  reg = getReg();
+  fprintf(f,"POP R%d\n",reg);
+  fprintf(f,"MOV BP, R%d\n",reg);
+  freeReg();
+
+  // RETURN INSTRUCTION
+
+  fprintf(f,"RET\n");
+
+
+}
+
+
+// ------------------------------------------------------------- PUSH ALL REGISTERS
+
+void pushRegisters(FILE* f){
+  for(int i=0;i<=highestUsedReg;i++){
+    fprintf(f,"PUSH R%d\n",i);
+  }
+}
+
+// ------------------------------------------------------------- POP ALL REGISTERS (in reverse order since we pushed inside stack)
+
+void popRegisters(FILE* f){
+  for(int i=highestUsedReg-1;i>=0;i--){
+    fprintf(f,"POP R%d\n",i);
+  }
+
+}
+
+// ----------------------------------------------------------- PUSH ARGUMENTS TO STACK
+
+void pushArgs(FILE* f,struct TreeNode* head){
+  if( head == NULL ){
+    return;
+  }
+  pushArgs(f,head->next);
+  // ARGUMENT SHOULD BE AN ARITHMETIC EXPRESSION ( INCLUDES ARITHMETIC EXPRESSIONS, NUMBER, STRING, VARIABLE )
+  int resReg = arithmetic_expression_codeGen(f,head);
+  fprintf(f,"PUSH R%d\n",resReg);
+  freeReg();
+  
+}
+
+// ----------------------------------------------------------- POP ARGUMENTS FROM STACK
+
+void popArgs(FILE* f,struct TreeNode* head){
+  struct TreeNode* cur = head;
+  int pReg = getReg();
+
+  while(cur!=NULL){
+    fprintf(f,"POP R%d\n",pReg);
+    cur = cur->next;
+  }
+
+  freeReg();
+
+
+}
+
+
+
+
+
+
+
 
 // ------------------------------------------------------------- BOOLEAN FUNCTIONS
 
@@ -626,6 +814,14 @@ void codeGen(FILE* f,struct TreeNode* root,int bl,int cl){
     case 19:
           dowhile_codeGen(f,root);
           break;
+    // RETURN STATEMENT
+    case 20:
+          return_codeGen(f,root);
     }
+
+
+  
+  
+          
 }
 

@@ -11,7 +11,7 @@ static bool continueFlag = false;
 // ---------------------------------- GETTING ADDRESS FROM A NODE
 
 int getSA(struct TreeNode* root){
-  return root->Gsymbol->address + (root->middle?arithmetic_expressionEvaluator(root->middle):0);
+  return root->Gsymbol->binding + (root->middle?arithmetic_expressionEvaluator(root->middle):0);
 
 }
 

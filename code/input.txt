@@ -1,17 +1,22 @@
 decl
-int mainvar;
-int adder(int a,int b);
-int subtractor(int a,int b);
-int multiplier(int a,int b);
+int fin;
+int fact(int n);
+int subber(int n);
 enddecl
 
 
-int adder(int a,int b){
+int fact(int n){
   decl
-  int sum;
   enddecl
   begin
-  sum = subtractor(a,b);
+  if( n == 1 ) then
+    return 1;
+  else
+    if ( n == 0 ) then
+      return 0;
+    endif;
+  endif;
+  return n*fact(n-1);
   end;
 
 }
@@ -20,11 +25,12 @@ int adder(int a,int b){
 int main(){
 
   decl
+  int a;
   enddecl
 
   begin
-  mainvar = 5 + 3*2;
-  write(mainvar);
+  fin = fact(8);
+  write(fin);
   end;
 
 }

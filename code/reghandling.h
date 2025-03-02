@@ -76,6 +76,35 @@ void repeat_codeGen(FILE* f,struct TreeNode* root);
 
 void dowhile_codeGen(FILE* f,struct TreeNode* root);
 
+// CODE GEN FOR INVOKING FUNCTIONS
+
+int invoke_function_codeGen(FILE* f,struct TreeNode* root);
+
+// CODE GEN FOR DEFINING FUNCTIONS
+
+void define_function_codeGen(FILE* f,char* name,struct TreeNode* root);
+
+// CODE GEN FOR RETURN STATEMENTS
+
+void return_codeGen(FILE* f,struct TreeNode* root);
+
+// CODE GEN FOR PUSHING REGISTERS
+
+void pushRegisters(FILE* f);
+
+// CODE GEN FOR POPPING REGISTERS
+
+void popRegisters(FILE* f);
+
+// CODE GEN FOR PUSHING ARGUMENTS
+
+void pushArgs(FILE* f,struct TreeNode* head);
+
+// CODE GEN FOR POPPING ARGUMENTS
+
+void popArgs(FILE* f,struct TreeNode* head);
+
+
 // codeGen for entire statement lists
 
 void codeGen(FILE* f,struct TreeNode* root,int bl,int cl);
