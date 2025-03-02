@@ -1,40 +1,25 @@
 decl
-int a;
-str hello;
+int fib[100];
 int i;
-int s;
+int n;
 enddecl
 
 
 begin
 
-read(a);
+read(n);
 
-if(a-2*(a/2) == 0) then
-  i = 1;
-  s = 0;
-  while(i<=10) do
-    s = s + i;
-    i = i + 1;
-  endwhile;
+fib[0] = 0;
+fib[1] = 1;
+fib[2] = 1;
 
-  write(s);
+i = 3;
+while(i<n)do
+fib[i] = fib[i-1] + fib[i-2];
+write(fib[i]);
+i=i+1;
+endwhile;
 
-else
-  i = 1;
-  s = 1;
-  while(i<=8) do
-    s = s * i;
-    i = i + 1;
-  endwhile;
-
-  write(s);
-
-endif;
-
-
-hello = "hello there";
-write(hello);
 
 
 end;

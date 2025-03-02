@@ -3,15 +3,16 @@
 #include <stdbool.h>
 #include "evaluator.h"
 
-static int variables[26];
+static int variables[100];
 
 
 static bool breakFlag = false;
 static bool continueFlag = false;
 // ---------------------------------- GETTING ADDRESS FROM A NODE
 
-int getSymbolAddress(struct TreeNode* root){
-  return root->symbol->address;
+int getSA(struct TreeNode* root){
+  return root->symbol->address + (root->left?arithmetic_expressionEvaluator(root->left):0);
+
 }
 
 // ---------------------------------- MAIN EVALUATION FUNCTION FOR STATEMENTS
@@ -27,7 +28,7 @@ void evaluate(struct TreeNode* root){
     // ASSIGNMENT
 
     case 4:
-      int idx = getSymbolAddress(root->left) - 4096;
+      int idx = getSA(root->left) - 4096;
       variables[idx] = arithmetic_expressionEvaluator(root->right);
       break;
 
@@ -35,7 +36,7 @@ void evaluate(struct TreeNode* root){
 
     case 11:
       printf("Enter %s : ",root->left->varname);
-      scanf("%d",&variables[getSymbolAddress(root->left)-4096]);
+      scanf("%d",&variables[getSA(root->left)-4096]);
       break;
 
     // WRITE OP
@@ -136,7 +137,6 @@ void evaluate(struct TreeNode* root){
 
       break;
     
-
   }
 
  
@@ -149,7 +149,7 @@ int arithmetic_expressionEvaluator(struct TreeNode* root){
   if( root->left == NULL && root->right == NULL ){
     // IF IT IS A VARIABLE
     if( root->val == -1 ){
-      return variables[getSymbolAddress(root)-4096];
+      return variables[getSA(root)-4096];
     }
     // IF IT IS A CONSTANT
     else{

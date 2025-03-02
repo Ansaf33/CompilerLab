@@ -15,12 +15,15 @@ struct TreeNode{
   int type;
   char* varname;
 
+
   struct TreeNode* left;
   struct TreeNode* middle;
   struct TreeNode* right;
 
   struct symbol* symbol;
 };
+
+bool isOverflow(struct TreeNode* root);
 
 bool typeSatisfied(struct TreeNode* root);
 
@@ -30,7 +33,7 @@ struct TreeNode* createOpNode(int type,int op,struct TreeNode* left,struct TreeN
 
 struct TreeNode* createStringNode(char* string);
 
-struct TreeNode* createIdNode(char* varname);
+struct TreeNode* createIdNode(char* varname,struct TreeNode* left);
 
 struct TreeNode* createIfNode(struct TreeNode* middle, struct TreeNode* left,struct TreeNode* right);
 

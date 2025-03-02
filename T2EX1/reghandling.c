@@ -15,8 +15,26 @@ static int highestUsedLabel = -1;
 
 // --------------------------------------------------------- GET SYMBOL ADDRESS
 
-int getSymbolAddress(struct TreeNode* root){
-  return root->symbol->address;
+int getSymbolAddress(FILE* f,struct TreeNode* root){
+
+  // SIMPLY A VARIABLE, MOVE THE ADDRESS TO A REGISTER AND RETURN THE REGISTER
+  
+  int adReg = getReg();
+  fprintf(f,"MOV R%d, %d\n",adReg,root->symbol->address);
+
+  // IF VARIABLE, EVALUATE THE LEFT EXPRESSION AND ADD IT
+  
+  if( root->left ){
+    int resReg = arithmetic_expression_codeGen(f,root->left);
+    fprintf(f,"ADD R%d, R%d\n",adReg,resReg);
+    freeReg();
+
+  }
+
+
+  return adReg;
+ 
+
 }
 
 // --------------------------------------------------------- GET LABEL FUNCTION
@@ -108,7 +126,7 @@ void getInput(FILE* f,char* s){
 int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
 
   // IF AT LEAF NODE, THEN ONLY NUMBER OR CONSTANT
-  if(root->left == NULL && root->right == NULL){
+  if( root->right == NULL ){
     int regIdx = getReg();
     // IF NUMBER, MOVE THE NUMBER TO REGISTER
     if(root->val != -1 ){
@@ -120,8 +138,9 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
     }
     // IF VARIABLE, MOVE FROM MEMORY LOCATION TO REGISTER
     else if(root->varname != NULL){
-      int memlocation = getSymbolAddress(root);
-      fprintf(f, "MOV R%d, [%d]\n",regIdx,memlocation);
+      int memlocationReg = getSymbolAddress(f,root);
+      fprintf(f, "MOV R%d, [R%d]\n",regIdx,memlocationReg);
+      freeReg();
     }
 
 
@@ -199,14 +218,13 @@ void assignment_codeGen(FILE* f,struct TreeNode* root){
 
 
 
-  // Get address from symbol table
-  int memAddress = getSymbolAddress(root->left);
-
   // store the register contents in the memory location 'storeIn'
   int r1 = getReg();
   
-  // move the memory location to a register
-  fprintf(f,"MOV R%d, %d\n",r1,memAddress);
+  // get memlocation in a register and move the memory location to a register
+  int memAddressReg = getSymbolAddress(f,root->left);
+  fprintf(f,"MOV R%d, R%d\n",r1,memAddressReg);
+  freeReg();
 
 
   int fReg = arithmetic_expression_codeGen(f,root->right);
@@ -228,7 +246,6 @@ void assignment_codeGen(FILE* f,struct TreeNode* root){
 
 void read_codeGen(FILE* f,struct TreeNode* root){
 
-  int memAddress = getSymbolAddress(root->left);
 
   //char s[50];
   //snprintf(s,sizeof(s),"Enter %s : ", root->left->varname);
@@ -251,7 +268,11 @@ void read_codeGen(FILE* f,struct TreeNode* root){
 
   // pushing buffer -> argument 2
   r1 = getReg();
-  fprintf(f,"MOV R%d, %d\n",r1,memAddress);
+
+  int memAddressReg = getSymbolAddress(f,root->left);
+  fprintf(f,"MOV R%d, R%d\n",r1,memAddressReg);
+  freeReg();
+
   fprintf(f,"PUSH R%d\n",r1);
   freeReg();
 
@@ -288,6 +309,7 @@ void write_codeGen(FILE* f,struct TreeNode* root){
 
 
 
+
   //getInput(f,"Output : ");
   
 
@@ -307,6 +329,7 @@ void write_codeGen(FILE* f,struct TreeNode* root){
   freeReg();
 
   // pushing R -> argument 2 (data)
+
   int R = arithmetic_expression_codeGen(f,root->left);
   fprintf(f,"PUSH R%d\n",R);
   // freeing the register storing the result of the expression

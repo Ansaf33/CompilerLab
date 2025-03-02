@@ -68,7 +68,7 @@ DL :
 
 D :
      TYPE VARLIST ';' {
-        addAllSymbols($2,$1,1);
+        addAllSymbols($2,$1);
      }
      ;
 
@@ -89,6 +89,10 @@ VARLIST :
         |
         ID {
           $$ = addVariable(NULL,$<string>1);
+        }
+        |
+        ID '[' NUM ']' {
+          $$ = addArray(NULL,$<string>1,atoi($<string>3));
         }
         ;
 
@@ -225,8 +229,14 @@ E :
 
 IDENTIFIER : 
            ID { 
-            $$ = createIdNode($<string>1);
-          }
+            $$ = createIdNode($<string>1,NULL);
+           }
+           |
+           ID '[' E ']' {
+            $$ = createIdNode($<string>1,$3);
+            }
+          ;
+
 
 CONSTANT :
          NUM {
@@ -282,6 +292,7 @@ int main(int argc, char* argv[]){
   fprintf(xsm,"%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n",0,2056,0,0,0,0,0,0);
   //fprintf(xsm,"BRKP\n");
   codeGen(xsm,root,-1,-1);
+  fprintf(xsm,"L50:\n");
   fprintf(xsm,"INT 10\n");
 
 

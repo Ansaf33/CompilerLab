@@ -5,7 +5,7 @@
 #include "symbol.h"
 
 struct symbol* head = NULL;
-static int address = 4095;
+static int address = 4096;
 
 struct symbol* createNode(char* name, int type,int size){
   struct symbol* temp = (struct symbol*)malloc(sizeof(struct symbol));
@@ -13,7 +13,8 @@ struct symbol* createNode(char* name, int type,int size){
   temp->name = strcpy(temp->name,name);
   temp->type = type;
   temp->size = size;
-  temp->address = ++address;
+  temp->address = address;
+  address = address + size;
 
   return temp;
 

@@ -4,12 +4,25 @@
 #include <stdbool.h>
 #include <string.h>
 #include "AST.h"
+#include "evaluator.h"
 #include "operators/optrans.h"
 #include "symbol_table/symbol.h"
 
 
+// -------------- CHECK OVERFLOW CONDITION
+
+bool isOverflow(struct TreeNode* root){
+  if(!root->left){
+    return false;
+  }
+  int idx = arithmetic_expressionEvaluator(root->left);
+  return idx >= root->symbol->size;
+
+
+}
 
 // ------------- CHECK IF TYPE IS SAME
+
 
 bool typeSatisfied(struct TreeNode* root){
     
@@ -123,7 +136,9 @@ struct TreeNode* createStringNode(char* string){
 
 // -------------- CREATE NODE FOR IDs
 
-struct TreeNode* createIdNode(char* varname){
+struct TreeNode* createIdNode(char* varname,struct TreeNode* left){
+
+
 
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
   temp->symbol = lookUp(varname);
@@ -139,14 +154,23 @@ struct TreeNode* createIdNode(char* varname){
   temp->type = temp->symbol->type;
   temp->varname = (char*)malloc(sizeof(char)*100);
   strcpy(temp->varname,varname);
-  temp->left = NULL;
+  temp->left = left;
   temp->right = NULL;
   temp->middle = NULL;
+
+  if( isOverflow(temp) ){
+    printf("Index overflow.\n");
+    exit(1);
+  }
+
+
 
 
   return temp;
 
 }
+
+
 
 // -------------- CREATE NODE FOR IF STATEMENTS
 
