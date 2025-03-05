@@ -156,7 +156,7 @@ int invoke_method_codeGen(FILE* f,struct TreeNode* root);
 
 // codeGen for defining methods
 
-void define_method_codeGen(FILE* f,struct classtable* c,char* name,struct TreeNode* body);
+void define_method_codeGen(FILE* f,struct classtable* c,char* name,struct paramlist* p,struct TreeNode* body);
 
 // CODE GEN FOR DELETE STATEMENT
 

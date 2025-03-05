@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "../AST.h"
+#include "../symbol_table/paramlist.h"
 
 void iterateThroughClassMembers(struct TreeNode* root);
 
@@ -31,5 +32,8 @@ bool free_typeSatisfied(struct TreeNode* root);
 bool delete_typeSatisfied(struct TreeNode* root);
 
 bool canReachAncestor(struct classtable* child,struct classtable* parent);
+
+
+
 
 #endif

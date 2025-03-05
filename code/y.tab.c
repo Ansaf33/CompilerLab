@@ -1715,7 +1715,7 @@ yyreduce:
 
           getLSymbolTable();
 
-          define_method_codeGen(xsm,C,(yyvsp[-7].string),(yyvsp[-1].node));
+          define_method_codeGen(xsm,C,(yyvsp[-7].string),(yyvsp[-5].paramlist),(yyvsp[-1].node));
 
           deleteLSymbolTable();
           }

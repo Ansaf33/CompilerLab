@@ -192,7 +192,7 @@ MethodDef :
 
           getLSymbolTable();
 
-          define_method_codeGen(xsm,C,$<string>2,$8);
+          define_method_codeGen(xsm,C,$<string>2,$4,$8);
 
           deleteLSymbolTable();
           }

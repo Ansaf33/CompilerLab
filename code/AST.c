@@ -380,18 +380,20 @@ struct TreeNode* addMemberToEnd(struct TreeNode* head,char* memberName){
 
 struct TreeNode* addMethodToEnd(struct TreeNode* head,char* name,struct TreeNode* argList){
 
+  printf("Adding method with name %s to end\n",name);
+ 
   struct TreeNode* cur = head;
   while(cur->middle){
     cur = cur->middle;
   }
 
-
   // CHECK IF METHODNAME EXISTS IN THE CLASS
-  struct classmethod* cm = lookMethodInClassUp(cur->Ctype,name);
+  struct classmethod* cm = lookMethodInClassUp(cur->Ctype,name,NULL,argList);
   if(!cm){
     printf("Method | %s | does not exist in class | %s |\n",name,cur->Ctype->name);
     exit(1);
   }
+  printf("Passed\n");
 
 
   // ------------- CHECK IF ARGUMENTS AND PARAMETERS TYPE ARE CORRECT ----------------
@@ -516,7 +518,7 @@ struct TreeNode* createSelfNode(struct classtable* c,char* name,struct TreeNode*
   middle->op = -1;
 
   struct classmember* member = lookMemberInClassUp(c,name);
-  struct classmethod* method = lookMethodInClassUp(c,name);
+  struct classmethod* method = lookMethodInClassUp(c,name,NULL,argList);
 
   // if name does not exist in class
   if( member == NULL && method == NULL ){

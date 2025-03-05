@@ -1067,7 +1067,7 @@ int invoke_method_codeGen(FILE* f,struct TreeNode* root){
     c = root->Ctype;
   }
 
-  struct classmethod* method = lookMethodInClassUp(c,root->middle->methodName);
+  struct classmethod* method = lookMethodInClassUp(c,root->middle->methodName,NULL,root->middle->argList);
 
   // pushing member field pointer
   int adReg = getSymbolAddress(f,head);
@@ -1132,12 +1132,12 @@ int invoke_method_codeGen(FILE* f,struct TreeNode* root){
 
 // -------------------------------------------------------------------------------------------------------------------------- DEFINE METHOD CODEGEN
 
-void define_method_codeGen(FILE* f,struct classtable* c,char* name,struct TreeNode* body){
+void define_method_codeGen(FILE* f,struct classtable* c,char* name,struct paramlist* param,struct TreeNode* body){
 
   class = c;
 
   // get the label
-  struct classmethod* method = lookMethodInClassUp(c,name);
+  struct classmethod* method = lookMethodInClassUp(c,name,param,NULL);
   fprintf(f,"M%d:\n",method->mLabel);
 
   // push base pointer

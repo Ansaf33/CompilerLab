@@ -5,6 +5,8 @@
 #include "classmethod.h"
 #include "classtable.h"
 #include "../symbol_table/paramlist.h"
+#include "../AST.h"
+#include "../typesatisfy/typesatisfy.h"
 
 static int methodPos = 0;
 static int mLabel = 0;
@@ -29,7 +31,7 @@ struct classmethod* createMethodNode(struct typetable* type,char* name,struct pa
 struct classmethod* addMethodNode(struct classmethod* head,struct typetable* type,char* name,struct paramlist* param){
 
   // check if method already exists
-  if( lookMethodUp(head,name) != NULL ){
+  if( lookMethodUp(head,name,param,NULL) != NULL ){
     // check the parent class
     printf("Method named | %s | already exists.\n",name);
     exit(1);
@@ -62,11 +64,15 @@ struct classmethod* addMethodNode(struct classmethod* head,struct typetable* typ
 }
 
 // LOOKING UP METHOD BASED ON NAME
-struct classmethod* lookMethodUp(struct classmethod* head,char* name){
+struct classmethod* lookMethodUp(struct classmethod* head,char* name,struct paramlist* param,struct TreeNode* t){
   struct classmethod* temp = head;
   while(temp!=NULL){
     if(strcmp(temp->name,name)==0){
-      return temp;
+      bool p = matching_params_params(param,temp->param);
+      bool a = matching_params_argList(temp->param,t);
+      if( p || a ){
+        return temp;
+      }
     }
     temp = temp->next;
   }
@@ -110,3 +116,63 @@ int incrementmLabel(){
   return mLabel++;
 }
 
+//------------------------------------------------------------------------------------------ COMPARE PARAMS TO ARGUMENTLIST
+bool matching_params_argList(struct paramlist* p,struct TreeNode* a){
+
+  struct paramlist* cur1 = p;
+  struct TreeNode* cur2 = a;
+
+  // size of params
+  int sz_of_params = getParamSize(p);
+  // size of argList
+  int sz_of_args = 0;
+  struct TreeNode* curr = a;
+  while(curr){
+    curr = curr->next;
+    sz_of_args++;
+  }
+
+
+  while(cur1&&cur2){
+    if( cur1->type != cur2->type ){
+
+      return false;
+    }
+    cur1 = cur1->next;
+    cur2 = cur2->next;
+  }
+
+  if( cur1 || cur2 ){
+
+    return false;
+  }
+
+  return true;
+}
+
+// ---------------------------------------------------------------------------------------- COMPARE PARAMS TO PARAMS
+bool matching_params_params(struct paramlist* p1,struct paramlist* p2){
+
+  struct paramlist* a = p1;
+  struct paramlist* b = p2;
+
+  while( a && b ){
+    bool sameName = strcmp(a->name,b->name) == 0;
+    bool sameType = (a->type == b->type);
+
+    if( !( sameName && sameType ) ){
+      return false;
+    }
+    a = a->next;
+    b = b->next;
+  }
+
+  if( a || b ){
+
+    return false;
+  }
+
+  return true;
+}
+
+ 

@@ -7,6 +7,7 @@
 #include "../udt/fieldlist.h"
 #include "../symbol_table/paramlist.h"
 #include "../typetable/typetable.h"
+#include "../AST.h"
 
 struct classtable{
   char* name;
@@ -18,6 +19,8 @@ struct classtable{
   int methodCount;
   struct classtable* next;
 };
+
+struct TreeNode;
 
 struct classtable* createCNode(char* name,struct classtable* parentPtr);
 
@@ -31,7 +34,7 @@ struct classtable* lookClassUp(char* name);
 
 struct classmember* lookMemberInClassUp(struct classtable* c,char* name);
 
-struct classmethod* lookMethodInClassUp(struct classtable* c,char* name);
+struct classmethod* lookMethodInClassUp(struct classtable* c,char* name,struct paramlist* p,struct TreeNode* argList);
 
 void printClass(struct classtable* head);
 

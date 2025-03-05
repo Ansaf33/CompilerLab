@@ -4,7 +4,7 @@
 #include "classtable.h"
 #include "classmethod.h"
 #include "classmember.h"
-
+#include "../AST.h"
 
 static int classIndex = 0;
 struct classtable* Chead = NULL;
@@ -63,10 +63,10 @@ struct classmember* addMemberToClass(struct classtable* c,struct typetable* type
 
 struct classmethod* addMethodToClass(struct classtable* c,struct typetable* type,char* name,struct paramlist* param){
 
-  struct classmethod* inParent = lookMethodInClassUp(c->parentPtr,name);
+  struct classmethod* inParent = lookMethodInClassUp(c->parentPtr,name,param,NULL);
 
   if( inParent ){
-    struct classmethod* inChild = lookMethodInClassUp(c,name);
+    struct classmethod* inChild = lookMethodInClassUp(c,name,param,NULL);
     inChild->mLabel = incrementmLabel();
   }
   else{
@@ -96,16 +96,15 @@ struct classmember* lookMemberInClassUp(struct classtable* c,char* name){
   return NULL;
 }
 
-struct classmethod* lookMethodInClassUp(struct classtable* c,char* name){
+struct classmethod* lookMethodInClassUp(struct classtable* c,char* name,struct paramlist* p,struct TreeNode* a){
   if( c ){
-    return lookMethodUp(c->classmethod,name);
+    return lookMethodUp(c->classmethod,name,p,a);
   }
   return NULL;
 }
 
 void printClass(struct classtable* c){
-  printf(" -------------------------------- C L A S S -----------------------\n\n");
-  printf("N A M E : %s\nP A R E N T : %s\nC L A S S I N D E X : %d\nM E M B E R C O U N T : %d\nM E T H O D C O U N T : %d\n",
+  printf("N A M E : %s\nP A R E N T : %s\nC L A S S I N D E X : %d\nM E M B E R C O U N T : %d | M E T H O D C O U N T : %d\n",
          c->name,
          c->parentPtr?c->parentPtr->name:"NULL",
          c->classIndex,
@@ -126,7 +125,7 @@ void printClass(struct classtable* c){
 void checkDeclDef(struct classtable* c,struct typetable* type,char* name,struct paramlist* param){
 
   // check if method is declared
-  struct classmethod* method = lookMethodInClassUp(c,name);
+  struct classmethod* method = lookMethodInClassUp(c,name,param,NULL);
 
   if( method == NULL ){
     printf("Method | %s | not declared in class.\n",name);
