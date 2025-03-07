@@ -35,10 +35,13 @@ struct TreeNode* createNumNode(int val){
 
 struct TreeNode* createOpNode(struct typetable* type,int op,struct TreeNode* left,struct TreeNode* right){
   struct TreeNode* temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+
+  bool anyptr = ( (left && left->type == lookTTUp("ptr"))  ||  ( right && right->type == lookTTUp("ptr") ) );
+
   temp->val = -1;
   temp->string = NULL;
   temp->op = op;
-  temp->type = type;
+  temp->type = (anyptr && op != 27 )?lookTTUp("ptr"):type;
   temp->varname = NULL;
   temp->left = left;
   temp->right = right;

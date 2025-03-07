@@ -39,6 +39,11 @@ bool arithmetic_typeSatisfied(struct TreeNode* root){
   if( same( getName(root->left) , "int" ) && same( getName(root->right) , "int" ) ){
     return true;
   }
+  // true condition, one of them should be pointers
+  else if( same( getName(root->left), "ptr" ) || same( getName(root->left), "ptr" ) ){
+    return true;
+  }
+
   printf("Arithmetic type | %s | not satisfied", map(root->op) );
   printf("[L R] = [%s %s]\n",getName(root->left),getName(root->right));
   exit(1);
@@ -136,7 +141,7 @@ bool write_typeSatisfied(struct TreeNode* root){
     exit(1);
   }
   // left is either int or str
-  bool intorstringCondition = same(getName(root->left),"int") || same(getName(root->left),"str");
+  bool intorstringCondition = same(getName(root->left),"int") || same(getName(root->left),"str") || same(getName(root->left),"ptr");
   if( intorstringCondition ){
     return true;
   }

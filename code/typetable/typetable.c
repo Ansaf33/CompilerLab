@@ -62,6 +62,7 @@ void createPrimitive(){
   addTTNode("bool",1,NULL);
   addTTNode("str",1,NULL);
   addTTNode("null",1,NULL);
+  addTTNode("ptr",1,NULL);
 }
 
 // ------------- RETURNING TYPETABLE POINTER BASED ON NAME

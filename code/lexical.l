@@ -165,6 +165,10 @@
   return MUL;
 }
 
+[&] {
+  return REF;
+}
+
 [/] {
   return DIV;
 }

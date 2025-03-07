@@ -29,6 +29,8 @@
 23 : FREE
 24 : DELETE
 25 : NEW
+26 : &
+27 : DEREF *
 
 
 

@@ -12,6 +12,7 @@
 struct Gsymbol{
   char* name;
   struct typetable* type;
+  struct typetable* pointsto;
   struct classtable* Ctype;
 
   int rowSize;
@@ -32,11 +33,11 @@ struct Gsymbol{
 
 // CREATING A NODE
 
-struct Gsymbol* createGNode(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction);
+struct Gsymbol* createGNode(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction,int isPointer);
 
 // ADDING IT TO LL
 
-void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction);
+void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction,int isPointer);
 
 
 // LOOKUP DETAILS BASED ON NAME

@@ -14,13 +14,15 @@ int number_of_classes = 0;
 
 // ------------ CREATE A Gsymbol Node
 
-struct Gsymbol* createGNode(char* name, struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction){
+struct Gsymbol* createGNode(char* name, struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction,int isPointer){
 
   struct Gsymbol* temp = (struct Gsymbol*)malloc(sizeof(struct Gsymbol));
 
   temp->name = (char*)malloc(sizeof(char)*100);
   temp->name = strcpy(temp->name,name);
-  temp->type = type;
+
+  temp->type = isPointer?lookTTUp("ptr"):type;
+  temp->pointsto = isPointer?type:NULL;
   temp->Ctype = Ctype;
 
   temp->rowSize = rowSize;
@@ -38,7 +40,7 @@ struct Gsymbol* createGNode(char* name, struct typetable* type,struct classtable
 
 // ------------------------ ADD A Gsymbol to the table
 
-void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction){
+void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction,int isPointer){
 
   number_of_classes = getNoOfClasses();
 
@@ -56,7 +58,7 @@ void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int r
 
   if( !lookGUp(name) ){
 
-    struct Gsymbol* temp = createGNode(name,type,Ctype,rowSize,colSize,param,isFunction);
+    struct Gsymbol* temp = createGNode(name,type,Ctype,rowSize,colSize,param,isFunction,isPointer);
 
     // add to end of ll
     if( Ghead == NULL ){
@@ -105,9 +107,10 @@ void getGSymbolTable(){
   printf("------------------------------ G L O B A L S Y M B O L T A B L E ------------------------------\n");
   struct Gsymbol* current = Ghead;
   while( current != NULL ){ 
-    printf("| name : %s | type : %s | Ctype : %s | rowSize : %d | colSize : %d  | binding : %d  | flabel : %d | hasParam : %d |\n",
+    printf("| name : %s | type : %s | pointsto : %s | Ctype : %s | rowSize : %d | colSize : %d  | binding : %d  | flabel : %d | hasParam : %d |\n",
            current->name,
            current->type?current->type->name:"NULL",
+           current->pointsto?current->pointsto->name:"NULL",
            current->Ctype?current->Ctype->name:"NULL",
            current->rowSize,
            current->colSize,

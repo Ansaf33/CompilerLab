@@ -116,7 +116,7 @@ int incrementmLabel(){
   return mLabel++;
 }
 
-//------------------------------------------------------------------------------------------ COMPARE PARAMS TO ARGUMENTLIST
+// COMPARE PARAMS TO ARGUMENTLIST
 bool matching_params_argList(struct paramlist* p,struct TreeNode* a){
 
   struct paramlist* cur1 = p;
@@ -150,7 +150,7 @@ bool matching_params_argList(struct paramlist* p,struct TreeNode* a){
   return true;
 }
 
-// ---------------------------------------------------------------------------------------- COMPARE PARAMS TO PARAMS
+// COMPARE PARAMS TO PARAMS
 bool matching_params_params(struct paramlist* p1,struct paramlist* p2){
 
   struct paramlist* a = p1;

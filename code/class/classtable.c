@@ -103,6 +103,7 @@ struct classmethod* lookMethodInClassUp(struct classtable* c,char* name,struct p
   return NULL;
 }
 
+
 void printClass(struct classtable* c){
   printf("N A M E : %s\nP A R E N T : %s\nC L A S S I N D E X : %d\nM E M B E R C O U N T : %d | M E T H O D C O U N T : %d\n",
          c->name,
@@ -118,7 +119,6 @@ void printClass(struct classtable* c){
   
 
 }
-
 
 
 // CHECK DECLARED AND DEFINED TYPES AND PARAMETERS

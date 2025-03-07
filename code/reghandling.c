@@ -157,6 +157,8 @@ void getSelfAddress(FILE* f,int adReg,struct TreeNode* root){
 }
 
 
+
+
 // ------------------------------------------------------------------------------------------------------------------- GET SYMBOL ADDRESS (MAIN FUNC)
 
 int getSymbolAddress(FILE* f,struct TreeNode* root){
@@ -168,13 +170,30 @@ int getSymbolAddress(FILE* f,struct TreeNode* root){
     getSelfAddress(f,adReg,root);
   }
 
+  // if present in local symbol table
   if( root->Lsymbol ){
       fprintf(f,"MOV R%d, %d\n",adReg,root->Lsymbol->binding);
       fprintf(f,"ADD R%d, BP\n",adReg);
   }
+
+  // if present in global symbol table
   else if( root->Gsymbol ){
-      fprintf(f,"MOV R%d, %d\n",adReg,root->Gsymbol->binding);
+      fprintf(f,"MOV R%d, %d\n",adReg,root->Gsymbol->binding);      
   } 
+
+  // if dereferencing a pointer
+  else if( root->op == 27 ){
+    int r1 = getSymbolAddress(f,root->left);
+    fprintf(f,"MOV R%d, [R%d]\n",adReg,r1);
+    freeReg();
+  }
+
+  // if referencing a pointer
+  else if( root->op == 26 ){
+    int r1 = getSymbolAddress(f,root->left);
+    fprintf(f,"MOV R%d, R%d\n",adReg,r1);
+    freeReg();
+  }
 
   // ---------------------------- FOR VARIABLES AND ARRAYS --------------------------
   if( root->column ){
@@ -340,14 +359,12 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
         else if( local || global->flabel == -1 ){
           // local variable
           if( root->type != NULL ){
-            int memlocationReg = getSymbolAddress(f,root);
+            int memlocationReg = getSymbolAddress(f,root); 
             fprintf(f, "MOV R%d, [R%d]\n",regIdx,memlocationReg);
             freeReg();
           }
-
           // if it is of type class
-          else if( root->Ctype != NULL ){
-            
+          else if( root->Ctype != NULL ){ 
 
             checkLastMember(root); // check last member ( exit condition )
 
@@ -398,12 +415,21 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
         int retReg = alloc_codeGen(f);
         fprintf(f,"MOV R%d, R%d\n",regIdx,retReg);
         freeReg();
-      }
- 
+      }    
       return regIdx;
     }
 
+  if( root->op == 26 ){
+    return getSymbolAddress(f,root->left);
+  }
+
   int lReg = arithmetic_expression_codeGen(f,root->left);
+
+  if( root->op == 27 ){
+    fprintf(f,"MOV R%d, [R%d]\n",lReg,lReg);
+    return lReg;
+  }
+
   int rReg = arithmetic_expression_codeGen(f,root->right);
 
   switch(root->op){
@@ -419,6 +445,7 @@ int arithmetic_expression_codeGen(FILE* f,struct TreeNode* root){
       case 3:
         fprintf(f,"DIV R%d, R%d\n",lReg,rReg);
         break;
+      
   }
 
   freeReg(); //freeing the right register
@@ -453,7 +480,6 @@ int boolean_expression_codeGen(FILE* f,struct TreeNode* root){
     case 10:
       fprintf(f,"EQ R%d, R%d\n",lReg,rReg);
       break;
-
   }
 
   freeReg(); // free right register
@@ -471,16 +497,24 @@ void assignment_codeGen(FILE* f,struct TreeNode* root){
   // get address where expression result is to be stored
   int r1 = getReg();
   int memAddressReg = getSymbolAddress(f,root->left);
+
+
   fprintf(f,"MOV R%d, R%d\n",r1,memAddressReg);
   freeReg();
 
   // evaluate the expression and move contents to the address
   int fReg = arithmetic_expression_codeGen(f,root->right);
+
+
   fprintf(f,"MOV [R%d], R%d\n",r1, fReg);
   freeReg();
 
 
   freeReg();
+
+
+
+
 
   checkLeak();
 }
@@ -1228,6 +1262,7 @@ void delete_codeGen(FILE* f,struct TreeNode* root){
 
   free_codeGen(f,root);
 }
+
 
 // -------------------------------------------------------------------------------------------------------------------------- MAIN CODEGEN FUNCTION
 

@@ -63,44 +63,46 @@ extern int yydebug;
     GTE = 264,                     /* GTE  */
     EQ = 265,                      /* EQ  */
     NEQ = 266,                     /* NEQ  */
-    PLUS = 267,                    /* PLUS  */
-    MINUS = 268,                   /* MINUS  */
-    MUL = 269,                     /* MUL  */
-    DIV = 270,                     /* DIV  */
-    EQUALS = 271,                  /* EQUALS  */
-    END = 272,                     /* END  */
-    BEG = 273,                     /* BEG  */
-    MAIN = 274,                    /* MAIN  */
-    DECL = 275,                    /* DECL  */
-    ENDDECL = 276,                 /* ENDDECL  */
-    BEGINTYPE = 277,               /* BEGINTYPE  */
-    ENDTYPE = 278,                 /* ENDTYPE  */
-    BEGINCLASS = 279,              /* BEGINCLASS  */
-    ENDCLASS = 280,                /* ENDCLASS  */
-    NEW = 281,                     /* NEW  */
-    DELETE = 282,                  /* DELETE  */
-    EXTENDS = 283,                 /* EXTENDS  */
-    SELF = 284,                    /* SELF  */
-    READ = 285,                    /* READ  */
-    WRITE = 286,                   /* WRITE  */
-    IF = 287,                      /* IF  */
-    THEN = 288,                    /* THEN  */
-    ELSE = 289,                    /* ELSE  */
-    ENDIF = 290,                   /* ENDIF  */
-    WHILE = 291,                   /* WHILE  */
-    DO = 292,                      /* DO  */
-    ENDWHILE = 293,                /* ENDWHILE  */
-    BREAK = 294,                   /* BREAK  */
-    CONTINUE = 295,                /* CONTINUE  */
-    REPEAT = 296,                  /* REPEAT  */
-    UNTIL = 297,                   /* UNTIL  */
-    RETURN = 298,                  /* RETURN  */
-    INT = 299,                     /* INT  */
-    STR = 300,                     /* STR  */
-    INIT = 301,                    /* INIT  */
-    ALLOC = 302,                   /* ALLOC  */
-    FREE = 303,                    /* FREE  */
-    NULLVAL = 304                  /* NULLVAL  */
+    REF = 267,                     /* REF  */
+    DEREF = 268,                   /* DEREF  */
+    PLUS = 269,                    /* PLUS  */
+    MINUS = 270,                   /* MINUS  */
+    MUL = 271,                     /* MUL  */
+    DIV = 272,                     /* DIV  */
+    EQUALS = 273,                  /* EQUALS  */
+    END = 274,                     /* END  */
+    BEG = 275,                     /* BEG  */
+    MAIN = 276,                    /* MAIN  */
+    DECL = 277,                    /* DECL  */
+    ENDDECL = 278,                 /* ENDDECL  */
+    BEGINTYPE = 279,               /* BEGINTYPE  */
+    ENDTYPE = 280,                 /* ENDTYPE  */
+    BEGINCLASS = 281,              /* BEGINCLASS  */
+    ENDCLASS = 282,                /* ENDCLASS  */
+    NEW = 283,                     /* NEW  */
+    DELETE = 284,                  /* DELETE  */
+    EXTENDS = 285,                 /* EXTENDS  */
+    SELF = 286,                    /* SELF  */
+    READ = 287,                    /* READ  */
+    WRITE = 288,                   /* WRITE  */
+    IF = 289,                      /* IF  */
+    THEN = 290,                    /* THEN  */
+    ELSE = 291,                    /* ELSE  */
+    ENDIF = 292,                   /* ENDIF  */
+    WHILE = 293,                   /* WHILE  */
+    DO = 294,                      /* DO  */
+    ENDWHILE = 295,                /* ENDWHILE  */
+    BREAK = 296,                   /* BREAK  */
+    CONTINUE = 297,                /* CONTINUE  */
+    REPEAT = 298,                  /* REPEAT  */
+    UNTIL = 299,                   /* UNTIL  */
+    RETURN = 300,                  /* RETURN  */
+    INT = 301,                     /* INT  */
+    STR = 302,                     /* STR  */
+    INIT = 303,                    /* INIT  */
+    ALLOC = 304,                   /* ALLOC  */
+    FREE = 305,                    /* FREE  */
+    NULLVAL = 306                  /* NULLVAL  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -118,44 +120,46 @@ extern int yydebug;
 #define GTE 264
 #define EQ 265
 #define NEQ 266
-#define PLUS 267
-#define MINUS 268
-#define MUL 269
-#define DIV 270
-#define EQUALS 271
-#define END 272
-#define BEG 273
-#define MAIN 274
-#define DECL 275
-#define ENDDECL 276
-#define BEGINTYPE 277
-#define ENDTYPE 278
-#define BEGINCLASS 279
-#define ENDCLASS 280
-#define NEW 281
-#define DELETE 282
-#define EXTENDS 283
-#define SELF 284
-#define READ 285
-#define WRITE 286
-#define IF 287
-#define THEN 288
-#define ELSE 289
-#define ENDIF 290
-#define WHILE 291
-#define DO 292
-#define ENDWHILE 293
-#define BREAK 294
-#define CONTINUE 295
-#define REPEAT 296
-#define UNTIL 297
-#define RETURN 298
-#define INT 299
-#define STR 300
-#define INIT 301
-#define ALLOC 302
-#define FREE 303
-#define NULLVAL 304
+#define REF 267
+#define DEREF 268
+#define PLUS 269
+#define MINUS 270
+#define MUL 271
+#define DIV 272
+#define EQUALS 273
+#define END 274
+#define BEG 275
+#define MAIN 276
+#define DECL 277
+#define ENDDECL 278
+#define BEGINTYPE 279
+#define ENDTYPE 280
+#define BEGINCLASS 281
+#define ENDCLASS 282
+#define NEW 283
+#define DELETE 284
+#define EXTENDS 285
+#define SELF 286
+#define READ 287
+#define WRITE 288
+#define IF 289
+#define THEN 290
+#define ELSE 291
+#define ENDIF 292
+#define WHILE 293
+#define DO 294
+#define ENDWHILE 295
+#define BREAK 296
+#define CONTINUE 297
+#define REPEAT 298
+#define UNTIL 299
+#define RETURN 300
+#define INT 301
+#define STR 302
+#define INIT 303
+#define ALLOC 304
+#define FREE 305
+#define NULLVAL 306
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -172,7 +176,7 @@ union YYSTYPE
   struct typetable* typetable;
   struct fieldlist* fieldlist;
 
-#line 176 "y.tab.h"
+#line 180 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

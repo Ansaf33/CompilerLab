@@ -62,8 +62,9 @@ void endxsm(FILE* f);
 %type<node> ASSG INPUT OUTPUT
 %type<node> E S SL Body
 %type<node> FIELD IDENTIFIER CONSTANT ArgList FIELDFUNCTION
+
 %token STRING ID NUM
-%token LT LTE GT GTE EQ NEQ 
+%token LT LTE GT GTE EQ NEQ REF DEREF
 %token PLUS MINUS MUL DIV EQUALS
 %token END BEG MAIN DECL ENDDECL BEGINTYPE ENDTYPE BEGINCLASS ENDCLASS
 %token NEW DELETE EXTENDS SELF
@@ -71,11 +72,12 @@ void endxsm(FILE* f);
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE REPEAT UNTIL RETURN
 %token INT STR
 %token INIT ALLOC FREE NULLVAL
+
 %left EQ NEQ
 %left LT LTE GT GTE
 %left PLUS MINUS
 %left MUL DIV
-
+%right REF DEREF
 
 
 %%
@@ -217,7 +219,7 @@ GdeclList :
 Gdecl :
      TYPE GidList ';' {
           if( !lookGUp("main") ){
-              addGSymbol("main",lookTTUp("int"),NULL,1,1,NULL,1); 
+              addGSymbol("main",lookTTUp("int"),NULL,1,1,NULL,1,0); 
           }
           addAllGSymbols($2,lookTTUp($1),lookClassUp($1));
      }
@@ -255,6 +257,10 @@ GidList :
           deleteLSymbolTable();
         }
         |
+        GidList ',' MUL ID {
+          $$ = addPointer($1,$<string>4);
+        }
+        |
         ID {
           $$ = addVariable(NULL,$<string>1);
         }
@@ -270,6 +276,10 @@ GidList :
         ID '(' ParamList ')' { 
           $$ = addFunction(NULL,$<string>1,$3);
           deleteLSymbolTable();
+        }
+        |
+        MUL ID {
+          $$ = addPointer(NULL,$<string>2);
         }
         ;
 
@@ -555,6 +565,14 @@ E :
 IDENTIFIER : 
            ID { 
             $$ = createIdNode($<string>1,NULL,NULL);
+           }
+           |
+           MUL E %prec DEREF {
+            $$ = createOpNode(lookTTUp("int"),27,$2,NULL);
+           }
+           |
+           REF IDENTIFIER {
+           $$ = createOpNode(lookTTUp("ptr"),26,$2,NULL);
            }
            |
            ID '[' E ']' {

@@ -13,7 +13,6 @@ struct list* createVarNode(char* name,int rowSize,int colSize){
   struct list* temp = (struct list*)malloc(sizeof(struct list));
   temp->name = (char*)malloc(sizeof(char)*100);
   strcpy(temp->name,name);
-
   temp->rowSize = rowSize;
   temp->colSize = colSize;
 
@@ -28,6 +27,7 @@ struct list* addVariable(struct list* head,char* name){
 
   struct list* temp = createVarNode(name,1,1);
   temp->isFunction = 0;
+  temp->isPointer = 0;
    
   // add to end of ll
   if( head == NULL ){
@@ -45,11 +45,33 @@ struct list* addVariable(struct list* head,char* name){
   return head;
 }
 
+// ---------- ADD POINTER TO LIST
+
+struct list* addPointer(struct list* head,char* name){
+  struct list* temp = createVarNode(name,1,1);
+  temp->isFunction = 0;
+  temp->isPointer = 1;
+  // add to end of ll
+  if( head == NULL ){
+    head = temp;
+  }
+  else{
+    struct list* end = head;
+    while(end->next != NULL){
+      end = end->next;
+    }
+    end->next = temp;
+  }
+
+  return head;
+}
+
 // --------------- CODE TO ADD AN ARRAY TO THE LIST
 
 struct list* addArray(struct list* head,char* name,int rowSize,int colSize){
   struct list* temp = createVarNode(name,rowSize,colSize);
   temp->isFunction = 0;
+  temp->isPointer = 0;
 
   // add to end of ll
   if( head == NULL ){
@@ -72,6 +94,7 @@ struct list* addArray(struct list* head,char* name,int rowSize,int colSize){
 struct list* addFunction(struct list* head,char* name,struct paramlist* param){
   struct list* temp = createVarNode(name,1,1);
   temp->isFunction = 1;
+  temp->isPointer = 0;
   temp->param = param;
 
   // add to end of ll
@@ -106,7 +129,7 @@ void printDetails(struct list* head){
 void addAllGSymbols(struct list* head,struct typetable* type,struct classtable* Ctype){
   struct list* cur = head;
   while(cur != NULL){
-    addGSymbol(cur->name,type,Ctype,cur->rowSize,cur->colSize,cur->param,cur->isFunction);
+    addGSymbol(cur->name,type,Ctype,cur->rowSize,cur->colSize,cur->param,cur->isFunction,cur->isPointer);
     cur = cur->next;
   }
 }

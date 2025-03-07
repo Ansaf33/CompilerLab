@@ -12,14 +12,17 @@ struct list{
   char* name;
   int rowSize;
   int colSize;
+
   int isFunction;
+  int isPointer;
 
   struct paramlist* param;
-
   struct list* next;
 };
 
 struct list* createVarNode(char* name,int rowSize,int colSize);
+
+struct list* addPointer(struct list* head,char* name);
 
 struct list* addVariable(struct list* head,char* name);
 
