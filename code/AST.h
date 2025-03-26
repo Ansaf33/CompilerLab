@@ -46,6 +46,7 @@ struct TreeNode{
 };
 
 
+struct paramlist* init_dummy_param(void);
 
 struct TreeNode* createNumNode(int val);
 

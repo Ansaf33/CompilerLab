@@ -15,6 +15,8 @@ struct list{
 
   int isFunction;
   int isPointer;
+  int isArray;
+  int isVariable;
 
   struct paramlist* param;
   struct list* next;

@@ -11,6 +11,13 @@
 #include "typesatisfy/typesatisfy.h"
 
 
+struct paramlist* init_dummy_param(){
+  struct paramlist* param = (struct paramlist*)malloc(sizeof(struct paramlist));
+  param->type = lookTTUp("null");
+  param->name = (char*)malloc(sizeof(char)*10);
+  strcpy(param->name,"nulll");
+  return param;
+}
 
 
 // ------------------------------------------------------------------------------------------------------------ CREATE NODE FOR NUMBERS
@@ -120,6 +127,20 @@ struct TreeNode* createIdNode(char* varname,struct TreeNode* row,struct TreeNode
   else{
     printf("Cannot declare variable | %s | outside declaration scope\n",varname);
     exit(1);
+  }
+  // if row/column is present, must be an array
+  if( row || column ){
+    if( temp->Gsymbol && !temp->Gsymbol->isArray ){
+      printf("| %s | is not an array, but has row and column attributes\n",varname);
+      exit(1);
+    }
+  }
+  if( !row && !column ){
+    if( temp->Gsymbol && temp->Gsymbol->isArray ){
+      printf("| %s | is array, but does not have row and column attributes\n",varname);
+      exit(1);
+
+    }
   }
   // ------------------------- DECIDING DONE ----------------------------------------
  
@@ -383,7 +404,6 @@ struct TreeNode* addMemberToEnd(struct TreeNode* head,char* memberName){
 
 struct TreeNode* addMethodToEnd(struct TreeNode* head,char* name,struct TreeNode* argList){
 
-  printf("Adding method with name %s to end\n",name);
  
   struct TreeNode* cur = head;
   while(cur->middle){
@@ -391,19 +411,17 @@ struct TreeNode* addMethodToEnd(struct TreeNode* head,char* name,struct TreeNode
   }
 
   // CHECK IF METHODNAME EXISTS IN THE CLASS
-  struct classmethod* cm = lookMethodInClassUp(cur->Ctype,name,NULL,argList);
+  struct classmethod* cm = lookMethodInClassUp(cur->Ctype,name,init_dummy_param(),argList);
+
   if(!cm){
     printf("Method | %s | does not exist in class | %s |\n",name,cur->Ctype->name);
     exit(1);
   }
-  printf("Passed\n");
-
 
   // ------------- CHECK IF ARGUMENTS AND PARAMETERS TYPE ARE CORRECT ----------------
   struct paramlist* c = cm->param;
   struct TreeNode* a = argList;
   while(c && a){
-    
     if( !same(c->type->name,getName(a) ) ){
       printf("Argument type | %s | does not match with declared type | %s | for function | %s |\n",getName(a),c->type->name,name);
       exit(1);

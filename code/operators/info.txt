@@ -64,3 +64,13 @@ root->middle = Type of class to be created.
 // ---------- STRUCTURE OF USER DEFINED TYPE (a.next.data) OR CLASS MEMBERS (person.teacher)
 
 every field member is the successive middle child of its parent.
+
+
+// ----------- REMARKS
+
+Stage 5 happens to be one of the harder stages / the first actual stage to implement. All the previous 4 stages can be considered prerequisites for the upcoming stages. 
+Stage 6 is equally hard, handling UDT.
+Stage 7 is not as hard as Stage 5 and Stage 6.
+Stage 8 is ez pz
+
+

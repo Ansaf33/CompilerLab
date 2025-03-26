@@ -14,7 +14,7 @@ int number_of_classes = 0;
 
 // ------------ CREATE A Gsymbol Node
 
-struct Gsymbol* createGNode(char* name, struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction,int isPointer){
+struct Gsymbol* createGNode(char* name, struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction,int isPointer,int isVariable,int isArray){
 
   struct Gsymbol* temp = (struct Gsymbol*)malloc(sizeof(struct Gsymbol));
 
@@ -34,13 +34,19 @@ struct Gsymbol* createGNode(char* name, struct typetable* type,struct classtable
   temp->binding = address + 8*number_of_classes;
   address = address + rowSize*colSize;
 
+  temp->isFunction = isFunction;
+  temp->isPointer = isPointer;
+  temp->isArray = isArray;
+  temp->isVariable = isVariable;
+
+
   return temp;
 }
 
 
 // ------------------------ ADD A Gsymbol to the table
 
-void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction,int isPointer){
+void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction,int isPointer,int isVariable,int isArray){
 
   number_of_classes = getNoOfClasses();
 
@@ -58,7 +64,7 @@ void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int r
 
   if( !lookGUp(name) ){
 
-    struct Gsymbol* temp = createGNode(name,type,Ctype,rowSize,colSize,param,isFunction,isPointer);
+    struct Gsymbol* temp = createGNode(name,type,Ctype,rowSize,colSize,param,isFunction,isPointer,isVariable,isArray);
 
     // add to end of ll
     if( Ghead == NULL ){

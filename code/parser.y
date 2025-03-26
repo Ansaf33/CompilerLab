@@ -28,14 +28,11 @@
 
 struct TreeNode* root;
 struct classtable* C = NULL;
-
-
 extern FILE* yyin;
+FILE* xsm;
 
 int yylex(void);
 void yyerror(char* s);
-FILE* xsm;
-
 void initxsm(FILE* f);
 void endxsm(FILE* f);
 
@@ -172,7 +169,7 @@ MethodDeclList :
            ;
 
 MethodDecl :
-      TYPE ID '(' ParamList ')' ';' {
+      TYPE ID '(' ParamList ')' ';' { 
         addMethodToClass(C,lookTTUp($1),$<string>2,$4);
         deleteLSymbolTable();
       }
@@ -219,7 +216,7 @@ GdeclList :
 Gdecl :
      TYPE GidList ';' {
           if( !lookGUp("main") ){
-              addGSymbol("main",lookTTUp("int"),NULL,1,1,NULL,1,0); 
+              addGSymbol("main",lookTTUp("int"),NULL,1,1,NULL,1,0,0,0); 
           }
           addAllGSymbols($2,lookTTUp($1),lookClassUp($1));
      }
@@ -700,6 +697,7 @@ int main(int argc, char* argv[]){
   createPrimitive();
 
 
+
   FILE* f = fopen(argv[1],"r");
   yyin = f;
 
@@ -741,6 +739,7 @@ void endxsm(FILE* f){
 
           // END
           fprintf(xsm,"L51:\n");
+          getInput(xsm,"Completed");
           fprintf(xsm,"INT 10\n");
 
 }

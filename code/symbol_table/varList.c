@@ -26,8 +26,11 @@ struct list* createVarNode(char* name,int rowSize,int colSize){
 struct list* addVariable(struct list* head,char* name){
 
   struct list* temp = createVarNode(name,1,1);
+
   temp->isFunction = 0;
   temp->isPointer = 0;
+  temp->isVariable = 1;
+  temp->isArray = 0;
    
   // add to end of ll
   if( head == NULL ){
@@ -49,8 +52,12 @@ struct list* addVariable(struct list* head,char* name){
 
 struct list* addPointer(struct list* head,char* name){
   struct list* temp = createVarNode(name,1,1);
+
   temp->isFunction = 0;
   temp->isPointer = 1;
+  temp->isVariable = 0;
+  temp->isArray = 0;
+
   // add to end of ll
   if( head == NULL ){
     head = temp;
@@ -70,8 +77,11 @@ struct list* addPointer(struct list* head,char* name){
 
 struct list* addArray(struct list* head,char* name,int rowSize,int colSize){
   struct list* temp = createVarNode(name,rowSize,colSize);
+
   temp->isFunction = 0;
   temp->isPointer = 0;
+  temp->isArray = 1;
+  temp->isVariable = 0;
 
   // add to end of ll
   if( head == NULL ){
@@ -93,8 +103,12 @@ struct list* addArray(struct list* head,char* name,int rowSize,int colSize){
 
 struct list* addFunction(struct list* head,char* name,struct paramlist* param){
   struct list* temp = createVarNode(name,1,1);
+
   temp->isFunction = 1;
   temp->isPointer = 0;
+  temp->isVariable = 0;
+  temp->isArray = 0;
+
   temp->param = param;
 
   // add to end of ll
@@ -129,7 +143,7 @@ void printDetails(struct list* head){
 void addAllGSymbols(struct list* head,struct typetable* type,struct classtable* Ctype){
   struct list* cur = head;
   while(cur != NULL){
-    addGSymbol(cur->name,type,Ctype,cur->rowSize,cur->colSize,cur->param,cur->isFunction,cur->isPointer);
+    addGSymbol(cur->name,type,Ctype,cur->rowSize,cur->colSize,cur->param,cur->isFunction,cur->isPointer,cur->isVariable,cur->isArray);
     cur = cur->next;
   }
 }

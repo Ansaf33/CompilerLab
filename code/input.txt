@@ -1,23 +1,29 @@
 
 decl
-int a,b;
-int *p,*c;
+int ar[10];
+int f(int a,int b,int c);
+int n;
 enddecl
+
+int f(int a,int b,int c){
+  decl
+  enddecl
+  begin
+  a = 5;
+  b = 3;
+  c = 2;
+  return a*b+c;
+  end;
+}
 
 int main(){
   decl
   enddecl
+
   begin
+  n = 5;
+  ar[0] = 100;
 
-  a = 4;
-  b = 6;
-
-  p = &a;
-  
-  c = p;
-
-  write(*c);
 
   end;
 }
-

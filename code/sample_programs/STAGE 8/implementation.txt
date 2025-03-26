@@ -13,6 +13,7 @@ Person{
     decl
     enddecl
     begin
+    write("here!");
     write(self.name);
     write(self.age);
     return 1;
@@ -43,7 +44,7 @@ Student extends Person{
   decl
   int rollnumber;
   str dept;
-  int printDetails();
+  int printDetails(int a);
   int createStudent(str name,int age,int rollNo,str dept);
   enddecl
 
@@ -59,10 +60,12 @@ Student extends Person{
     end;
   }
 
-  int printDetails(){
+  int printDetails(int a){
     decl
     enddecl
     begin
+    write("hello");
+    write(a);
     write(self.name);
     write(self.age);
     write(self.rollnumber);
@@ -97,14 +100,8 @@ int main(){
   second = new(Student);
   temp = second.createStudent("Mathew",35,999,"CS");
 
-  read(n);
-  if( n > 0 ) then
-    arbitrary = first;
-  else
-    arbitrary = second;
-  endif;
+  x = second.printDetails(5);
 
-  n = arbitrary.printDetails();
 
   end;
 

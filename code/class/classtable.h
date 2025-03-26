@@ -14,6 +14,7 @@ struct classtable{
   struct classmember* classmember;
   struct classmethod* classmethod;
   struct classtable* parentPtr;
+  struct classtable* childPtr;
   int classIndex;
   int memberCount;
   int methodCount;
@@ -21,6 +22,8 @@ struct classtable{
 };
 
 struct TreeNode;
+
+struct TreeNode* init_dummy(void);
 
 struct classtable* createCNode(char* name,struct classtable* parentPtr);
 

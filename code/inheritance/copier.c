@@ -19,6 +19,7 @@ void copyMethods(struct classtable* child,struct classtable* parent){
 
     // ------------------------------ creating new node --------------------------------
     struct classmethod* temp = (struct classmethod*)malloc(sizeof(struct classmethod));
+    printf("Coped method named %s\n",parent_method->name);
     temp->name = parent_method->name;
     temp->type = parent_method->type;
     temp->param = parent_method->param;
@@ -45,6 +46,7 @@ void copyMethods(struct classtable* child,struct classtable* parent){
 
   // add them to the methodcount
   child->methodCount = parent->methodCount;
+
 
 }
 

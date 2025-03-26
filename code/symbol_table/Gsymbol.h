@@ -27,17 +27,22 @@ struct Gsymbol{
   bool defined;
 
   struct Gsymbol* next;
-
+  
+  //distinguish functions, variables, arrays
+  int isFunction;
+  int isVariable;
+  int isArray;
+  int isPointer;
 };
 
 
 // CREATING A NODE
 
-struct Gsymbol* createGNode(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction,int isPointer);
+struct Gsymbol* createGNode(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction,int isPointer,int isVariable,int isArray);
 
 // ADDING IT TO LL
 
-void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction,int isPointer);
+void addGSymbol(char* name,struct typetable* type,struct classtable* Ctype,int rowSize,int colSize,struct paramlist* param,int isFunction,int isPointer,int isVariable,int isArray);
 
 
 // LOOKUP DETAILS BASED ON NAME

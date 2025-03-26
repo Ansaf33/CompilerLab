@@ -6,6 +6,14 @@
 #include "classmember.h"
 #include "../AST.h"
 
+
+struct TreeNode* init_dummy(){
+  struct TreeNode* dummy = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+
+  dummy->type = lookTTUp("null");
+  return dummy;
+}
+
 static int classIndex = 0;
 struct classtable* Chead = NULL;
 
@@ -17,6 +25,9 @@ struct classtable* createCNode(char* name,struct classtable* parentPtr){
   strcpy(temp->name,name);
 
   temp->parentPtr = parentPtr;
+  if( parentPtr ){
+    temp->parentPtr->childPtr = temp;
+  }
   temp->classIndex = classIndex++;
   temp->memberCount = 0;
   temp->methodCount = 0;
@@ -63,10 +74,11 @@ struct classmember* addMemberToClass(struct classtable* c,struct typetable* type
 
 struct classmethod* addMethodToClass(struct classtable* c,struct typetable* type,char* name,struct paramlist* param){
 
-  struct classmethod* inParent = lookMethodInClassUp(c->parentPtr,name,param,NULL);
+  struct classmethod* inParent = lookMethodInClassUp(c->parentPtr,name,param,init_dummy());
 
   if( inParent ){
-    struct classmethod* inChild = lookMethodInClassUp(c,name,param,NULL);
+    printf("function %s already present in parent\n",name);
+    struct classmethod* inChild = lookMethodInClassUp(c,name,param,init_dummy());
     inChild->mLabel = incrementmLabel();
   }
   else{
@@ -97,10 +109,18 @@ struct classmember* lookMemberInClassUp(struct classtable* c,char* name){
 }
 
 struct classmethod* lookMethodInClassUp(struct classtable* c,char* name,struct paramlist* p,struct TreeNode* a){
-  if( c ){
-    return lookMethodUp(c->classmethod,name,p,a);
+  struct classtable* cl = c;
+  struct classmethod* meth = NULL;
+  while( cl ){
+    meth = lookMethodUp(cl->classmethod,name,p,a);
+    if( meth ){
+      printf("Returning true\n");
+      return meth;
+    }
+    cl = cl->childPtr;
+    printf("Going to child\n");
   }
-  return NULL;
+  return meth;
 }
 
 
@@ -125,7 +145,7 @@ void printClass(struct classtable* c){
 void checkDeclDef(struct classtable* c,struct typetable* type,char* name,struct paramlist* param){
 
   // check if method is declared
-  struct classmethod* method = lookMethodInClassUp(c,name,param,NULL);
+  struct classmethod* method = lookMethodInClassUp(c,name,param,init_dummy());
 
   if( method == NULL ){
     printf("Method | %s | not declared in class.\n",name);
@@ -142,9 +162,10 @@ void checkDeclDef(struct classtable* c,struct typetable* type,char* name,struct 
     exit(1);
   }
 
-
+/*
   struct paramlist* defined = param;
   struct paramlist* declared = method->param;
+
 
   while( defined && declared ){
   
@@ -165,6 +186,7 @@ void checkDeclDef(struct classtable* c,struct typetable* type,char* name,struct 
     printf("Defined size does not match Declared size of function | %s |\n",name);
     exit(1);
   }
+  */
 
 }
 

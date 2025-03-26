@@ -66,6 +66,7 @@ void columnOverflowCheck(FILE* f,int resReg,struct TreeNode* root){
 // ----------------------------------------------------------------------------------------------- NOT ALLOCATED CODEGEN
 
 void notAllocatedCheck(FILE* f,int dynamic_start){
+      // check if value is between 1024 and 2048
       int zReg = getReg();
       fprintf(f,"MOV R%d, %d\n",zReg,0);
       fprintf(f,"EQ R%d, R%d\n",zReg,dynamic_start);
@@ -831,6 +832,7 @@ void define_function_codeGen(FILE* f,char* name,struct TreeNode* root){
   struct Lsymbol* cur = getLHead();
   while( cur != NULL ){
     int reg = getReg();
+    fprintf(f,"MOV R%d, 0\n",reg);
     fprintf(f,"PUSH R%d\n",reg);
     freeReg();
     cur = cur->next;
@@ -930,6 +932,7 @@ void popArgs(FILE* f,struct TreeNode* head){
 
 int initialize_codeGen(FILE* f){
 
+  fprintf(f,"BRKP\n");
   // pushing used registers
   pushRegisters(f);
 
@@ -945,6 +948,8 @@ int initialize_codeGen(FILE* f){
 
   // pop used registers
   popRegisters(f);
+
+  fprintf(f,"BRKP\n");
 
   return returnReg;
 }
@@ -1101,7 +1106,8 @@ int invoke_method_codeGen(FILE* f,struct TreeNode* root){
     c = root->Ctype;
   }
 
-  struct classmethod* method = lookMethodInClassUp(c,root->middle->methodName,NULL,root->middle->argList);
+  struct classmethod* method = lookMethodInClassUp(c,root->middle->methodName,init_dummy_param(),root->middle->argList);
+
 
   // pushing member field pointer
   int adReg = getSymbolAddress(f,head);
@@ -1171,7 +1177,7 @@ void define_method_codeGen(FILE* f,struct classtable* c,char* name,struct paraml
   class = c;
 
   // get the label
-  struct classmethod* method = lookMethodInClassUp(c,name,param,NULL);
+  struct classmethod* method = lookMethodInClassUp(c,name,param,init_dummy());
   fprintf(f,"M%d:\n",method->mLabel);
 
   // push base pointer
@@ -1250,7 +1256,6 @@ void delete_codeGen(FILE* f,struct TreeNode* root){
       fprintf(f,"ADD R%d, %d\n",dynamic_reg,memberlist->memberIndex);
       fprintf(f,"MOV [R%d], 0\n",dynamic_reg);
       freeReg();
-
 
 
     }
